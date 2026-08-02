@@ -30,7 +30,7 @@ import {
 import { STORE } from "@/lib/store-data";
 
 const nav = [
-  { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard, exact: true },
+  { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
   { label: "Products", to: "/dashboard/products", icon: Box },
   { label: "Add product", to: "/dashboard/new-product", icon: Plus },
   { label: "Orders", to: "/dashboard/orders", icon: Receipt },
@@ -44,7 +44,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <nav className="flex flex-col gap-0.5">
       {nav.map((item) => {
-        const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
+        const active = item.to === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.to);
         return (
           <Link
             key={item.to}
