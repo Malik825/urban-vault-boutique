@@ -31,14 +31,14 @@ export type Product = {
   brand: string;
   category: string;
   price: number;
-  compareAt?: number;
+  compareAt?: number | undefined;
   rating: number;
   reviews: number;
   stock: number;
   condition: Condition;
   images: string[];
   status: "Published" | "Draft" | "Archived";
-  badge?: "Flash deal" | "New" | "Best seller";
+  badge?: "Flash deal" | "New" | "Best seller" | undefined;
   views: number;
   blurb: string;
   specs: Record<string, string>;
@@ -72,7 +72,7 @@ function make(
   stock: number,
   condition: Condition,
   specs: Record<string, string>,
-  badge?: Product["badge"],
+  badge?: Product["badge"] | undefined,
   status: Product["status"] = "Published",
 ): Product {
   const cover = img[category];
