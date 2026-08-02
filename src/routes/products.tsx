@@ -31,20 +31,20 @@ import { SiteHeader } from "@/components/storefront/site-header";
 import { filterOptions, formatPrice, products } from "@/lib/store-data";
 
 type ProductSearch = {
-  q?: string;
-  brand?: string;
-  category?: string;
-  deals?: boolean;
-  sort?: string;
+  q?: string | undefined;
+  brand?: string | undefined;
+  category?: string | undefined;
+  deals?: boolean | undefined;
+  sort?: string | undefined;
 };
 
 export const Route = createFileRoute("/products")({
   validateSearch: (search: Record<string, unknown>): ProductSearch => ({
-    q: typeof search.q === "string" ? search.q : undefined,
-    brand: typeof search.brand === "string" ? search.brand : undefined,
-    category: typeof search.category === "string" ? search.category : undefined,
-    deals: search.deals === true || search.deals === "true" ? true : undefined,
-    sort: typeof search.sort === "string" ? search.sort : undefined,
+    q: typeof search["q"] === "string" ? (search["q"] as string) : undefined,
+    brand: typeof search["brand"] === "string" ? (search["brand"] as string) : undefined,
+    category: typeof search["category"] === "string" ? (search["category"] as string) : undefined,
+    deals: search["deals"] === true || search["deals"] === "true" ? true : undefined,
+    sort: typeof search["sort"] === "string" ? (search["sort"] as string) : undefined,
   }),
   head: () => ({
     meta: [
@@ -113,13 +113,13 @@ function Listing() {
         has("brand", p.brand) &&
         has("category", p.category) &&
         has("condition", p.condition) &&
-        (sel.ram?.length ? sel.ram.includes(p.specs.RAM ?? "") : true) &&
-        (sel.storage?.length ? sel.storage.includes(p.specs.Storage ?? "") : true) &&
-        (sel.processor?.length
-          ? sel.processor.some((v) => (p.specs.Processor ?? "").includes(v))
+        (sel["ram"]?.length ? sel["ram"].includes(p.specs["RAM"] ?? "") : true) &&
+        (sel["storage"]?.length ? sel["storage"].includes(p.specs["Storage"] ?? "") : true) &&
+        (sel["processor"]?.length
+          ? sel["processor"].some((v) => (p.specs["Processor"] ?? "").includes(v))
           : true) &&
-        (sel.screen?.length ? sel.screen.includes(p.specs["Screen Size"] ?? "") : true) &&
-        (sel.availability?.includes("In stock") ? p.stock > 0 : true) &&
+        (sel["screen"]?.length ? sel["screen"].includes(p.specs["Screen Size"] ?? "") : true) &&
+        (sel["availability"]?.includes("In stock") ? p.stock > 0 : true) &&
         p.price >= price[0]! &&
         p.price <= price[1]!,
     );
@@ -247,7 +247,7 @@ function Listing() {
                 setQuery(e.target.value);
                 navigate({
                   to: "/products",
-                  search: (prev) => ({ ...prev, q: e.target.value || undefined }),
+                  search: (prev: ProductSearch) => ({ ...prev, q: e.target.value || undefined }),
                   replace: true,
                 });
               }}

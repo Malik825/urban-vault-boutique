@@ -90,7 +90,7 @@ function ProductDetail() {
               />
             </div>
             <div className="mt-3 flex gap-3">
-              {product.images.map((im, i) => (
+              {product.images.map((im: string, i: number) => (
                 <button
                   key={i}
                   onClick={() => setActive(i)}
@@ -210,7 +210,7 @@ function ProductDetail() {
               </div>
 
               <dl className="mt-6 grid grid-cols-2 gap-3">
-                {Object.entries(product.specs)
+                {(Object.entries(product.specs) as [string, string][])
                   .slice(0, 4)
                   .map(([k, v]) => (
                     <div key={k} className="rounded-xl border border-border bg-surface-muted p-3">
@@ -264,7 +264,7 @@ function ProductDetail() {
               <div className="max-w-3xl overflow-hidden rounded-2xl border border-border">
                 <table className="w-full text-sm">
                   <tbody>
-                    {Object.entries(product.specs).map(([k, v], i) => (
+                    {(Object.entries(product.specs) as [string, string][]).map(([k, v], i) => (
                       <tr key={k} className={i % 2 ? "bg-surface-muted" : "bg-surface"}>
                         <th className="w-1/3 px-4 py-3 text-left font-medium text-muted-foreground">
                           {k}
