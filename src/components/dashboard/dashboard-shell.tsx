@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   BarChart3,
   Bell,
   Box,
   LayoutDashboard,
   LayoutGrid,
+  LogOut,
   Menu,
   Plus,
   Receipt,
@@ -13,6 +15,7 @@ import {
   Settings,
   Store,
   Users,
+  Warehouse,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -27,11 +30,13 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { supabase } from "@/integrations/supabase/client";
 import { STORE } from "@/lib/store-data";
 
 const nav = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
   { label: "Products", to: "/dashboard/products", icon: Box },
+  { label: "Inventory", to: "/dashboard/inventory", icon: Warehouse },
   { label: "Add product", to: "/dashboard/new-product", icon: Plus },
   { label: "Orders", to: "/dashboard/orders", icon: Receipt },
   { label: "Customers", to: "/dashboard/customers", icon: Users },

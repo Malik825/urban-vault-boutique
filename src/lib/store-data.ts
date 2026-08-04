@@ -6,8 +6,8 @@ import accessoriesImg from "@/assets/accessories.jpg";
 export const STORE = {
   name: "Voltix",
   tagline: "Electronics retail, beautifully online",
-  whatsapp: "+234 801 234 5678",
-  whatsappRaw: "2348012345678",
+  whatsapp: "+233 25 782 5866",
+  whatsappRaw: "233257825866",
   email: "hello@voltix.store",
   city: "Lagos, Nigeria",
 };
