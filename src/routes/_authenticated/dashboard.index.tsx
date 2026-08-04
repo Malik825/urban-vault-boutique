@@ -30,7 +30,7 @@ import { Separator } from "@/components/ui/separator";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { activity, brands, formatPrice, orders, products, revenueSeries, trafficSeries } from "@/lib/store-data";
 
-export const Route = createFileRoute("/dashboard/")({
+export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({
     meta: [
       { title: "Seller dashboard — Voltix inventory & revenue" },

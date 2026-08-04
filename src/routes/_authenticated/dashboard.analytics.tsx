@@ -17,7 +17,7 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Panel } from "./dashboard.index";
 import { products, revenueSeries, searchTerms, trafficSeries } from "@/lib/store-data";
 
-export const Route = createFileRoute("/dashboard/analytics")({
+export const Route = createFileRoute("/_authenticated/dashboard/analytics")({
   head: () => ({
     meta: [
       { title: "Analytics — Voltix sales, traffic & conversion" },

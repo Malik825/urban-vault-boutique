@@ -28,7 +28,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ProductCard } from "@/components/storefront/product-card";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { SiteHeader } from "@/components/storefront/site-header";
-import { filterOptions, formatPrice, products } from "@/lib/store-data";
+import { filterOptions, formatPrice } from "@/lib/store-data";
+import { listPublishedProducts } from "@/lib/catalog.functions";
+import type { CatalogProduct } from "@/lib/catalog";
 
 type ProductSearch = {
   q?: string | undefined;
@@ -61,12 +63,14 @@ export const Route = createFileRoute("/products")({
       },
     ],
   }),
+  loader: async (): Promise<CatalogProduct[]> => listPublishedProducts(),
   component: Listing,
 });
 
 const MAX_PRICE = 2800000;
 
 function Listing() {
+  const products: CatalogProduct[] = Route.useLoaderData();
   const search = Route.useSearch();
   const navigate = useNavigate();
 

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { customers, formatPrice } from "@/lib/store-data";
 
-export const Route = createFileRoute("/dashboard/customers")({
+export const Route = createFileRoute("/_authenticated/dashboard/customers")({
   head: () => ({
     meta: [
       { title: "Customers — Voltix seller dashboard" },

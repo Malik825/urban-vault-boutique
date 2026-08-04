@@ -27,7 +27,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { formatPrice, products, type Product } from "@/lib/store-data";
 
-export const Route = createFileRoute("/dashboard/products")({
+export const Route = createFileRoute("/_authenticated/dashboard/products")({
   head: () => ({
     meta: [
       { title: "Products — Voltix seller dashboard" },
