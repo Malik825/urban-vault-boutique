@@ -61,12 +61,14 @@ export const Route = createFileRoute("/products")({
       },
     ],
   }),
+  loader: () => listPublishedProducts(),
   component: Listing,
 });
 
 const MAX_PRICE = 2800000;
 
 function Listing() {
+  const products = Route.useLoaderData();
   const search = Route.useSearch();
   const navigate = useNavigate();
 
