@@ -326,7 +326,7 @@ function ProductDetail() {
   );
 }
 
-function Rail({ title, items }: { title: string; items: typeof products }) {
+function Rail({ title, items }: { title: string; items: CatalogProduct[] }) {
   if (items.length === 0) return null;
   return (
     <section className="mt-16">
