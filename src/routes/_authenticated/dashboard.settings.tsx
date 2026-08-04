@@ -11,7 +11,7 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Panel } from "./dashboard.index";
 import { STORE } from "@/lib/store-data";
 
-export const Route = createFileRoute("/dashboard/settings")({
+export const Route = createFileRoute("/_authenticated/dashboard/settings")({
   head: () => ({
     meta: [
       { title: "Store settings — Voltix branding, WhatsApp & SEO" },

@@ -18,7 +18,7 @@ import {
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { brands, categories } from "@/lib/store-data";
 
-export const Route = createFileRoute("/dashboard/new-product")({
+export const Route = createFileRoute("/_authenticated/dashboard/new-product")({
   head: () => ({
     meta: [
       { title: "Add a product — Voltix seller dashboard" },

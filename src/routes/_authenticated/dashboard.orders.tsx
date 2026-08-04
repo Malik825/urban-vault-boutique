@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { formatPrice, orders } from "@/lib/store-data";
 
-export const Route = createFileRoute("/dashboard/orders")({
+export const Route = createFileRoute("/_authenticated/dashboard/orders")({
   head: () => ({
     meta: [
       { title: "Orders — Voltix seller dashboard" },
