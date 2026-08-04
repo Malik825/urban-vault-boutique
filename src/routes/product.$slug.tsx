@@ -59,16 +59,14 @@ export const Route = createFileRoute("/product/$slug")({
 });
 
 function ProductDetail() {
-  const { product } = Route.useLoaderData();
+  const { product, related, suggested, recent } = Route.useLoaderData();
   const [active, setActive] = useState(0);
   const [saved, setSaved] = useState(false);
 
   const discount = product.compareAt
     ? Math.round(((product.compareAt - product.price) / product.compareAt) * 100)
     : 0;
-  const related = products.filter((p) => p.id !== product.id && p.brand === product.brand).slice(0, 4);
-  const suggested = products.filter((p) => p.id !== product.id && p.category === product.category).slice(0, 4);
-  const recent = products.filter((p) => p.id !== product.id).slice(6, 10);
+  const specGroups = groupSpecs(product.specs);
 
   return (
     <div className="min-h-screen bg-background">
