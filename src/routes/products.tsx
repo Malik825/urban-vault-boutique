@@ -62,7 +62,7 @@ export const Route = createFileRoute("/products")({
       },
     ],
   }),
-  loader: () => listPublishedProducts(),
+  loader: async (): Promise<CatalogProduct[]> => listPublishedProducts(),
   component: Listing,
 });
 
