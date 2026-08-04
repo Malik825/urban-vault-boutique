@@ -19,13 +19,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductCard } from "@/components/storefront/product-card";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { SiteHeader } from "@/components/storefront/site-header";
-import { formatPrice, products, reviews, whatsappLink } from "@/lib/store-data";
+import { formatPrice, reviews, whatsappLink } from "@/lib/store-data";
+import { groupSpecs, type CatalogProduct } from "@/lib/catalog";
+import { listPublishedProducts } from "@/lib/catalog.functions";
 
 export const Route = createFileRoute("/product/$slug")({
-  loader: ({ params }) => {
-    const product = products.find((p) => p.slug === params.slug);
+  loader: async ({ params }) => {
+    const catalog = await listPublishedProducts();
+    const product = catalog.find((p) => p.slug === params.slug);
     if (!product) throw notFound();
-    return { product };
+    return {
+      product,
+      related: catalog.filter((p) => p.id !== product.id && p.brand === product.brand).slice(0, 4),
+      suggested: catalog
+        .filter((p) => p.id !== product.id && p.category === product.category)
+        .slice(0, 4),
+      recent: catalog.filter((p) => p.id !== product.id).slice(6, 10),
+    };
   },
   head: ({ loaderData }) => {
     if (!loaderData)
