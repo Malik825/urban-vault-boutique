@@ -11,11 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as AuthenticatedDashboardAnalyticsRouteImport } from './routes/_authenticated/dashboard.analytics'
 import { Route as AuthenticatedDashboardCustomersRouteImport } from './routes/_authenticated/dashboard.customers'
+import { Route as AuthenticatedDashboardInventoryRouteImport } from './routes/_authenticated/dashboard.inventory'
 import { Route as AuthenticatedDashboardNewProductRouteImport } from './routes/_authenticated/dashboard.new-product'
 import { Route as AuthenticatedDashboardOrdersRouteImport } from './routes/_authenticated/dashboard.orders'
 import { Route as AuthenticatedDashboardProductsRouteImport } from './routes/_authenticated/dashboard.products'
@@ -28,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsRoute = ProductsRouteImport.update({
@@ -58,6 +65,12 @@ const AuthenticatedDashboardCustomersRoute =
     path: '/dashboard/customers',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDashboardInventoryRoute =
+  AuthenticatedDashboardInventoryRouteImport.update({
+    id: '/dashboard/inventory',
+    path: '/dashboard/inventory',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDashboardNewProductRoute =
   AuthenticatedDashboardNewProductRouteImport.update({
     id: '/dashboard/new-product',
@@ -85,10 +98,12 @@ const AuthenticatedDashboardSettingsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/products': typeof ProductsRoute
   '/product/$slug': typeof ProductSlugRoute
   '/dashboard/analytics': typeof AuthenticatedDashboardAnalyticsRoute
   '/dashboard/customers': typeof AuthenticatedDashboardCustomersRoute
+  '/dashboard/inventory': typeof AuthenticatedDashboardInventoryRoute
   '/dashboard/new-product': typeof AuthenticatedDashboardNewProductRoute
   '/dashboard/orders': typeof AuthenticatedDashboardOrdersRoute
   '/dashboard/products': typeof AuthenticatedDashboardProductsRoute
@@ -97,10 +112,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/products': typeof ProductsRoute
   '/product/$slug': typeof ProductSlugRoute
   '/dashboard/analytics': typeof AuthenticatedDashboardAnalyticsRoute
   '/dashboard/customers': typeof AuthenticatedDashboardCustomersRoute
+  '/dashboard/inventory': typeof AuthenticatedDashboardInventoryRoute
   '/dashboard/new-product': typeof AuthenticatedDashboardNewProductRoute
   '/dashboard/orders': typeof AuthenticatedDashboardOrdersRoute
   '/dashboard/products': typeof AuthenticatedDashboardProductsRoute
@@ -111,10 +128,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
   '/products': typeof ProductsRoute
   '/product/$slug': typeof ProductSlugRoute
   '/_authenticated/dashboard/analytics': typeof AuthenticatedDashboardAnalyticsRoute
   '/_authenticated/dashboard/customers': typeof AuthenticatedDashboardCustomersRoute
+  '/_authenticated/dashboard/inventory': typeof AuthenticatedDashboardInventoryRoute
   '/_authenticated/dashboard/new-product': typeof AuthenticatedDashboardNewProductRoute
   '/_authenticated/dashboard/orders': typeof AuthenticatedDashboardOrdersRoute
   '/_authenticated/dashboard/products': typeof AuthenticatedDashboardProductsRoute
@@ -125,10 +144,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/products'
     | '/product/$slug'
     | '/dashboard/analytics'
     | '/dashboard/customers'
+    | '/dashboard/inventory'
     | '/dashboard/new-product'
     | '/dashboard/orders'
     | '/dashboard/products'
@@ -137,10 +158,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/products'
     | '/product/$slug'
     | '/dashboard/analytics'
     | '/dashboard/customers'
+    | '/dashboard/inventory'
     | '/dashboard/new-product'
     | '/dashboard/orders'
     | '/dashboard/products'
@@ -150,10 +173,12 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/auth'
     | '/products'
     | '/product/$slug'
     | '/_authenticated/dashboard/analytics'
     | '/_authenticated/dashboard/customers'
+    | '/_authenticated/dashboard/inventory'
     | '/_authenticated/dashboard/new-product'
     | '/_authenticated/dashboard/orders'
     | '/_authenticated/dashboard/products'
@@ -164,6 +189,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
   ProductsRoute: typeof ProductsRoute
   ProductSlugRoute: typeof ProductSlugRoute
 }
@@ -182,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products': {
@@ -219,6 +252,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardCustomersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dashboard/inventory': {
+      id: '/_authenticated/dashboard/inventory'
+      path: '/dashboard/inventory'
+      fullPath: '/dashboard/inventory'
+      preLoaderRoute: typeof AuthenticatedDashboardInventoryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard/new-product': {
       id: '/_authenticated/dashboard/new-product'
       path: '/dashboard/new-product'
@@ -253,6 +293,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardAnalyticsRoute: typeof AuthenticatedDashboardAnalyticsRoute
   AuthenticatedDashboardCustomersRoute: typeof AuthenticatedDashboardCustomersRoute
+  AuthenticatedDashboardInventoryRoute: typeof AuthenticatedDashboardInventoryRoute
   AuthenticatedDashboardNewProductRoute: typeof AuthenticatedDashboardNewProductRoute
   AuthenticatedDashboardOrdersRoute: typeof AuthenticatedDashboardOrdersRoute
   AuthenticatedDashboardProductsRoute: typeof AuthenticatedDashboardProductsRoute
@@ -263,6 +304,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardAnalyticsRoute: AuthenticatedDashboardAnalyticsRoute,
   AuthenticatedDashboardCustomersRoute: AuthenticatedDashboardCustomersRoute,
+  AuthenticatedDashboardInventoryRoute: AuthenticatedDashboardInventoryRoute,
   AuthenticatedDashboardNewProductRoute: AuthenticatedDashboardNewProductRoute,
   AuthenticatedDashboardOrdersRoute: AuthenticatedDashboardOrdersRoute,
   AuthenticatedDashboardProductsRoute: AuthenticatedDashboardProductsRoute,
@@ -276,6 +318,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
   ProductsRoute: ProductsRoute,
   ProductSlugRoute: ProductSlugRoute,
 }

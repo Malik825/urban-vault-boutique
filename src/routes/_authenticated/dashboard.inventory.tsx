@@ -108,7 +108,7 @@ function InventoryPage() {
             Movement reason
           </Label>
           <Select value={reason} onValueChange={(v) => setReason(v as typeof reason)}>
-            <SelectTrigger id="reason" size="sm" className="w-[140px] capitalize">
+            <SelectTrigger id="reason" className="h-9 w-[140px] capitalize">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
