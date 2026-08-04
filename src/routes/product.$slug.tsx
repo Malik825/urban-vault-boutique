@@ -269,27 +269,61 @@ function ProductDetail() {
             </TabsContent>
 
             <TabsContent value="specs" className="mt-6">
-              <div className="max-w-3xl overflow-hidden rounded-2xl border border-border">
-                <table className="w-full text-sm">
-                  <tbody>
-                    {(Object.entries(product.specs) as [string, string][]).map(([k, v], i) => (
-                      <tr key={k} className={i % 2 ? "bg-surface-muted" : "bg-surface"}>
-                        <th className="w-1/3 px-4 py-3 text-left font-medium text-muted-foreground">
-                          {k}
+              <div className="grid max-w-4xl gap-4 sm:grid-cols-2">
+                {specGroups.map((g) => (
+                  <div
+                    key={g.label}
+                    className="overflow-hidden rounded-lg border border-border/70 bg-card transition-shadow duration-300 hover:shadow-card"
+                  >
+                    <p className="border-b border-border/70 bg-surface-muted px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      {g.label}
+                    </p>
+                    <table className="w-full text-sm">
+                      <tbody>
+                        {g.rows.map((row) => (
+                          <tr key={row.key} className="border-b border-border/50 last:border-0">
+                            <th className="w-1/2 px-4 py-2.5 text-left font-medium text-muted-foreground">
+                              {row.key}
+                            </th>
+                            <td className="px-4 py-2.5 font-semibold">{row.value}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
+                <div className="overflow-hidden rounded-lg border border-border/70 bg-card">
+                  <p className="border-b border-border/70 bg-surface-muted px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Listing
+                  </p>
+                  <table className="w-full text-sm">
+                    <tbody>
+                      <tr className="border-b border-border/50">
+                        <th className="w-1/2 px-4 py-2.5 text-left font-medium text-muted-foreground">
+                          Condition
                         </th>
-                        <td className="px-4 py-3 font-semibold">{v}</td>
+                        <td className="px-4 py-2.5 font-semibold">{product.condition}</td>
                       </tr>
-                    ))}
-                    <tr className="bg-surface">
-                      <th className="px-4 py-3 text-left font-medium text-muted-foreground">
-                        Condition
-                      </th>
-                      <td className="px-4 py-3 font-semibold">{product.condition}</td>
-                    </tr>
-                  </tbody>
-                </table>
+                      <tr className="border-b border-border/50">
+                        <th className="px-4 py-2.5 text-left font-medium text-muted-foreground">
+                          Brand
+                        </th>
+                        <td className="px-4 py-2.5 font-semibold">{product.brand}</td>
+                      </tr>
+                      <tr>
+                        <th className="px-4 py-2.5 text-left font-medium text-muted-foreground">
+                          Availability
+                        </th>
+                        <td className="px-4 py-2.5 font-semibold">
+                          {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </TabsContent>
+
 
             <TabsContent value="reviews" className="mt-6">
               <div className="grid max-w-4xl gap-4 md:grid-cols-2">
