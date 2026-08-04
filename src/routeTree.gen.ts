@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
@@ -25,6 +26,10 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
@@ -37,45 +42,45 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
 } as any)
 const AuthenticatedDashboardIndexRoute =
   AuthenticatedDashboardIndexRouteImport.update({
-    id: '/_authenticated/dashboard/',
+    id: '/dashboard/',
     path: '/dashboard/',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedDashboardAnalyticsRoute =
   AuthenticatedDashboardAnalyticsRouteImport.update({
-    id: '/_authenticated/dashboard/analytics',
+    id: '/dashboard/analytics',
     path: '/dashboard/analytics',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedDashboardCustomersRoute =
   AuthenticatedDashboardCustomersRouteImport.update({
-    id: '/_authenticated/dashboard/customers',
+    id: '/dashboard/customers',
     path: '/dashboard/customers',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedDashboardNewProductRoute =
   AuthenticatedDashboardNewProductRouteImport.update({
-    id: '/_authenticated/dashboard/new-product',
+    id: '/dashboard/new-product',
     path: '/dashboard/new-product',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedDashboardOrdersRoute =
   AuthenticatedDashboardOrdersRouteImport.update({
-    id: '/_authenticated/dashboard/orders',
+    id: '/dashboard/orders',
     path: '/dashboard/orders',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedDashboardProductsRoute =
   AuthenticatedDashboardProductsRouteImport.update({
-    id: '/_authenticated/dashboard/products',
+    id: '/dashboard/products',
     path: '/dashboard/products',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedDashboardSettingsRoute =
   AuthenticatedDashboardSettingsRouteImport.update({
-    id: '/_authenticated/dashboard/settings',
+    id: '/dashboard/settings',
     path: '/dashboard/settings',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -105,6 +110,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/products': typeof ProductsRoute
   '/product/$slug': typeof ProductSlugRoute
   '/_authenticated/dashboard/analytics': typeof AuthenticatedDashboardAnalyticsRoute
@@ -143,6 +149,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/products'
     | '/product/$slug'
     | '/_authenticated/dashboard/analytics'
@@ -156,15 +163,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ProductsRoute: typeof ProductsRoute
   ProductSlugRoute: typeof ProductSlugRoute
-  AuthenticatedDashboardAnalyticsRoute: typeof AuthenticatedDashboardAnalyticsRoute
-  AuthenticatedDashboardCustomersRoute: typeof AuthenticatedDashboardCustomersRoute
-  AuthenticatedDashboardNewProductRoute: typeof AuthenticatedDashboardNewProductRoute
-  AuthenticatedDashboardOrdersRoute: typeof AuthenticatedDashboardOrdersRoute
-  AuthenticatedDashboardProductsRoute: typeof AuthenticatedDashboardProductsRoute
-  AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRoute
-  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -174,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products': {
@@ -195,57 +203,64 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard/'
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard/analytics': {
       id: '/_authenticated/dashboard/analytics'
       path: '/dashboard/analytics'
       fullPath: '/dashboard/analytics'
       preLoaderRoute: typeof AuthenticatedDashboardAnalyticsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard/customers': {
       id: '/_authenticated/dashboard/customers'
       path: '/dashboard/customers'
       fullPath: '/dashboard/customers'
       preLoaderRoute: typeof AuthenticatedDashboardCustomersRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard/new-product': {
       id: '/_authenticated/dashboard/new-product'
       path: '/dashboard/new-product'
       fullPath: '/dashboard/new-product'
       preLoaderRoute: typeof AuthenticatedDashboardNewProductRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard/orders': {
       id: '/_authenticated/dashboard/orders'
       path: '/dashboard/orders'
       fullPath: '/dashboard/orders'
       preLoaderRoute: typeof AuthenticatedDashboardOrdersRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard/products': {
       id: '/_authenticated/dashboard/products'
       path: '/dashboard/products'
       fullPath: '/dashboard/products'
       preLoaderRoute: typeof AuthenticatedDashboardProductsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard/settings': {
       id: '/_authenticated/dashboard/settings'
       path: '/dashboard/settings'
       fullPath: '/dashboard/settings'
       preLoaderRoute: typeof AuthenticatedDashboardSettingsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  ProductsRoute: ProductsRoute,
-  ProductSlugRoute: ProductSlugRoute,
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardAnalyticsRoute: typeof AuthenticatedDashboardAnalyticsRoute
+  AuthenticatedDashboardCustomersRoute: typeof AuthenticatedDashboardCustomersRoute
+  AuthenticatedDashboardNewProductRoute: typeof AuthenticatedDashboardNewProductRoute
+  AuthenticatedDashboardOrdersRoute: typeof AuthenticatedDashboardOrdersRoute
+  AuthenticatedDashboardProductsRoute: typeof AuthenticatedDashboardProductsRoute
+  AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRoute
+  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardAnalyticsRoute: AuthenticatedDashboardAnalyticsRoute,
   AuthenticatedDashboardCustomersRoute: AuthenticatedDashboardCustomersRoute,
   AuthenticatedDashboardNewProductRoute: AuthenticatedDashboardNewProductRoute,
@@ -253,6 +268,16 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedDashboardProductsRoute: AuthenticatedDashboardProductsRoute,
   AuthenticatedDashboardSettingsRoute: AuthenticatedDashboardSettingsRoute,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  ProductsRoute: ProductsRoute,
+  ProductSlugRoute: ProductSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
