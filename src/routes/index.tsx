@@ -27,7 +27,9 @@ import {
 import { ProductCard } from "@/components/storefront/product-card";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { SiteHeader } from "@/components/storefront/site-header";
-import { brands, categories, products, reviews, popularSearches } from "@/lib/store-data";
+import { brands, categories, reviews, popularSearches } from "@/lib/store-data";
+import { listPublishedProducts } from "@/lib/catalog.functions";
+import type { CatalogProduct } from "@/lib/catalog";
 import heroImg from "@/assets/hero.jpg";
 
 export const Route = createFileRoute("/")({
