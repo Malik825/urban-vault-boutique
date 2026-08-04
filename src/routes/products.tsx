@@ -30,6 +30,7 @@ import { SiteFooter } from "@/components/storefront/site-footer";
 import { SiteHeader } from "@/components/storefront/site-header";
 import { filterOptions, formatPrice } from "@/lib/store-data";
 import { listPublishedProducts } from "@/lib/catalog.functions";
+import type { CatalogProduct } from "@/lib/catalog";
 
 type ProductSearch = {
   q?: string | undefined;
