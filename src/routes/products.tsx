@@ -28,7 +28,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ProductCard } from "@/components/storefront/product-card";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { SiteHeader } from "@/components/storefront/site-header";
-import { filterOptions, formatPrice, products } from "@/lib/store-data";
+import { filterOptions, formatPrice } from "@/lib/store-data";
+import { listPublishedProducts } from "@/lib/catalog.functions";
 
 type ProductSearch = {
   q?: string | undefined;
