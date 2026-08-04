@@ -132,17 +132,26 @@ export function DashboardShell({
           >
             <Store className="h-4 w-4" /> View storefront
           </Link>
-          <div className="mt-2 flex items-center gap-3 rounded-xl bg-surface-muted p-3">
+          <div className="mt-2 flex items-center gap-3 rounded-lg bg-surface-muted p-3">
             <Avatar className="h-8 w-8">
               <AvatarFallback className="bg-primary-soft text-xs font-bold text-accent-foreground">
-                AO
+                {(email ?? "S").slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div className="min-w-0">
-              <p className="truncate text-xs font-semibold">Ada Okafor</p>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-semibold">{email ?? "Signed in"}</p>
               <p className="truncate text-[11px] text-muted-foreground">Store owner</p>
             </div>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label="Sign out"
+              onClick={() => void signOut()}
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
           </div>
+
         </div>
       </aside>
 
