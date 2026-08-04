@@ -70,7 +70,7 @@ export const Route = createFileRoute("/products")({
 const MAX_PRICE = 2800000;
 
 function Listing() {
-  const products = Route.useLoaderData();
+  const products: CatalogProduct[] = Route.useLoaderData();
   const search = Route.useSearch();
   const navigate = useNavigate();
 
