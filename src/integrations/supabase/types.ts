@@ -14,7 +14,116 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      products: {
+        Row: {
+          badge: string | null
+          blurb: string
+          brand: string
+          category: string
+          compare_at: number | null
+          condition: string
+          created_at: string
+          id: string
+          low_stock_threshold: number
+          name: string
+          price: number
+          rating: number
+          reviews_count: number
+          sku: string
+          slug: string
+          specs: Json
+          status: string
+          stock: number
+          updated_at: string
+          views: number
+        }
+        Insert: {
+          badge?: string | null
+          blurb?: string
+          brand: string
+          category: string
+          compare_at?: number | null
+          condition?: string
+          created_at?: string
+          id?: string
+          low_stock_threshold?: number
+          name: string
+          price?: number
+          rating?: number
+          reviews_count?: number
+          sku: string
+          slug: string
+          specs?: Json
+          status?: string
+          stock?: number
+          updated_at?: string
+          views?: number
+        }
+        Update: {
+          badge?: string | null
+          blurb?: string
+          brand?: string
+          category?: string
+          compare_at?: number | null
+          condition?: string
+          created_at?: string
+          id?: string
+          low_stock_threshold?: number
+          name?: string
+          price?: number
+          rating?: number
+          reviews_count?: number
+          sku?: string
+          slug?: string
+          specs?: Json
+          status?: string
+          stock?: number
+          updated_at?: string
+          views?: number
+        }
+        Relationships: []
+      }
+      stock_movements: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          delta: number
+          id: string
+          note: string | null
+          product_id: string
+          reason: string
+          resulting_stock: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          delta: number
+          id?: string
+          note?: string | null
+          product_id: string
+          reason?: string
+          resulting_stock: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          delta?: number
+          id?: string
+          note?: string | null
+          product_id?: string
+          reason?: string
+          resulting_stock?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_movements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
