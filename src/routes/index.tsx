@@ -49,10 +49,12 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: async (): Promise<CatalogProduct[]> => listPublishedProducts(),
   component: Landing,
 });
 
 function Landing() {
+  const products: CatalogProduct[] = Route.useLoaderData();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
 
