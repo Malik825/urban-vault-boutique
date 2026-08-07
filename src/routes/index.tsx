@@ -70,8 +70,9 @@ function Landing() {
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-mesh">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 pb-14 pt-12 sm:px-6 md:pb-20 md:pt-20 lg:grid-cols-[1.05fr_1fr]">
-          <div className="animate-fade-up">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 pb-14 pt-12 sm:px-6 md:pb-20 md:pt-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+          <div className="min-w-0 animate-fade-up">
+
             <Badge variant="outline" className="glass rounded-full border px-3 py-1.5 text-xs">
               <Sparkles className="mr-1.5 h-3.5 w-3.5 text-primary" />
               1,400+ verified devices · updated hourly
