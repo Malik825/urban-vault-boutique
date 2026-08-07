@@ -31,6 +31,8 @@ import { brands, categories, reviews, popularSearches } from "@/lib/store-data";
 import { listPublishedProducts } from "@/lib/catalog.functions";
 import type { CatalogProduct } from "@/lib/catalog";
 import { Reveal } from "@/components/reveal";
+import { LandingSkeleton, ProductGridSkeleton } from "@/components/storefront/product-skeletons";
+
 import heroImg from "@/assets/hero.jpg";
 
 export const Route = createFileRoute("/")({
