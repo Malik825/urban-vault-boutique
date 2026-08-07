@@ -19,8 +19,9 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -239,20 +240,30 @@
 }
 
 @utility text-gradient-brand {
-  background-image: linear-gradient(
-    100deg,
-    var(--primary-dark),
-    var(--primary-deep) 45%,
-    var(--primary)
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--primary-deep);
 }
 
 @utility bg-brand-gradient {
-  background-image: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background-color: var(--primary);
 }
+
+@utility reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  &[data-shown="true"] {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 
 @utility bg-mesh {
   background-image:

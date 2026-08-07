@@ -12,11 +12,12 @@ export const STORE = {
   city: "Lagos, Nigeria",
 };
 
-export const CURRENCY = "₦";
+export const CURRENCY = "GH₵";
 
 export function formatPrice(value: number) {
-  return `${CURRENCY}${value.toLocaleString("en-NG")}`;
+  return `${CURRENCY}${value.toLocaleString("en-GH")}`;
 }
+
 
 export function whatsappLink(message: string) {
   return `https://wa.me/${STORE.whatsappRaw}?text=${encodeURIComponent(message)}`;
