@@ -215,11 +215,18 @@ function Landing() {
               <Timer className="mr-1.5 h-3.5 w-3.5" /> Today only
             </Badge>
           </div>
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {deals.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
+          <div className="mt-8">
+            {deals.length === 0 ? (
+              <ProductGridSkeleton />
+            ) : (
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {deals.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </div>
+            )}
           </div>
+
         </Reveal>
       </section>
 
