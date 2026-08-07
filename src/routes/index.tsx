@@ -51,7 +51,10 @@ export const Route = createFileRoute("/")({
     ],
   }),
   loader: async (): Promise<CatalogProduct[]> => listPublishedProducts(),
+  pendingMs: 0,
+  pendingComponent: LandingSkeleton,
   component: Landing,
+
 });
 
 function Landing() {
