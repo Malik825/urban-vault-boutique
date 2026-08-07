@@ -82,7 +82,7 @@ function Landing() {
               <Sparkles className="mr-1.5 h-3.5 w-3.5 shrink-0 text-primary" />
               <span className="min-w-0">1,400+ verified devices · updated hourly</span>
             </Badge>
-            <h1 className="mt-6 text-[2rem] font-extrabold leading-[1.08] sm:text-5xl lg:text-6xl">
+            <h1 className="mt-6 text-[1.75rem] font-extrabold leading-[1.1] sm:text-5xl lg:text-6xl">
               Find Your Next <span className="text-gradient-brand">Device</span>
             </h1>
             <p className="mt-5 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-lg">
