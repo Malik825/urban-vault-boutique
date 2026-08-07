@@ -30,6 +30,7 @@ import { SiteHeader } from "@/components/storefront/site-header";
 import { brands, categories, reviews, popularSearches } from "@/lib/store-data";
 import { listPublishedProducts } from "@/lib/catalog.functions";
 import type { CatalogProduct } from "@/lib/catalog";
+import { Reveal } from "@/components/reveal";
 import heroImg from "@/assets/hero.jpg";
 
 export const Route = createFileRoute("/")({
@@ -195,7 +196,7 @@ function Landing() {
 
       {/* Flash deals */}
       <section className="bg-surface-muted section-pad">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <Reveal className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:justify-between">
             <div className="min-w-0">
               <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-accent-foreground">
@@ -212,7 +213,7 @@ function Landing() {
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* Categories */}
@@ -274,7 +275,7 @@ function Landing() {
 
       {/* Why shop */}
       <section className="section-pad bg-surface">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <Reveal className="mx-auto max-w-7xl px-4 sm:px-6">
           <h2 className="max-w-2xl text-2xl font-extrabold sm:text-4xl">
             Why thousands shop with Voltix
           </h2>
@@ -295,9 +296,10 @@ function Landing() {
                 title: "Same-day dispatch",
                 text: "Order before 2pm for same-day delivery across Lagos, next-day nationwide with tracked couriers.",
               },
-            ].map((f) => (
-              <div
+            ].map((f, i) => (
+              <Reveal
                 key={f.title}
+                delay={i * 90}
                 className="hover-lift rounded-2xl border border-border bg-card p-6 shadow-card"
               >
                 <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary-soft text-accent-foreground">
@@ -305,10 +307,10 @@ function Landing() {
                 </span>
                 <h3 className="mt-5 font-display text-lg font-bold">{f.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.text}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* Reviews */}
@@ -341,7 +343,7 @@ function Landing() {
 
       {/* Newsletter */}
       <section className="px-4 pb-16 sm:px-6">
-        <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-brand-gradient px-6 py-12 shadow-glow sm:px-12 sm:py-16">
+        <Reveal className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-brand-gradient px-6 py-12 shadow-glow sm:px-12 sm:py-16">
           <div className="grid items-center gap-8 lg:grid-cols-[1.2fr_1fr]">
             <div className="text-primary-foreground">
               <h2 className="text-2xl font-extrabold sm:text-4xl">
@@ -374,7 +376,7 @@ function Landing() {
               </Button>
             </form>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       <SiteFooter />
@@ -397,7 +399,7 @@ function Section({
 }) {
   return (
     <section className={`section-pad ${muted ? "bg-surface-muted" : ""}`}>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <Reveal className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 sm:flex sm:justify-between">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-foreground">
@@ -415,7 +417,7 @@ function Section({
           )}
         </div>
         <div className="mt-8">{children}</div>
-      </div>
+      </Reveal>
     </section>
   );
 }
