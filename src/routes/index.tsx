@@ -73,14 +73,14 @@ function Landing() {
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 pb-14 pt-12 sm:px-6 md:pb-20 md:pt-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
           <div className="min-w-0 animate-fade-up">
 
-            <Badge variant="outline" className="glass rounded-full border px-3 py-1.5 text-xs">
-              <Sparkles className="mr-1.5 h-3.5 w-3.5 text-primary" />
-              1,400+ verified devices · updated hourly
+            <Badge variant="outline" className="glass rounded-full border px-3 py-1.5 text-[0.7rem] sm:text-xs">
+              <Sparkles className="mr-1.5 h-3.5 w-3.5 shrink-0 text-primary" />
+              <span className="min-w-0">1,400+ verified devices · updated hourly</span>
             </Badge>
-            <h1 className="mt-6 text-[2.6rem] font-extrabold leading-[1.05] sm:text-6xl">
+            <h1 className="mt-6 text-[2rem] font-extrabold leading-[1.08] sm:text-5xl lg:text-6xl">
               Find Your Next <span className="text-gradient-brand">Device</span>
             </h1>
-            <p className="mt-5 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
+            <p className="mt-5 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-lg">
               Real stock levels, full specifications and honest condition grading — from Lagos&apos;
               most trusted electronics retailers. Enquire on WhatsApp, get a reply in minutes.
             </p>
@@ -93,11 +93,11 @@ function Landing() {
               className="mt-8"
             >
               <div className="glass flex items-center gap-2 rounded-2xl border p-2 shadow-lift">
-                <Search className="ml-2 h-5 w-5 shrink-0 text-muted-foreground" />
+                <Search className="ml-1 h-5 w-5 shrink-0 text-muted-foreground sm:ml-2" />
                 <input
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
-                  placeholder="Search “MacBook Pro”, “16GB RAM”, “Galaxy S24”…"
+                  placeholder="Search “MacBook Pro”, “16GB RAM”…"
                   aria-label="Search devices"
                   className="min-w-0 flex-1 bg-transparent py-2.5 text-sm outline-none placeholder:text-muted-foreground sm:text-base"
                 />
@@ -114,28 +114,29 @@ function Landing() {
                   key={s}
                   to="/products"
                   search={{ q: s }}
-                  className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium transition-colors hover:border-primary/40 hover:bg-primary-soft"
+                  className="max-w-full truncate rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium transition-colors hover:border-primary/40 hover:bg-primary-soft"
                 >
                   {s}
                 </Link>
               ))}
             </div>
 
-            <dl className="mt-10 grid max-w-md grid-cols-3 gap-4">
+            <dl className="mt-10 grid max-w-md grid-cols-3 gap-3 sm:gap-4">
               {[
                 { k: "1,4k+", v: "Devices listed" },
                 { k: "4.9/5", v: "Buyer rating" },
                 { k: "< 5 min", v: "Reply time" },
               ].map((s) => (
-                <div key={s.v}>
-                  <dt className="font-display text-2xl font-extrabold">{s.k}</dt>
-                  <dd className="text-xs text-muted-foreground">{s.v}</dd>
+                <div key={s.v} className="min-w-0">
+                  <dt className="font-display text-lg font-extrabold sm:text-2xl">{s.k}</dt>
+                  <dd className="text-[0.7rem] text-muted-foreground sm:text-xs">{s.v}</dd>
                 </div>
               ))}
             </dl>
           </div>
 
-          <div className="relative animate-fade-in">
+          <div className="relative min-w-0 animate-fade-in">
+
             <div className="overflow-hidden rounded-3xl border border-border bg-surface shadow-lift">
               <img
                 src={heroImg}
