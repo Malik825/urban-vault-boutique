@@ -234,7 +234,7 @@ function ProductsAdmin() {
           </DialogHeader>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="qe-price">Price (₦)</Label>
+              <Label htmlFor="qe-price">Price (GH₵)</Label>
               <Input id="qe-price" defaultValue={editing?.price} />
             </div>
             <div className="space-y-2">

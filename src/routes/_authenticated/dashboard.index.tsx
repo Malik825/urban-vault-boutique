@@ -50,7 +50,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 });
 
 const stats = [
-  { label: "Revenue (30d)", value: "₦11.2M", delta: 16.4, icon: Wallet, sub: "vs ₦9.6M last month" },
+  { label: "Revenue (30d)", value: "GH₵11.2M", delta: 16.4, icon: Wallet, sub: "vs GH₵9.6M last month" },
   { label: "Products live", value: "142", delta: 4.2, icon: Box, sub: "6 drafts pending" },
   { label: "Visitors", value: "8,132", delta: 12.1, icon: Eye, sub: "1,620 peak on Saturday" },
   { label: "Orders", value: "167", delta: 9.8, icon: Receipt, sub: "12 awaiting dispatch" },
@@ -110,7 +110,7 @@ function DashboardHome() {
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
         <Panel
           title="Revenue"
-          subtitle="Millions of ₦, last 7 months"
+          subtitle="Millions of GH₵, last 7 months"
           badge={
             <Badge className="border-transparent bg-primary-soft text-accent-foreground">
               <TrendingUp className="mr-1 h-3 w-3" /> +16.4%

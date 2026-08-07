@@ -9,14 +9,15 @@ export const STORE = {
   whatsapp: "+233 25 782 5866",
   whatsappRaw: "233257825866",
   email: "hello@voltix.store",
-  city: "Lagos, Nigeria",
+  city: "Accra, Ghana",
 };
 
-export const CURRENCY = "₦";
+export const CURRENCY = "GH₵";
 
 export function formatPrice(value: number) {
-  return `${CURRENCY}${value.toLocaleString("en-NG")}`;
+  return `${CURRENCY}${value.toLocaleString("en-GH")}`;
 }
+
 
 export function whatsappLink(message: string) {
   return `https://wa.me/${STORE.whatsappRaw}?text=${encodeURIComponent(message)}`;
@@ -186,7 +187,7 @@ export const activity = [
   { who: "Order #4821", what: "marked as shipped to Victoria Island", when: "26 min ago", kind: "order" },
   { who: "Tunde Bakare", what: "added Galaxy S24 Ultra to wishlist", when: "1 hr ago", kind: "wishlist" },
   { who: "iPad Pro 11 M2", what: "stock dropped below 10 units", when: "3 hrs ago", kind: "stock" },
-  { who: "Order #4818", what: "payment confirmed — ₦1,590,000", when: "5 hrs ago", kind: "payment" },
+  { who: "Order #4818", what: "payment confirmed — GH₵1,590,000", when: "5 hrs ago", kind: "payment" },
 ];
 
 export const orders = [

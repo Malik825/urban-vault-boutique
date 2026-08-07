@@ -122,11 +122,11 @@ function Settings() {
           </div>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="lagos">Lagos delivery fee (₦)</Label>
+              <Label htmlFor="lagos">Lagos delivery fee (GH₵)</Label>
               <Input id="lagos" defaultValue="5000" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="nation">Nationwide fee (₦)</Label>
+              <Label htmlFor="nation">Nationwide fee (GH₵)</Label>
               <Input id="nation" defaultValue="12000" />
             </div>
           </div>

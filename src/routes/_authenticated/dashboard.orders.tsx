@@ -55,7 +55,7 @@ function Orders() {
         <div className="mt-6 grid gap-3 border-t border-border pt-5 sm:grid-cols-3">
           <Info icon={FileText} label="Invoice" value="INV-4821 · paid in full" />
           <Info icon={Truck} label="Shipping" value="GIG Logistics · VI, Lagos" />
-          <Info icon={FileText} label="Payment" value="Bank transfer · ₦2,450,000" />
+          <Info icon={FileText} label="Payment" value="Bank transfer · GH₵2,450,000" />
         </div>
       </div>
 
