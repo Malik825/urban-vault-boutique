@@ -47,10 +47,10 @@ function Analytics() {
     <DashboardShell title="Analytics" subtitle="Last 30 days compared to the previous period">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
-          { label: "Revenue", value: "₦11.2M", delta: 16.4 },
+          { label: "Revenue", value: "GH₵11.2M", delta: 16.4 },
           { label: "Conversion rate", value: "3.8%", delta: 0.6 },
           { label: "Sessions", value: "8,132", delta: 12.1 },
-          { label: "Avg. order value", value: "₦670k", delta: -2.1 },
+          { label: "Avg. order value", value: "GH₵670k", delta: -2.1 },
         ].map((s) => (
           <div key={s.label} className="rounded-2xl border border-border bg-card p-5 shadow-card">
             <p className="text-xs font-medium text-muted-foreground">{s.label}</p>
@@ -72,7 +72,7 @@ function Analytics() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Panel title="Sales" subtitle="Revenue in millions of ₦">
+        <Panel title="Sales" subtitle="Revenue in millions of GH₵">
           <ResponsiveContainer width="100%" height={250}>
             <AreaChart data={revenueSeries} margin={{ left: -18, right: 6, top: 8 }}>
               <defs>

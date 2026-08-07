@@ -141,9 +141,9 @@ function AddProduct() {
 
             {step === 3 && (
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Price (₦)" id="price" placeholder="2450000" />
-                <Field label="Compare-at price (₦)" id="compare" placeholder="2790000" />
-                <Field label="Cost per unit (₦)" id="cost" placeholder="2100000" />
+                <Field label="Price (GH₵)" id="price" placeholder="2450000" />
+                <Field label="Compare-at price (GH₵)" id="compare" placeholder="2790000" />
+                <Field label="Cost per unit (GH₵)" id="cost" placeholder="2100000" />
                 <div className="flex items-center justify-between rounded-xl border border-border p-4 sm:col-span-2">
                   <div>
                     <p className="text-sm font-semibold">Show as flash deal</p>
