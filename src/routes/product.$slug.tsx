@@ -21,6 +21,7 @@ import { ProductCard } from "@/components/storefront/product-card";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { SiteHeader } from "@/components/storefront/site-header";
 import { useCart } from "@/lib/cart";
+import { useWishlist, useCompare } from "@/lib/user-store";
 import { formatPrice, reviews, whatsappLink } from "@/lib/store-data";
 import { groupSpecs, type CatalogProduct } from "@/lib/catalog";
 import { listPublishedProducts } from "@/lib/catalog.functions";
@@ -63,8 +64,13 @@ export const Route = createFileRoute("/product/$slug")({
 function ProductDetail() {
   const { product, related, suggested, recent } = Route.useLoaderData();
   const [active, setActive] = useState(0);
-  const [saved, setSaved] = useState(false);
-  const { addItem } = useCart();
+  const { items, addItem } = useCart();
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  const { isComparing, addToCompare, removeFromCompare } = useCompare();
+
+  const saved = isWishlisted(product.id);
+  const comparing = isComparing(product.id);
+
 
   const discount = product.compareAt
     ? Math.round(((product.compareAt - product.price) / product.compareAt) * 100)
@@ -174,20 +180,24 @@ function ProductDetail() {
                     ? `${product.stock} units available · ships today`
                     : "Currently out of stock — join the restock list"}
                 </p>
-                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
                   <Button
                     size="lg"
-                    className="flex-1"
+                    className="col-span-2 sm:flex-1"
                     disabled={product.stock === 0}
                     onClick={() => {
-                      addItem(product);
-                      toast.success(`${product.name} added to cart`);
+                      if (items.some((i) => i.product.id === product.id)) {
+                        toast.error("Item is already in your cart");
+                      } else {
+                        addItem(product);
+                        toast.success(`${product.name} added to cart`);
+                      }
                     }}
                   >
                     <ShoppingCart className="mr-2 h-5 w-5" />
                     Add to Cart
                   </Button>
-                  <Button asChild variant="whatsapp" size="lg" className="flex-1">
+                  <Button asChild variant="whatsapp" size="lg" className="col-span-2 sm:flex-1">
                     <a
                       href={whatsappLink(
                         `Hi Voltix, I want to buy the ${product.name} (${formatPrice(product.price)}). Is it available?`,
@@ -195,28 +205,38 @@ function ProductDetail() {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <MessageCircle className="h-5 w-5" />
-                      <span className="sr-only sm:not-sr-only sm:ml-2">Enquire</span>
+                      <MessageCircle className="mr-2 h-5 w-5" />
+                      Enquire on WhatsApp
                     </a>
                   </Button>
                   <Button
                     variant="outline"
                     size="lg"
+                    className="col-span-1"
                     onClick={() => {
-                      setSaved((s) => !s);
+                      toggleWishlist(product as CatalogProduct);
                       toast.success(saved ? "Removed from wishlist" : "Saved to wishlist");
                     }}
                   >
-                    <Heart className={`h-5 w-5 ${saved ? "fill-primary text-primary" : ""}`} />
-                    <span className="sm:hidden">Wishlist</span>
+                    <Heart className={`mr-2 h-5 w-5 ${saved ? "fill-primary text-primary" : ""}`} />
+                    <span className="sm:hidden lg:inline">Wishlist</span>
                   </Button>
                   <Button
                     variant="outline"
                     size="lg"
-                    onClick={() => toast.success("Added to compare")}
+                    className={`col-span-1 ${comparing ? "border-primary text-primary" : ""}`}
+                    onClick={() => {
+                      if (comparing) {
+                        removeFromCompare(product.id);
+                        toast.info("Removed from compare");
+                      } else {
+                        addToCompare(product as CatalogProduct);
+                        toast.success("Added to compare");
+                      }
+                    }}
                   >
-                    <Repeat2 className="h-5 w-5" />
-                    <span className="sm:hidden">Compare</span>
+                    <Repeat2 className="mr-2 h-5 w-5" />
+                    <span className="sm:hidden lg:inline">Compare</span>
                   </Button>
                 </div>
                 <div className="mt-4 grid gap-2 border-t border-border pt-4 text-xs text-muted-foreground sm:grid-cols-3">

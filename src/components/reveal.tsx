@@ -42,7 +42,7 @@ export function Reveal({
       ref={ref as never}
       data-shown={shown ? "true" : "false"}
       style={delay ? { transitionDelay: `${delay}ms` } : undefined}
-      className={`reveal ${className}`}
+      className={className}
     >
       {children}
     </Tag>

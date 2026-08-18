@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -34,6 +34,11 @@ import { Reveal } from "@/components/reveal";
 import { LandingSkeleton, ProductGridSkeleton } from "@/components/storefront/product-skeletons";
 
 import heroImg from "@/assets/hero.jpg";
+import laptopImg from "@/assets/laptop.jpg";
+import phoneImg from "@/assets/phone.jpg";
+import tabletImg from "@/assets/tablet.jpg";
+
+const HERO_IMAGES = [heroImg, laptopImg, phoneImg, tabletImg];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -56,13 +61,21 @@ export const Route = createFileRoute("/")({
   pendingMs: 0,
   pendingComponent: LandingSkeleton,
   component: Landing,
-
 });
 
 function Landing() {
   const products: CatalogProduct[] = Route.useLoaderData();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  // Auto-slide hero images
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   const trending = products.filter((p) => p.status === "Published").slice(0, 8);
   const deals = products.filter((p) => p.badge === "Flash deal");
@@ -70,92 +83,95 @@ function Landing() {
   const popular = products.slice(4, 8);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background">
+    <div className="min-h-screen bg-background">
       <SiteHeader />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-mesh">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 container-x pb-14 pt-12 md:pb-20 md:pt-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-          <div className="min-w-0 animate-fade-up">
-
-            <Badge variant="outline" className="glass rounded-full border px-3 py-1.5 text-[0.7rem] sm:text-xs">
-              <Sparkles className="mr-1.5 h-3.5 w-3.5 shrink-0 text-primary" />
-              <span className="min-w-0">1,400+ verified devices · updated hourly</span>
-            </Badge>
-            <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
-              Find Your Next <span className="text-gradient-brand">Device</span>
-            </h1>
-            <p className="mt-5 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-lg">
-              Real stock levels, full specifications and honest condition grading — from Lagos&apos;
-              most trusted electronics retailers. Enquire on WhatsApp, get a reply in minutes.
-            </p>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                navigate({ to: "/products", search: q ? { q } : {} });
-              }}
-              className="mt-8"
-            >
-              <div className="glass flex items-center gap-2 rounded-2xl border p-2 shadow-lift">
-                <Search className="ml-1 h-5 w-5 shrink-0 text-muted-foreground sm:ml-2" />
-                <input
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  placeholder="Search “MacBook Pro”, “16GB RAM”…"
-                  aria-label="Search devices"
-                  className="min-w-0 flex-1 bg-transparent py-2.5 text-sm outline-none placeholder:text-muted-foreground sm:text-base"
-                />
-                <Button type="submit" variant="hero" className="shrink-0">
-                  Search
-                </Button>
-              </div>
-            </form>
-
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium text-muted-foreground">Trending:</span>
-              {popularSearches.slice(0, 4).map((s) => (
-                <Link
-                  key={s}
-                  to="/products"
-                  search={{ q: s }}
-                  className="max-w-full truncate rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium transition-colors hover:border-primary/40 hover:bg-primary-soft"
+      {/* Inspired Hero Section */}
+      <section className="pt-6 pb-12 px-4 sm:px-6">
+        <div className="mx-auto max-w-7xl container-x px-0">
+          <div className="bg-primary-soft/30 rounded-[2.5rem] p-6 sm:p-12 lg:p-16">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center lg:min-h-[500px]">
+              
+              {/* Left: Text Content */}
+              <div className="max-w-xl animate-fade-up">
+                <Badge variant="outline" className="w-fit bg-background/50 rounded-full border px-3 py-1.5 text-[0.7rem] sm:text-xs">
+                  <Sparkles className="mr-1.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                  <span>1,400+ verified devices · updated hourly</span>
+                </Badge>
+                
+                <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl xl:text-6xl text-foreground">
+                  Find Your Next <span className="text-gradient-brand">Device</span>
+                </h1>
+                
+                <p className="mt-6 text-base sm:text-lg leading-relaxed text-muted-foreground">
+                  Real stock levels, full specifications and honest condition grading for laptops, phones, tablets and accessories — from Accra's most trusted electronics retailers.
+                </p>
+                
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    navigate({ to: "/products", search: q ? { q } : {} });
+                  }}
+                  className="mt-8 max-w-md"
                 >
-                  {s}
-                </Link>
-              ))}
-            </div>
+                  <div className="flex items-center gap-2 rounded-2xl bg-background border border-border p-2 shadow-sm transition-shadow focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary/40">
+                    <Search className="ml-2 h-5 w-5 shrink-0 text-muted-foreground" />
+                    <input
+                      value={q}
+                      onChange={(e) => setQ(e.target.value)}
+                      placeholder="Search “MacBook Pro”, “16GB RAM”…"
+                      aria-label="Search devices"
+                      className="min-w-0 flex-1 bg-transparent py-2.5 text-sm sm:text-base outline-none"
+                    />
+                    <Button type="submit" variant="hero" className="shrink-0 rounded-xl px-6">
+                      Search
+                    </Button>
+                  </div>
+                </form>
 
-            <dl className="mt-10 grid max-w-md grid-cols-3 gap-3 sm:gap-4">
-              {[
-                { k: "1,4k+", v: "Devices listed" },
-                { k: "4.9/5", v: "Buyer rating" },
-                { k: "< 5 min", v: "Reply time" },
-              ].map((s) => (
-                <div key={s.v} className="min-w-0">
-                  <dt className="font-display text-lg font-extrabold sm:text-2xl">{s.k}</dt>
-                  <dd className="text-[0.7rem] text-muted-foreground sm:text-xs">{s.v}</dd>
+                <div className="mt-6 flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-medium text-muted-foreground">Trending:</span>
+                  {popularSearches.slice(0, 4).map((s) => (
+                    <Link
+                      key={s}
+                      to="/products"
+                      search={{ q: s }}
+                      className="max-w-full truncate rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium transition-colors hover:border-primary/40 hover:bg-primary-soft"
+                    >
+                      {s}
+                    </Link>
+                  ))}
                 </div>
-              ))}
-            </dl>
-          </div>
+              </div>
 
-          <div className="relative min-w-0 animate-fade-in">
+              {/* Right: Sliding Image Carousel */}
+              <div className="relative h-[400px] lg:h-[550px] w-full overflow-hidden rounded-2xl animate-fade-in group">
+                {HERO_IMAGES.map((img, i) => (
+                  <img
+                    key={i}
+                    src={img}
+                    alt="Premium tech device"
+                    className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-in-out ${
+                      i === heroIndex ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                ))}
+                
+                {/* Pagination Dots */}
+                <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-10">
+                  {HERO_IMAGES.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setHeroIndex(i)}
+                      aria-label={`Go to slide ${i + 1}`}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        i === heroIndex ? "w-6 bg-white" : "w-1.5 bg-white/50 hover:bg-white/80"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
 
-            <div className="overflow-hidden rounded-3xl border border-border bg-surface shadow-lift">
-              <img
-                src={heroImg}
-                alt="Premium laptop, phone, tablet and headphones on a bright desk"
-                width={1600}
-                height={1104}
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <div className="glass absolute -bottom-4 left-4 rounded-2xl border p-4 shadow-lift sm:left-6">
-              <p className="text-xs text-muted-foreground">Fastest enquiry today</p>
-              <p className="mt-1 flex items-center gap-2 font-display text-sm font-bold">
-                <MessageCircle className="h-4 w-4 text-primary" /> Replied in 1m 42s
-              </p>
             </div>
           </div>
         </div>
@@ -185,20 +201,16 @@ function Landing() {
       {/* Trending carousel */}
       <Section
         eyebrow="Trending now"
-        title="What Lagos is buying this week"
+        title="What Accra is buying this week"
         action={{ label: "Browse all", to: "/products" }}
       >
-        <Carousel opts={{ align: "start" }} className="w-full overflow-hidden">
-          <CarouselContent className="-ml-4">
-            {trending.map((p) => (
-              <CarouselItem key={p.id} className="basis-[85%] pl-4 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                <ProductCard product={p} />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="hidden lg:flex" />
-          <CarouselNext className="hidden lg:flex" />
-        </Carousel>
+        <div className="flex w-full gap-4 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar">
+          {trending.map((p) => (
+            <div key={p.id} className="min-w-[85%] sm:min-w-[50%] lg:min-w-[33.33%] xl:min-w-[25%] snap-start">
+              <ProductCard product={p} />
+            </div>
+          ))}
+        </div>
       </Section>
 
       {/* Flash deals */}
@@ -308,7 +320,7 @@ function Landing() {
               {
                 icon: Truck,
                 title: "Same-day dispatch",
-                text: "Order before 2pm for same-day delivery across Lagos, next-day nationwide with tracked couriers.",
+                text: "Order before 2pm for same-day delivery across Accra, next-day nationwide with tracked couriers.",
               },
             ].map((f, i) => (
               <Reveal
@@ -413,7 +425,7 @@ function Section({
 }) {
   return (
     <section className={`section-pad ${muted ? "bg-surface-muted" : ""}`}>
-      <Reveal className="mx-auto max-w-7xl container-x">
+      <div className="mx-auto max-w-7xl container-x">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 sm:flex sm:justify-between">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-foreground">
@@ -431,7 +443,7 @@ function Section({
           )}
         </div>
         <div className="mt-8">{children}</div>
-      </Reveal>
+      </div>
     </section>
   );
 }

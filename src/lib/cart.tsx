@@ -39,12 +39,18 @@ function saveCart(items: CartItem[]) {
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>(loadCart);
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setItems(loadCart());
+    setIsMounted(true);
+  }, []);
 
   // Persist to localStorage on every change
   useEffect(() => {
-    saveCart(items);
-  }, [items]);
+    if (isMounted) saveCart(items);
+  }, [items, isMounted]);
 
   const addItem = (product: Product, qty = 1) => {
     setItems((prev) => {
