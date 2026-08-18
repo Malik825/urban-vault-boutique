@@ -53,13 +53,35 @@ function AuthPage() {
     }
 
     setBusy(true);
-    
-    // FREE PASS FOR UI DEV
-    setTimeout(() => {
-      setBusy(false);
-      toast.success("Welcome to the Admin Dashboard (Dev Mode)");
+    try {
+      if (mode === "signup") {
+        const { data, error } = await supabase.auth.signUp({
+          email: parsed.data.email,
+          password: parsed.data.password,
+          options: { emailRedirectTo: window.location.origin },
+        });
+        if (error) throw error;
+        if (!data.session) {
+          setSent(true);
+          toast.success("Check your inbox to confirm your seller account");
+          return;
+        }
+        navigate({ to: "/dashboard" });
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email: parsed.data.email,
+        password: parsed.data.password,
+      });
+      if (error) throw error;
+      toast.success("Welcome back");
       navigate({ to: "/dashboard" });
-    }, 800);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -94,8 +116,7 @@ function AuthPage() {
 
           <h1 className="font-display text-2xl font-extrabold tracking-tight">Seller access</h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Sign in to manage your catalogue and inventory. <br />
-            <span className="font-medium text-primary">(Dev mode: Free pass enabled)</span>
+            Sign in to manage your catalogue and inventory.
           </p>
 
           <Tabs

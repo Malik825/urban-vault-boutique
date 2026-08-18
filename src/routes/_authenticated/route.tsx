@@ -1,12 +1,28 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
-// import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
-    // FREE PASS FOR UI DEV: Mock user returned instead of checking Supabase
-    return { user: { id: "demo-user", email: "admin@voltix.com" } };
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) throw redirect({ to: "/auth" });
+
+    const { data: roleData, error: roleError } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (roleError || !roleData) {
+      await supabase.auth.signOut();
+      toast.error("Unauthorized: Admin access required.");
+      throw redirect({ to: "/auth" });
+    }
+
+    return { user: data.user };
   },
   component: () => <Outlet />,
 });
