@@ -70,19 +70,19 @@ function Landing() {
   const popular = products.slice(4, 8);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen overflow-x-hidden bg-background">
       <SiteHeader />
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-mesh">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 pb-14 pt-12 sm:px-6 md:pb-20 md:pt-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 container-x pb-14 pt-12 md:pb-20 md:pt-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
           <div className="min-w-0 animate-fade-up">
 
             <Badge variant="outline" className="glass rounded-full border px-3 py-1.5 text-[0.7rem] sm:text-xs">
               <Sparkles className="mr-1.5 h-3.5 w-3.5 shrink-0 text-primary" />
               <span className="min-w-0">1,400+ verified devices · updated hourly</span>
             </Badge>
-            <h1 className="mt-6 text-[1.75rem] font-extrabold leading-[1.1] sm:text-5xl lg:text-6xl">
+            <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
               Find Your Next <span className="text-gradient-brand">Device</span>
             </h1>
             <p className="mt-5 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-lg">
@@ -163,7 +163,7 @@ function Landing() {
 
       {/* Brands */}
       <section className="border-y border-border bg-surface">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6 px-4 py-8 sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6 container-x py-8">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Authorised stock from
           </p>
@@ -188,10 +188,10 @@ function Landing() {
         title="What Lagos is buying this week"
         action={{ label: "Browse all", to: "/products" }}
       >
-        <Carousel opts={{ align: "start" }} className="w-full">
+        <Carousel opts={{ align: "start" }} className="w-full overflow-hidden">
           <CarouselContent className="-ml-4">
             {trending.map((p) => (
-              <CarouselItem key={p.id} className="basis-[78%] pl-4 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+              <CarouselItem key={p.id} className="basis-[85%] pl-4 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                 <ProductCard product={p} />
               </CarouselItem>
             ))}
@@ -203,13 +203,13 @@ function Landing() {
 
       {/* Flash deals */}
       <section className="bg-surface-muted section-pad">
-        <Reveal className="mx-auto max-w-7xl px-4 sm:px-6">
+        <Reveal className="mx-auto max-w-7xl container-x">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:justify-between">
             <div className="min-w-0">
               <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-accent-foreground">
                 <Flame className="h-4 w-4" /> Flash deals
               </p>
-              <h2 className="mt-2 text-2xl font-extrabold sm:text-3xl">Ends in 06 : 41 : 12</h2>
+              <h2 className="mt-1 text-xl font-extrabold sm:text-2xl lg:text-3xl">Ends in 06 : 41 : 12</h2>
             </div>
             <Badge className="shrink-0 border-transparent bg-brand-gradient text-primary-foreground">
               <Timer className="mr-1.5 h-3.5 w-3.5" /> Today only
@@ -252,7 +252,7 @@ function Landing() {
               </div>
               <div className="p-5">
                 <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-display text-base font-bold">{c.name}</h3>
+                  <h3 className="font-display text-[15px] font-bold">{c.name}</h3>
                   <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
                 </div>
                 <p className="mt-1.5 text-sm text-muted-foreground">{c.blurb}</p>
@@ -289,8 +289,8 @@ function Landing() {
 
       {/* Why shop */}
       <section className="section-pad bg-surface">
-        <Reveal className="mx-auto max-w-7xl px-4 sm:px-6">
-          <h2 className="max-w-2xl text-2xl font-extrabold sm:text-4xl">
+        <Reveal className="mx-auto max-w-7xl container-x">
+          <h2 className="max-w-2xl text-xl font-extrabold sm:text-3xl">
             Why thousands shop with Voltix
           </h2>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
@@ -356,11 +356,11 @@ function Landing() {
       </Section>
 
       {/* Newsletter */}
-      <section className="px-4 pb-16 sm:px-6">
-        <Reveal className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-brand-gradient px-6 py-12 shadow-glow sm:px-12 sm:py-16">
+      <section className="container-x pb-16">
+        <Reveal className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-brand-gradient container-x py-12 shadow-glow sm:py-16">
           <div className="grid items-center gap-8 lg:grid-cols-[1.2fr_1fr]">
             <div className="text-primary-foreground">
-              <h2 className="text-2xl font-extrabold sm:text-4xl">
+              <h2 className="text-xl font-extrabold sm:text-3xl">
                 Get restocks and flash deals first
               </h2>
               <p className="mt-3 max-w-lg text-sm leading-relaxed opacity-90 sm:text-base">
@@ -413,13 +413,13 @@ function Section({
 }) {
   return (
     <section className={`section-pad ${muted ? "bg-surface-muted" : ""}`}>
-      <Reveal className="mx-auto max-w-7xl px-4 sm:px-6">
+      <Reveal className="mx-auto max-w-7xl container-x">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 sm:flex sm:justify-between">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-foreground">
               {eyebrow}
             </p>
-            <h2 className="mt-2 text-2xl font-extrabold sm:text-3xl">{title}</h2>
+            <h2 className="mt-1 text-xl font-extrabold sm:text-3xl">{title}</h2>
           </div>
           {action && (
             <Button asChild variant="outline" size="sm" className="shrink-0">

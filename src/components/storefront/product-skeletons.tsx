@@ -35,7 +35,7 @@ export function LandingSkeleton() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <section className="bg-mesh">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 pb-14 pt-12 sm:px-6 md:pb-20 md:pt-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 container-x pb-14 pt-12 md:pb-20 md:pt-20 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
           <div className="min-w-0 space-y-5">
             <Skeleton className="h-7 w-64 max-w-full rounded-full" />
             <Skeleton className="h-12 w-11/12" />
@@ -58,7 +58,7 @@ export function LandingSkeleton() {
           <Skeleton className="aspect-[4/3] w-full rounded-3xl" />
         </div>
       </section>
-      <div className="mx-auto max-w-7xl space-y-4 px-4 py-12 sm:px-6">
+      <div className="mx-auto max-w-7xl container-x space-y-4 py-12">
         <Skeleton className="h-3 w-28" />
         <Skeleton className="h-7 w-72 max-w-full" />
         <div className="pt-4">

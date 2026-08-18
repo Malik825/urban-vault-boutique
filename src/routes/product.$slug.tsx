@@ -9,6 +9,7 @@ import {
   Star,
   Truck,
   RotateCcw,
+  ShoppingCart,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -19,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductCard } from "@/components/storefront/product-card";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { SiteHeader } from "@/components/storefront/site-header";
+import { useCart } from "@/lib/cart";
 import { formatPrice, reviews, whatsappLink } from "@/lib/store-data";
 import { groupSpecs, type CatalogProduct } from "@/lib/catalog";
 import { listPublishedProducts } from "@/lib/catalog.functions";
@@ -62,6 +64,7 @@ function ProductDetail() {
   const { product, related, suggested, recent } = Route.useLoaderData();
   const [active, setActive] = useState(0);
   const [saved, setSaved] = useState(false);
+  const { addItem } = useCart();
 
   const discount = product.compareAt
     ? Math.round(((product.compareAt - product.price) / product.compareAt) * 100)
@@ -69,10 +72,10 @@ function ProductDetail() {
   const specGroups = groupSpecs(product.specs);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen overflow-x-hidden bg-background">
       <SiteHeader />
 
-      <div className="mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6">
+      <div className="mx-auto max-w-7xl container-x pb-16 pt-6">
         <nav className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
           <Link to="/" className="hover:text-foreground">
             Home
@@ -130,7 +133,7 @@ function ProductDetail() {
                 </Badge>
               </div>
 
-              <h1 className="mt-4 text-3xl font-extrabold leading-tight sm:text-4xl">
+              <h1 className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
                 {product.name}
               </h1>
 
@@ -148,7 +151,7 @@ function ProductDetail() {
               </div>
 
               <div className="mt-6 flex flex-wrap items-end gap-3">
-                <p className="font-display text-3xl font-extrabold sm:text-4xl">
+                <p className="font-display text-2xl font-extrabold sm:text-3xl">
                   {formatPrice(product.price)}
                 </p>
                 {product.compareAt && (
@@ -172,6 +175,18 @@ function ProductDetail() {
                     : "Currently out of stock — join the restock list"}
                 </p>
                 <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                  <Button
+                    size="lg"
+                    className="flex-1"
+                    disabled={product.stock === 0}
+                    onClick={() => {
+                      addItem(product);
+                      toast.success(`${product.name} added to cart`);
+                    }}
+                  >
+                    <ShoppingCart className="mr-2 h-5 w-5" />
+                    Add to Cart
+                  </Button>
                   <Button asChild variant="whatsapp" size="lg" className="flex-1">
                     <a
                       href={whatsappLink(
@@ -181,7 +196,7 @@ function ProductDetail() {
                       rel="noreferrer"
                     >
                       <MessageCircle className="h-5 w-5" />
-                      Enquire on WhatsApp
+                      <span className="sr-only sm:not-sr-only sm:ml-2">Enquire</span>
                     </a>
                   </Button>
                   <Button

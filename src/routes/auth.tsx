@@ -53,35 +53,13 @@ function AuthPage() {
     }
 
     setBusy(true);
-    try {
-      if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
-          email: parsed.data.email,
-          password: parsed.data.password,
-          options: { emailRedirectTo: window.location.origin },
-        });
-        if (error) throw error;
-        if (!data.session) {
-          setSent(true);
-          toast.success("Check your inbox to confirm your seller account");
-          return;
-        }
-        navigate({ to: "/dashboard" });
-        return;
-      }
-
-      const { error } = await supabase.auth.signInWithPassword({
-        email: parsed.data.email,
-        password: parsed.data.password,
-      });
-      if (error) throw error;
-      toast.success("Welcome back");
-      navigate({ to: "/dashboard" });
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Something went wrong");
-    } finally {
+    
+    // FREE PASS FOR UI DEV
+    setTimeout(() => {
       setBusy(false);
-    }
+      toast.success("Welcome to the Admin Dashboard (Dev Mode)");
+      navigate({ to: "/dashboard" });
+    }, 800);
   }
 
   return (
@@ -94,7 +72,7 @@ function AuthPage() {
           <span className="font-display text-lg font-extrabold">{STORE.name}</span>
         </Link>
         <div className="max-w-md">
-          <h2 className="font-display text-4xl font-extrabold leading-tight">
+          <h2 className="font-display text-3xl font-extrabold leading-tight lg:text-4xl">
             Your storefront and stockroom, in one place.
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-primary-foreground/85">
@@ -114,9 +92,10 @@ function AuthPage() {
             <span className="font-display text-lg font-extrabold">{STORE.name}</span>
           </Link>
 
-          <h1 className="text-2xl font-extrabold">Seller access</h1>
+          <h1 className="font-display text-2xl font-extrabold tracking-tight">Seller access</h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Sign in to manage your catalogue and inventory.
+            Sign in to manage your catalogue and inventory. <br />
+            <span className="font-medium text-primary">(Dev mode: Free pass enabled)</span>
           </p>
 
           <Tabs

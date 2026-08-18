@@ -199,10 +199,10 @@ function Listing() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen overflow-x-hidden bg-background">
       <SiteHeader />
 
-      <div className="mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6">
+      <div className="mx-auto max-w-7xl container-x pb-16 pt-6">
         <nav className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Link to="/" className="hover:text-foreground">
             Home

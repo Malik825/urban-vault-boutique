@@ -6,7 +6,7 @@ import { STORE, categories, brands, whatsappLink } from "@/lib/store-data";
 export function SiteFooter() {
   return (
     <footer className="border-t border-border bg-surface-muted">
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+      <div className="mx-auto max-w-7xl container-x py-14">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
             <div className="flex items-center gap-2.5">

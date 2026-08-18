@@ -211,6 +211,11 @@
 }
 
 @layer base {
+  html {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
   * {
     border-color: var(--color-border);
   }
@@ -220,6 +225,8 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    max-width: 100vw;
   }
 
   h1,
@@ -301,5 +308,25 @@
   padding-block: 3.5rem;
   @media (min-width: 768px) {
     padding-block: 5.5rem;
+  }
+}
+
+/* Responsive horizontal padding for all page containers.
+   Gives breathing room on 14-inch laptops (≈1366px) where max-w-7xl
+   fills almost the entire viewport leaving no visual margin. */
+@utility container-x {
+  padding-left: 1.25rem;  /* px-5  — mobile */
+  padding-right: 1.25rem;
+  @media (min-width: 640px) {
+    padding-left: 2rem;   /* px-8  — sm */
+    padding-right: 2rem;
+  }
+  @media (min-width: 1024px) {
+    padding-left: 3rem;   /* px-12 — lg */
+    padding-right: 3rem;
+  }
+  @media (min-width: 1280px) {
+    padding-left: 4rem;   /* px-16 — xl, large monitors */
+    padding-right: 4rem;
   }
 }
