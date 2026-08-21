@@ -47,7 +47,7 @@ export const listStockMovements = createServerFn({ method: "GET" })
 
 export const adjustStock = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => adjustStockSchema.parse(input))
+  .validator((input: unknown) => adjustStockSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { data: current, error: readError } = await context.supabase
       .from("products")
@@ -80,7 +80,7 @@ export const adjustStock = createServerFn({ method: "POST" })
 
 export const setStockLevel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => setStockSchema.parse(input))
+  .validator((input: unknown) => setStockSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { data: current, error: readError } = await context.supabase
       .from("products")
@@ -112,7 +112,7 @@ export const setStockLevel = createServerFn({ method: "POST" })
 
 export const quickEditProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => quickEditSchema.parse(input))
+  .validator((input: unknown) => quickEditSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("products")
@@ -124,7 +124,7 @@ export const quickEditProduct = createServerFn({ method: "POST" })
 
 export const setProductStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => statusSchema.parse(input))
+  .validator((input: unknown) => statusSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("products")
@@ -133,3 +133,4 @@ export const setProductStatus = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { count: data.productIds.length };
   });
+

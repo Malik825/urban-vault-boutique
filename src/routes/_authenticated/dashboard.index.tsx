@@ -28,7 +28,9 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { activity, brands, formatPrice, orders, products, revenueSeries, trafficSeries } from "@/lib/store-data";
+import { brands, formatPrice, revenueSeries, trafficSeries } from "@/lib/store-data";
+import { adminGetStats } from "@/lib/admin.functions";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({
@@ -46,24 +48,64 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
       },
     ],
   }),
+  loader: async () => {
+    try {
+      return await adminGetStats();
+    } catch {
+      return null;
+    }
+  },
   component: DashboardHome,
 });
 
-const stats = [
-  { label: "Revenue (30d)", value: "GH₵11.2M", delta: 16.4, icon: Wallet, sub: "vs GH₵9.6M last month" },
-  { label: "Products live", value: "142", delta: 4.2, icon: Box, sub: "6 drafts pending" },
-  { label: "Visitors", value: "8,132", delta: 12.1, icon: Eye, sub: "1,620 peak on Saturday" },
-  { label: "Orders", value: "167", delta: 9.8, icon: Receipt, sub: "12 awaiting dispatch" },
-  { label: "WhatsApp enquiries", value: "453", delta: -3.4, icon: MessageCircle, sub: "avg reply 4m 12s" },
-];
-
 function DashboardHome() {
-  const lowStock = products.filter((p) => p.stock > 0 && p.stock <= 4).slice(0, 4);
+  const live = Route.useLoaderData();
+
+  const stats = [
+    {
+      label: "Revenue",
+      value: live ? formatPrice((live.totalRevenue ?? 0) / 100) : "—",
+      delta: null as number | null,
+      icon: Wallet,
+      sub: `${live?.totalOrders ?? 0} orders total`,
+    },
+    {
+      label: "Products live",
+      value: live ? String(live.publishedProducts) : "—",
+      delta: null as number | null,
+      icon: Box,
+      sub: `${live?.draftProducts ?? 0} drafts pending`,
+    },
+    {
+      label: "Visitors",
+      value: "8,132",
+      delta: 12.1 as number | null,
+      icon: Eye,
+      sub: "Analytics coming soon",
+    },
+    {
+      label: "Orders",
+      value: live ? String(live.totalOrders) : "—",
+      delta: null as number | null,
+      icon: Receipt,
+      sub: `${live?.pendingOrdersCount ?? 0} awaiting dispatch`,
+    },
+    {
+      label: "WhatsApp enquiries",
+      value: "453",
+      delta: -3.4 as number | null,
+      icon: MessageCircle,
+      sub: "avg reply 4m 12s",
+    },
+  ];
+
+  const lowStock = (live?.lowStockItems ?? []) as any[];
+  const recentOrders = (live?.recentOrders ?? []) as any[];
 
   return (
     <DashboardShell
-      title="Good morning, Ada"
-      subtitle="Here's how the Ikeja store is performing today."
+      title="Good morning, Admin"
+      subtitle="Here's how the Accra store is performing today."
       actions={
         <>
           <Button variant="outline" size="sm">
@@ -87,18 +129,20 @@ function DashboardHome() {
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary-soft text-accent-foreground">
                 <s.icon className="h-4 w-4" />
               </span>
-              <span
-                className={`flex items-center gap-0.5 text-xs font-semibold ${
-                  s.delta >= 0 ? "text-accent-foreground" : "text-destructive"
-                }`}
-              >
-                {s.delta >= 0 ? (
-                  <ArrowUpRight className="h-3.5 w-3.5" />
-                ) : (
-                  <ArrowDownRight className="h-3.5 w-3.5" />
-                )}
-                {Math.abs(s.delta)}%
-              </span>
+              {s.delta != null && (
+                <span
+                  className={`flex items-center gap-0.5 text-xs font-semibold ${
+                    s.delta >= 0 ? "text-accent-foreground" : "text-destructive"
+                  }`}
+                >
+                  {s.delta >= 0 ? (
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  ) : (
+                    <ArrowDownRight className="h-3.5 w-3.5" />
+                  )}
+                  {Math.abs(s.delta)}%
+                </span>
+              )}
             </div>
             <p className="mt-4 font-display text-2xl font-extrabold tracking-tight">{s.value}</p>
             <p className="text-xs font-medium text-muted-foreground">{s.label}</p>
@@ -169,24 +213,25 @@ function DashboardHome() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <Panel title="Recent activity" subtitle="Live store events" className="lg:col-span-2">
-          <ul className="divide-y divide-border">
-            {activity.map((a, i) => (
-              <li key={i} className="flex items-start gap-3 py-3.5">
-                <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm">
-                    <span className="font-semibold">{a.who}</span>{" "}
-                    <span className="text-muted-foreground">{a.what}</span>
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{a.when}</p>
-                </div>
-                <Badge variant="outline" className="hidden shrink-0 rounded-md text-[11px] sm:flex">
-                  {a.kind}
-                </Badge>
-              </li>
-            ))}
-          </ul>
+        <Panel title="Recent orders" subtitle="Most recent 6" className="lg:col-span-2">
+          {recentOrders.length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">No orders yet.</p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {recentOrders.map((o: any) => (
+                <li key={o.id} className="flex items-center gap-3 py-3">
+                  <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold">
+                      #{String(o.id).slice(0, 8).toUpperCase()}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground capitalize">{o.status}</p>
+                  </div>
+                  <p className="shrink-0 text-sm font-semibold">{formatPrice((o.total ?? 0) / 100)}</p>
+                </li>
+              ))}
+            </ul>
+          )}
         </Panel>
 
         <Panel title="Top-selling brands" subtitle="Share of revenue">
@@ -206,45 +251,67 @@ function DashboardHome() {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Panel title="Inventory status" subtitle="Units needing attention">
-          <ul className="space-y-3">
-            {lowStock.map((p) => (
-              <li key={p.id} className="flex items-center gap-3 rounded-xl bg-surface-muted p-3">
-                <img
-                  src={p.images[0]}
-                  alt=""
-                  loading="lazy"
-                  className="h-10 w-10 shrink-0 rounded-lg object-cover"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{p.name}</p>
-                  <p className="text-xs text-muted-foreground">{p.brand}</p>
-                </div>
-                <Badge className="shrink-0 border-transparent bg-warning/20 text-warning-foreground">
-                  {p.stock} left
-                </Badge>
-              </li>
-            ))}
-          </ul>
+          {lowStock.length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">No low-stock items 🎉</p>
+          ) : (
+            <ul className="space-y-3">
+              {lowStock.map((p: any) => (
+                <li key={p.id} className="flex items-center gap-3 rounded-xl bg-surface-muted p-3">
+                  {p.images?.[0] && (
+                    <img
+                      src={p.images[0]}
+                      alt=""
+                      loading="lazy"
+                      className="h-10 w-10 shrink-0 rounded-lg object-cover"
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold">{p.name}</p>
+                    <p className="text-xs text-muted-foreground">{p.brand}</p>
+                  </div>
+                  <Badge className="shrink-0 border-transparent bg-warning/20 text-warning-foreground">
+                    {p.stock} left
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          )}
           <Separator className="my-4" />
           <Button asChild variant="outline" size="sm" className="w-full">
             <Link to="/dashboard/products">Manage inventory</Link>
           </Button>
         </Panel>
 
-        <Panel title="Latest orders" subtitle="Most recent six">
-          <ul className="divide-y divide-border">
-            {orders.slice(0, 6).map((o) => (
-              <li key={o.id} className="flex items-center gap-3 py-3">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">
-                    {o.id} · {o.customer}
-                  </p>
-                  <p className="truncate text-xs text-muted-foreground">{o.item}</p>
+        <Panel title="Quick actions" subtitle="Common tasks">
+          <div className="grid gap-3">
+            <Button asChild variant="outline" className="justify-start gap-3 h-auto py-3">
+              <Link to="/dashboard/new-product">
+                <Plus className="h-4 w-4 shrink-0 text-primary" />
+                <div className="text-left">
+                  <p className="text-sm font-semibold">Add new product</p>
+                  <p className="text-xs text-muted-foreground">List a new device in the catalogue</p>
                 </div>
-                <p className="shrink-0 text-sm font-semibold">{formatPrice(o.total)}</p>
-              </li>
-            ))}
-          </ul>
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="justify-start gap-3 h-auto py-3">
+              <Link to="/dashboard/orders">
+                <Receipt className="h-4 w-4 shrink-0 text-primary" />
+                <div className="text-left">
+                  <p className="text-sm font-semibold">View all orders</p>
+                  <p className="text-xs text-muted-foreground">{live?.pendingOrdersCount ?? 0} pending dispatch</p>
+                </div>
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="justify-start gap-3 h-auto py-3">
+              <Link to="/dashboard/inventory">
+                <Box className="h-4 w-4 shrink-0 text-primary" />
+                <div className="text-left">
+                  <p className="text-sm font-semibold">Manage inventory</p>
+                  <p className="text-xs text-muted-foreground">{lowStock.length} items need restocking</p>
+                </div>
+              </Link>
+            </Button>
+          </div>
         </Panel>
       </div>
     </DashboardShell>

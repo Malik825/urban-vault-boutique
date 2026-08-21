@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ChevronRight,
@@ -11,6 +11,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/reveal";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -89,6 +90,14 @@ function Listing() {
     availability: [],
   });
 
+  const PAGE_SIZE = 12;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  // Reset page limit when filters or query change
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [query, sel, price, sort]);
+
   const toggle = (group: string, value: string) =>
     setSel((s) => {
       const list = s[group] ?? [];
@@ -133,6 +142,12 @@ function Listing() {
     if (sort === "newest") list = [...list].reverse();
     return list;
   }, [query, sel, price, sort, search.deals]);
+
+  const displayedResults = useMemo(() => {
+    return results.slice(0, visibleCount);
+  }, [results, visibleCount]);
+
+  const hasMore = results.length > visibleCount;
 
   const filters = (
     <div className="space-y-6">
@@ -199,7 +214,7 @@ function Listing() {
   );
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background">
+    <div className="min-h-screen bg-background">
       <SiteHeader />
 
       <div className="mx-auto max-w-7xl container-x pb-16 pt-6">
@@ -301,51 +316,63 @@ function Listing() {
         </div>
 
         <div className="mt-8 flex gap-8">
-          <aside className="hidden w-64 shrink-0 lg:block">
-            <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto pr-2 no-scrollbar">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-sm font-semibold">Filters</h2>
-                {activeCount > 0 && (
-                  <button
-                    onClick={() => {
-                      setSel({
-                        brand: [],
-                        category: [],
-                        condition: [],
-                        ram: [],
-                        storage: [],
-                        processor: [],
-                        screen: [],
-                        availability: [],
-                      });
-                      setPrice([0, MAX_PRICE]);
-                    }}
-                    className="flex items-center gap-1 text-xs font-medium text-accent-foreground hover:underline"
-                  >
-                    <X className="h-3 w-3" /> Clear all
-                  </button>
-                )}
-              </div>
-              {filters}
+          <aside className="hidden w-64 shrink-0 lg:block sticky top-24 self-start max-h-[calc(100vh-7rem)] overflow-y-auto pr-2 no-scrollbar">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-sm font-semibold">Filters</h2>
+              {activeCount > 0 && (
+                <button
+                  onClick={() => {
+                    setSel({
+                      brand: [],
+                      category: [],
+                      condition: [],
+                      ram: [],
+                      storage: [],
+                      processor: [],
+                      screen: [],
+                      availability: [],
+                    });
+                    setPrice([0, MAX_PRICE]);
+                  }}
+                  className="flex items-center gap-1 text-xs font-medium text-accent-foreground hover:underline"
+                >
+                  <X className="h-3 w-3" /> Clear all
+                </button>
+              )}
             </div>
+            {filters}
           </aside>
 
           <div className="min-w-0 flex-1">
             {results.length === 0 ? (
               <EmptyState />
             ) : (
-              <div
-                className={
-                  view === "grid"
-                    ? "grid gap-5 sm:grid-cols-2 xl:grid-cols-3"
-                    : "flex flex-col gap-4"
-                }
-              >
-                {results.map((p) => (
-                  <div key={p.id} className="animate-fade-up">
-                    <ProductCard product={p} view={view} />
+              <div className="space-y-8">
+                <div
+                  className={
+                    view === "grid"
+                      ? "grid gap-5 sm:grid-cols-2 xl:grid-cols-3"
+                      : "flex flex-col gap-4"
+                  }
+                >
+                  {displayedResults.map((p, index) => (
+                    <Reveal key={p.id} delay={(index % PAGE_SIZE) * 50}>
+                      <ProductCard product={p} view={view} />
+                    </Reveal>
+                  ))}
+                </div>
+
+                {hasMore && (
+                  <div className="flex justify-center pt-4">
+                    <Button
+                      onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+                      size="lg"
+                      className="rounded-full px-8 shadow-sm"
+                    >
+                      Load more devices
+                    </Button>
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Download, ImagePlus, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
+import { Download, ImagePlus, MoreHorizontal, Pencil, Plus, Trash2, FileEdit } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +25,10 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { formatPrice, products, type Product } from "@/lib/store-data";
+import { formatPrice } from "@/lib/store-data";
+import { adminListProducts, adminDeleteProduct, adminUpdateProduct } from "@/lib/admin.functions";
+
+type AdminProduct = Awaited<ReturnType<typeof adminListProducts>>[number];
 
 export const Route = createFileRoute("/_authenticated/dashboard/products")({
   head: () => ({
@@ -40,15 +43,27 @@ export const Route = createFileRoute("/_authenticated/dashboard/products")({
       { property: "og:description", content: "Bulk actions, quick edit and live stock status." },
     ],
   }),
+  loader: async () => {
+    try {
+      return await adminListProducts();
+    } catch (e) {
+      console.error("[ProductsLoader] Error loading products:", e);
+      return [];
+    }
+  },
   component: ProductsAdmin,
 });
 
 const tabs = ["All", "Published", "Draft", "Archived"] as const;
 
 function ProductsAdmin() {
-  const [tab, setTab] = useState<(typeof tabs)[number]>("All");
+  const allProducts = Route.useLoaderData() as AdminProduct[];
+  const [tab, setTab] = useState<"All" | "Published" | "Draft" | "Archived">("All");
   const [selected, setSelected] = useState<string[]>([]);
-  const [editing, setEditing] = useState<Product | null>(null);
+  const [editing, setEditing] = useState<AdminProduct | null>(null);
+  const [editPrice, setEditPrice] = useState("");
+  const [editStock, setEditStock] = useState("");
+  const [products, setProducts] = useState<AdminProduct[]>(allProducts);
 
   const rows = products.filter((p) => (tab === "All" ? true : p.status === tab));
   const allChecked = rows.length > 0 && rows.every((r) => selected.includes(r.id));
@@ -56,7 +71,7 @@ function ProductsAdmin() {
   return (
     <DashboardShell
       title="Products"
-      subtitle={`${products.length} listings across 4 categories`}
+      subtitle={`${products.length} listings across the catalogue`}
       actions={
         <>
           <Button variant="outline" size="sm">
@@ -148,13 +163,17 @@ function ProductsAdmin() {
                     />
                   </TableCell>
                   <TableCell>
-                    <div className="flex min-w-0 items-center gap-3">
-                      <img
-                        src={p.images[0]}
-                        alt=""
-                        loading="lazy"
-                        className="h-10 w-10 shrink-0 rounded-lg border border-border object-cover"
-                      />
+                      <div className="flex min-w-0 items-center gap-3">
+                      {p.images?.[0] ? (
+                        <img
+                          src={p.images[0]}
+                          alt=""
+                          loading="lazy"
+                          className="h-10 w-10 shrink-0 rounded-lg border border-border object-cover"
+                        />
+                      ) : (
+                        <div className="h-10 w-10 shrink-0 rounded-lg border border-border bg-surface-muted" />
+                      )}
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold">{p.name}</p>
                         <p className="truncate text-xs text-muted-foreground">
@@ -202,19 +221,32 @@ function ProductsAdmin() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setEditing(p)}>
+                        <DropdownMenuItem onClick={() => { setEditing(p); setEditPrice(String(p.price ?? "")); setEditStock(String(p.stock ?? "")); }}>
                           <Pencil className="h-4 w-4" /> Quick edit
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link to="/product/$slug" params={{ slug: p.slug }}>
+                          <Link to="/dashboard/product/$id/edit" params={{ id: p.id }}>
+                            <FileEdit className="h-4 w-4" /> Edit full listing
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/product/$slug" params={{ slug: p.slug! }}>
                             View on storefront
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="text-destructive"
-                          onClick={() => toast.success("Listing archived")}
+                          onClick={async () => {
+                            try {
+                              await adminDeleteProduct({ data: { id: p.id } });
+                              setProducts((prev) => prev.filter((x) => x.id !== p.id));
+                              toast.success("Product deleted");
+                            } catch {
+                              toast.error("Failed to delete product");
+                            }
+                          }}
                         >
-                          <Trash2 className="h-4 w-4" /> Archive
+                          <Trash2 className="h-4 w-4" /> Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -235,11 +267,11 @@ function ProductsAdmin() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="qe-price">Price (GH₵)</Label>
-              <Input id="qe-price" defaultValue={editing?.price} />
+              <Input id="qe-price" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="qe-stock">Stock</Label>
-              <Input id="qe-stock" defaultValue={editing?.stock} />
+              <Input id="qe-stock" value={editStock} onChange={(e) => setEditStock(e.target.value)} />
             </div>
           </div>
           <DialogFooter>
@@ -247,9 +279,28 @@ function ProductsAdmin() {
               Cancel
             </Button>
             <Button
-              onClick={() => {
-                setEditing(null);
-                toast.success("Listing updated");
+              onClick={async () => {
+                if (!editing) return;
+                try {
+                  await adminUpdateProduct({
+                    data: {
+                      id: editing.id,
+                      price: editPrice ? Number(editPrice) : undefined,
+                      stock: editStock ? Number(editStock) : undefined,
+                    },
+                  });
+                  setProducts((prev) =>
+                    prev.map((p) =>
+                      p.id === editing.id
+                        ? { ...p, price: editPrice ? Number(editPrice) : p.price, stock: editStock ? Number(editStock) : p.stock }
+                        : p,
+                    ),
+                  );
+                  setEditing(null);
+                  toast.success("Product updated");
+                } catch {
+                  toast.error("Failed to update product");
+                }
               }}
             >
               Save changes

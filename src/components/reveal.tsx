@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState, type ElementType, type ReactNode } from "react";
+import { useEffect, useRef } from "react";
+import type { ElementType, ReactNode } from "react";
+import { gsap } from "@/lib/gsap";
 
-/** Reveals children with a subtle rise + fade once they scroll into view. */
+/** Reveals children with a subtle rise + fade once they scroll into view using GSAP. */
 export function Reveal({
   children,
   as: Tag = "div",
@@ -12,39 +14,39 @@ export function Reveal({
   delay?: number;
   className?: string;
 }) {
-  const ref = useRef<HTMLElement | null>(null);
-  const [shown, setShown] = useState(false);
+  const ref = useRef<any>(null);
 
   useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-    if (typeof IntersectionObserver === "undefined") {
-      setShown(true);
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setShown(true);
-            observer.disconnect();
-          }
+    const el = ref.current;
+    if (!el) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        el,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          delay: delay / 1000,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 85%", // trigger when top of element hits 85% from top of viewport
+            toggleActions: "play none none none",
+          },
         }
-      },
-      { rootMargin: "0px 0px -12% 0px", threshold: 0.08 },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
+      );
+    }, el);
+
+    return () => ctx.revert();
+  }, [delay]);
+
+  const Component = Tag as any;
 
   return (
-    <Tag
-      ref={ref as never}
-      data-shown={shown ? "true" : "false"}
-      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
-      className={`reveal ${className}`}
-    >
+    <Component ref={ref} className={className} style={{ opacity: 0 }}>
       {children}
-    </Tag>
+    </Component>
   );
 }

@@ -1,12 +1,14 @@
-import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Heart, MessageCircle, ShoppingCart, Star } from "lucide-react";
+import { Heart, MessageCircle, ShoppingCart, Star, Repeat2 } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatPrice, whatsappLink, type Product } from "@/lib/store-data";
 import { useCart } from "@/lib/cart";
+import { useWishlist, useCompare } from "@/lib/user-store";
+import type { CatalogProduct } from "@/lib/catalog";
 
 function StockPill({ stock }: { stock: number }) {
   if (stock === 0)
@@ -32,11 +34,16 @@ export function ProductCard({
   product,
   view = "grid",
 }: {
-  product: Product;
+  product: Product | CatalogProduct;
   view?: "grid" | "list";
 }) {
-  const [saved, setSaved] = useState(false);
-  const { addItem } = useCart();
+  const { items, addItem } = useCart();
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  const { isComparing, addToCompare, removeFromCompare } = useCompare();
+
+  const saved = isWishlisted(product.id);
+  const comparing = isComparing(product.id);
+
   const discount = product.compareAt
     ? Math.round(((product.compareAt - product.price) / product.compareAt) * 100)
     : 0;
@@ -52,28 +59,36 @@ export function ProductCard({
       }`}
       aria-label={`View ${product.name}`}
     >
-      {/* Primary image — scales on hover, fades out if second image exists */}
-      <img
+      {/* Primary image */}
+      <motion.img
         src={product.images[0]}
         alt={product.name}
         loading="lazy"
         width={1024}
         height={1024}
-        className={`absolute inset-0 h-full w-full object-cover transition-[transform,opacity] duration-500 ease-out group-hover:scale-[1.06] ${
-          hasSecondImage ? "group-hover:opacity-0" : ""
-        }`}
+        className="absolute inset-0 h-full w-full object-cover"
+        variants={{
+          rest: { scale: 1, opacity: 1 },
+          hover: hasSecondImage ? { scale: 1.05, opacity: 0 } : { scale: 1.05, opacity: 1 }
+        }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
       />
 
-      {/* Secondary image — preloaded, sits on top, fades in on hover */}
+      {/* Secondary image */}
       {hasSecondImage && (
-        <img
+        <motion.img
           src={product.images[1]}
           alt=""
           aria-hidden
           loading="lazy"
           width={1024}
           height={1024}
-          className="absolute inset-0 h-full w-full object-cover opacity-0 transition-[transform,opacity] duration-500 ease-out group-hover:scale-[1.04] group-hover:opacity-100"
+          variants={{
+            rest: { opacity: 0, scale: 1.1 },
+            hover: { opacity: 1, scale: 1 }
+          }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute inset-0 h-full w-full object-cover"
         />
       )}
 
@@ -96,10 +111,10 @@ export function ProductCard({
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setSaved((s) => !s);
+          toggleWishlist(product as CatalogProduct);
           toast.success(saved ? "Removed from wishlist" : "Saved to wishlist");
         }}
-        aria-label="Add to wishlist"
+        aria-label="Toggle wishlist"
         className="glass absolute right-2.5 top-2.5 z-10 grid h-9 w-9 place-items-center rounded-full border transition-transform hover:scale-105"
       >
         <Heart className={`h-4 w-4 ${saved ? "fill-primary text-primary" : "text-foreground"}`} />
@@ -164,11 +179,33 @@ export function ProductCard({
             </a>
           </Button>
           <Button
+            variant="outline"
+            size="icon-sm"
+            aria-label={comparing ? "Remove from compare" : "Add to compare"}
+            onClick={() => {
+              if (comparing) {
+                removeFromCompare(product.id);
+                toast.info("Removed from compare");
+              } else {
+                addToCompare(product as CatalogProduct);
+                toast.success("Added to compare");
+              }
+            }}
+            className={comparing ? "border-primary text-primary" : ""}
+          >
+            <Repeat2 className="h-4 w-4" />
+          </Button>
+          <Button
             size="sm"
             disabled={product.stock === 0}
-            onClick={() => {
-              addItem(product);
-              toast.success(`${product.name} added to cart`);
+            onClick={(e) => {
+              e.preventDefault();
+              if (items.some((i) => i.product.id === product.id)) {
+                toast.error("Item is already in your cart");
+              } else {
+                addItem(product);
+                toast.success(`${product.name} added to cart`);
+              }
             }}
             className="gap-1.5"
           >
@@ -181,13 +218,16 @@ export function ProductCard({
   );
 
   return (
-    <article
-      className={`group hover-lift flex overflow-hidden rounded-2xl border border-border bg-card shadow-card ${
+    <motion.article
+      initial="rest"
+      animate="rest"
+      whileHover="hover"
+      className={`group hover-lift flex overflow-hidden rounded-xl border border-border bg-card shadow-card ${
         view === "list" ? "flex-row items-stretch gap-2 p-3" : "flex-col"
       }`}
     >
       {media}
       {body}
-    </article>
+    </motion.article>
   );
 }

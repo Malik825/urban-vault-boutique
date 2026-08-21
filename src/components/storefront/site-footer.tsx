@@ -49,15 +49,21 @@ export function SiteFooter() {
           <div>
             <h4 className="text-sm font-semibold">Company</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
-              {["About Voltix", "Warranty policy", "Delivery & pickup", "Bulk & corporate", "Support"].map(
-                (l) => (
-                  <li key={l}>
-                    <span className="cursor-pointer transition-colors hover:text-foreground">
-                      {l}
-                    </span>
-                  </li>
-                ),
-              )}
+              <li>
+                <Link to="/about" className="transition-colors hover:text-foreground">About Voltix</Link>
+              </li>
+              <li>
+                <Link to="/faqs" className="transition-colors hover:text-foreground">FAQs</Link>
+              </li>
+              <li>
+                <span className="cursor-pointer transition-colors hover:text-foreground">Warranty policy</span>
+              </li>
+              <li>
+                <span className="cursor-pointer transition-colors hover:text-foreground">Delivery &amp; pickup</span>
+              </li>
+              <li>
+                <span className="cursor-pointer transition-colors hover:text-foreground">Bulk &amp; corporate</span>
+              </li>
             </ul>
           </div>
         </div>

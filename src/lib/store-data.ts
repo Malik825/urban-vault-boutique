@@ -100,24 +100,24 @@ function make(
 }
 
 export const products: Product[] = [
-  make(1, "MacBook Pro 14 M3 Pro", "Apple", "Laptops", 2450000, 2790000, 6, "New", { RAM: "18GB", Storage: "512GB SSD", Processor: "Apple M3 Pro", "Screen Size": '14.2"', Display: "Liquid Retina XDR", Battery: "70Wh", Weight: "1.6kg", Warranty: "12 months" }, "Best seller"),
-  make(2, "iPhone 15 Pro Max 256GB", "Apple", "Phones", 1590000, 1750000, 11, "New", { RAM: "8GB", Storage: "256GB", Processor: "A17 Pro", "Screen Size": '6.7"', Camera: "48MP triple", Battery: "4441mAh", Weight: "221g", Warranty: "12 months" }, "Flash deal"),
-  make(3, "Dell XPS 15 9530", "Dell", "Laptops", 1780000, 1980000, 4, "New", { RAM: "16GB", Storage: "1TB SSD", Processor: "Intel Core i7-13700H", "Screen Size": '15.6"', Display: "FHD+ 500 nits", Battery: "86Wh", Weight: "1.86kg", Warranty: "12 months" }, "Flash deal"),
-  make(4, "HP Spectre x360 14", "HP", "Laptops", 1290000, undefined, 9, "New", { RAM: "16GB", Storage: "512GB SSD", Processor: "Intel Core i7-1355U", "Screen Size": '13.5"', Display: "OLED touch", Battery: "66Wh", Weight: "1.34kg", Warranty: "12 months" }, "New"),
-  make(5, "Lenovo ThinkPad X1 Carbon G11", "Lenovo", "Laptops", 1650000, 1820000, 3, "Open box", { RAM: "32GB", Storage: "1TB SSD", Processor: "Intel Core i7-1365U", "Screen Size": '14"', Display: "WUXGA IPS", Battery: "57Wh", Weight: "1.12kg", Warranty: "6 months" }),
-  make(6, "ASUS ROG Zephyrus G14", "ASUS", "Laptops", 1990000, 2150000, 5, "New", { RAM: "16GB", Storage: "1TB SSD", Processor: "AMD Ryzen 9 7940HS", "Screen Size": '14"', GPU: "RTX 4060", Battery: "76Wh", Weight: "1.65kg", Warranty: "12 months" }, "Best seller"),
-  make(7, "Samsung Galaxy S24 Ultra", "Samsung", "Phones", 1480000, 1620000, 14, "New", { RAM: "12GB", Storage: "256GB", Processor: "Snapdragon 8 Gen 3", "Screen Size": '6.8"', Camera: "200MP quad", Battery: "5000mAh", Weight: "232g", Warranty: "12 months" }, "New"),
-  make(8, "iPad Pro 11 M2", "Apple", "Tablets", 1120000, 1240000, 8, "New", { RAM: "8GB", Storage: "256GB", Processor: "Apple M2", "Screen Size": '11"', Display: "Liquid Retina", Battery: "28.6Wh", Weight: "466g", Warranty: "12 months" }, "Flash deal"),
-  make(9, "Galaxy Tab S9+", "Samsung", "Tablets", 890000, undefined, 0, "New", { RAM: "12GB", Storage: "256GB", Processor: "Snapdragon 8 Gen 2", "Screen Size": '12.4"', Display: "AMOLED 120Hz", Battery: "10090mAh", Weight: "581g", Warranty: "12 months" }),
-  make(10, "MacBook Air 13 M2", "Apple", "Laptops", 1180000, 1320000, 12, "Refurbished", { RAM: "8GB", Storage: "256GB SSD", Processor: "Apple M2", "Screen Size": '13.6"', Display: "Liquid Retina", Battery: "52.6Wh", Weight: "1.24kg", Warranty: "6 months" }, "Best seller"),
-  make(11, "HP EliteBook 840 G10", "HP", "Laptops", 980000, 1090000, 7, "Open box", { RAM: "16GB", Storage: "512GB SSD", Processor: "Intel Core i5-1335U", "Screen Size": '14"', Display: "WUXGA", Battery: "51Wh", Weight: "1.36kg", Warranty: "6 months" }),
-  make(12, "Sony WH-1000XM5", "Samsung", "Accessories", 385000, 430000, 22, "New", { Type: "Over-ear ANC", Battery: "30 hours", Connectivity: "Bluetooth 5.2", Weight: "250g", Warranty: "12 months" }, "Flash deal"),
-  make(13, "Apple Watch Series 9 45mm", "Apple", "Accessories", 520000, undefined, 16, "New", { Display: "Always-on Retina", Battery: "18 hours", Connectivity: "GPS + Cellular", Weight: "51g", Warranty: "12 months" }, "New"),
-  make(14, "Lenovo Yoga Slim 7i", "Lenovo", "Laptops", 860000, 940000, 2, "New", { RAM: "16GB", Storage: "512GB SSD", Processor: "Intel Core i5-1340P", "Screen Size": '14"', Display: "2.8K OLED", Battery: "61Wh", Weight: "1.4kg", Warranty: "12 months" }),
-  make(15, "ASUS Zenbook 14 OLED", "ASUS", "Laptops", 920000, undefined, 5, "New", { RAM: "16GB", Storage: "1TB SSD", Processor: "AMD Ryzen 7 7730U", "Screen Size": '14"', Display: "2.8K OLED", Battery: "75Wh", Weight: "1.39kg", Warranty: "12 months" }, undefined, "Draft"),
-  make(16, "Google Pixel 8 Pro", "Samsung", "Phones", 1180000, 1290000, 6, "New", { RAM: "12GB", Storage: "256GB", Processor: "Tensor G3", "Screen Size": '6.7"', Camera: "50MP triple", Battery: "5050mAh", Weight: "213g", Warranty: "12 months" }),
-  make(17, "iPhone 13 128GB", "Apple", "Phones", 690000, 780000, 18, "Refurbished", { RAM: "4GB", Storage: "128GB", Processor: "A15 Bionic", "Screen Size": '6.1"', Camera: "12MP dual", Battery: "3240mAh", Weight: "174g", Warranty: "6 months" }, "Best seller"),
-  make(18, "Dell Latitude 5440", "Dell", "Laptops", 740000, undefined, 0, "Open box", { RAM: "8GB", Storage: "256GB SSD", Processor: "Intel Core i5-1345U", "Screen Size": '14"', Display: "FHD", Battery: "54Wh", Weight: "1.48kg", Warranty: "6 months" }, undefined, "Archived"),
+  make(1, "MacBook Pro 14 M3 Pro", "Apple", "Laptops", 24500, 27900, 6, "New", { RAM: "18GB", Storage: "512GB SSD", Processor: "Apple M3 Pro", "Screen Size": '14.2"', Display: "Liquid Retina XDR", Battery: "70Wh", Weight: "1.6kg", Warranty: "12 months" }, "Best seller"),
+  make(2, "iPhone 15 Pro Max 256GB", "Apple", "Phones", 15900, 17500, 11, "New", { RAM: "8GB", Storage: "256GB", Processor: "A17 Pro", "Screen Size": '6.7"', Camera: "48MP triple", Battery: "4441mAh", Weight: "221g", Warranty: "12 months" }, "Flash deal"),
+  make(3, "Dell XPS 15 9530", "Dell", "Laptops", 17800, 19800, 4, "New", { RAM: "16GB", Storage: "1TB SSD", Processor: "Intel Core i7-13700H", "Screen Size": '15.6"', Display: "FHD+ 500 nits", Battery: "86Wh", Weight: "1.86kg", Warranty: "12 months" }, "Flash deal"),
+  make(4, "HP Spectre x360 14", "HP", "Laptops", 12900, undefined, 9, "New", { RAM: "16GB", Storage: "512GB SSD", Processor: "Intel Core i7-1355U", "Screen Size": '13.5"', Display: "OLED touch", Battery: "66Wh", Weight: "1.34kg", Warranty: "12 months" }, "New"),
+  make(5, "Lenovo ThinkPad X1 Carbon G11", "Lenovo", "Laptops", 16500, 18200, 3, "Open box", { RAM: "32GB", Storage: "1TB SSD", Processor: "Intel Core i7-1365U", "Screen Size": '14"', Display: "WUXGA IPS", Battery: "57Wh", Weight: "1.12kg", Warranty: "6 months" }),
+  make(6, "ASUS ROG Zephyrus G14", "ASUS", "Laptops", 19900, 21500, 5, "New", { RAM: "16GB", Storage: "1TB SSD", Processor: "AMD Ryzen 9 7940HS", "Screen Size": '14"', GPU: "RTX 4060", Battery: "76Wh", Weight: "1.65kg", Warranty: "12 months" }, "Best seller"),
+  make(7, "Samsung Galaxy S24 Ultra", "Samsung", "Phones", 14800, 16200, 14, "New", { RAM: "12GB", Storage: "256GB", Processor: "Snapdragon 8 Gen 3", "Screen Size": '6.8"', Camera: "200MP quad", Battery: "5000mAh", Weight: "232g", Warranty: "12 months" }, "New"),
+  make(8, "iPad Pro 11 M2", "Apple", "Tablets", 11200, 12400, 8, "New", { RAM: "8GB", Storage: "256GB", Processor: "Apple M2", "Screen Size": '11"', Display: "Liquid Retina", Battery: "28.6Wh", Weight: "466g", Warranty: "12 months" }, "Flash deal"),
+  make(9, "Galaxy Tab S9+", "Samsung", "Tablets", 8900, undefined, 0, "New", { RAM: "12GB", Storage: "256GB", Processor: "Snapdragon 8 Gen 2", "Screen Size": '12.4"', Display: "AMOLED 120Hz", Battery: "10090mAh", Weight: "581g", Warranty: "12 months" }),
+  make(10, "MacBook Air 13 M2", "Apple", "Laptops", 11800, 13200, 12, "Refurbished", { RAM: "8GB", Storage: "256GB SSD", Processor: "Apple M2", "Screen Size": '13.6"', Display: "Liquid Retina", Battery: "52.6Wh", Weight: "1.24kg", Warranty: "6 months" }, "Best seller"),
+  make(11, "HP EliteBook 840 G10", "HP", "Laptops", 9800, 10900, 7, "Open box", { RAM: "16GB", Storage: "512GB SSD", Processor: "Intel Core i5-1335U", "Screen Size": '14"', Display: "WUXGA", Battery: "51Wh", Weight: "1.36kg", Warranty: "6 months" }),
+  make(12, "Sony WH-1000XM5", "Samsung", "Accessories", 3850, 4300, 22, "New", { Type: "Over-ear ANC", Battery: "30 hours", Connectivity: "Bluetooth 5.2", Weight: "250g", Warranty: "12 months" }, "Flash deal"),
+  make(13, "Apple Watch Series 9 45mm", "Apple", "Accessories", 5200, undefined, 16, "New", { Display: "Always-on Retina", Battery: "18 hours", Connectivity: "GPS + Cellular", Weight: "51g", Warranty: "12 months" }, "New"),
+  make(14, "Lenovo Yoga Slim 7i", "Lenovo", "Laptops", 8600, 9400, 2, "New", { RAM: "16GB", Storage: "512GB SSD", Processor: "Intel Core i5-1340P", "Screen Size": '14"', Display: "2.8K OLED", Battery: "61Wh", Weight: "1.4kg", Warranty: "12 months" }),
+  make(15, "ASUS Zenbook 14 OLED", "ASUS", "Laptops", 9200, undefined, 5, "New", { RAM: "16GB", Storage: "1TB SSD", Processor: "AMD Ryzen 7 7730U", "Screen Size": '14"', Display: "2.8K OLED", Battery: "75Wh", Weight: "1.39kg", Warranty: "12 months" }, undefined, "Draft"),
+  make(16, "Google Pixel 8 Pro", "Samsung", "Phones", 11800, 12900, 6, "New", { RAM: "12GB", Storage: "256GB", Processor: "Tensor G3", "Screen Size": '6.7"', Camera: "50MP triple", Battery: "5050mAh", Weight: "213g", Warranty: "12 months" }),
+  make(17, "iPhone 13 128GB", "Apple", "Phones", 6900, 7800, 18, "Refurbished", { RAM: "4GB", Storage: "128GB", Processor: "A15 Bionic", "Screen Size": '6.1"', Camera: "12MP dual", Battery: "3240mAh", Weight: "174g", Warranty: "6 months" }, "Best seller"),
+  make(18, "Dell Latitude 5440", "Dell", "Laptops", 7400, undefined, 0, "Open box", { RAM: "8GB", Storage: "256GB SSD", Processor: "Intel Core i5-1345U", "Screen Size": '14"', Display: "FHD", Battery: "54Wh", Weight: "1.48kg", Warranty: "6 months" }, undefined, "Archived"),
 ];
 
 export const filterOptions = {
@@ -187,24 +187,24 @@ export const activity = [
   { who: "Order #4821", what: "marked as shipped to Victoria Island", when: "26 min ago", kind: "order" },
   { who: "Tunde Bakare", what: "added Galaxy S24 Ultra to wishlist", when: "1 hr ago", kind: "wishlist" },
   { who: "iPad Pro 11 M2", what: "stock dropped below 10 units", when: "3 hrs ago", kind: "stock" },
-  { who: "Order #4818", what: "payment confirmed — GH₵1,590,000", when: "5 hrs ago", kind: "payment" },
+  { who: "Order #4818", what: "payment confirmed — GH₵15,900", when: "5 hrs ago", kind: "payment" },
 ];
 
 export const orders = [
-  { id: "#4821", customer: "Amaka Obi", item: "MacBook Pro 14 M3 Pro", total: 2450000, status: "Shipped", date: "Aug 1" },
-  { id: "#4820", customer: "Tunde Bakare", item: "ThinkPad X1 Carbon ×4", total: 6600000, status: "Processing", date: "Aug 1" },
-  { id: "#4819", customer: "Grace Mensah", item: "iPhone 13 128GB", total: 690000, status: "Delivered", date: "Jul 31" },
-  { id: "#4818", customer: "Chidi Okeke", item: "iPhone 15 Pro Max", total: 1590000, status: "Paid", date: "Jul 31" },
-  { id: "#4817", customer: "Fatima Sule", item: "Sony WH-1000XM5 ×2", total: 770000, status: "Pending", date: "Jul 30" },
-  { id: "#4816", customer: "Emeka Nwosu", item: "Dell XPS 15 9530", total: 1780000, status: "Cancelled", date: "Jul 29" },
+  { id: "#4821", customer: "Amaka Obi", item: "MacBook Pro 14 M3 Pro", total: 24500, status: "Shipped", date: "Aug 1" },
+  { id: "#4820", customer: "Tunde Bakare", item: "ThinkPad X1 Carbon ×4", total: 66000, status: "Processing", date: "Aug 1" },
+  { id: "#4819", customer: "Grace Mensah", item: "iPhone 13 128GB", total: 6900, status: "Delivered", date: "Jul 31" },
+  { id: "#4818", customer: "Chidi Okeke", item: "iPhone 15 Pro Max", total: 15900, status: "Paid", date: "Jul 31" },
+  { id: "#4817", customer: "Fatima Sule", item: "Sony WH-1000XM5 ×2", total: 7700, status: "Pending", date: "Jul 30" },
+  { id: "#4816", customer: "Emeka Nwosu", item: "Dell XPS 15 9530", total: 17800, status: "Cancelled", date: "Jul 29" },
 ];
 
 export const customers = [
-  { name: "Amaka Obi", email: "amaka@studio.co", city: "Lagos", orders: 4, spend: 5240000, enquiries: 7, wishlist: 3 },
-  { name: "Tunde Bakare", email: "tunde@paystack.dev", city: "Lagos", orders: 2, spend: 8100000, enquiries: 3, wishlist: 1 },
-  { name: "Grace Mensah", email: "grace.m@gmail.com", city: "Accra", orders: 3, spend: 1420000, enquiries: 5, wishlist: 6 },
-  { name: "Chidi Okeke", email: "chidi.okeke@outlook.com", city: "Abuja", orders: 1, spend: 1590000, enquiries: 2, wishlist: 2 },
-  { name: "Fatima Sule", email: "fatima@sule.ng", city: "Kano", orders: 5, spend: 2890000, enquiries: 9, wishlist: 4 },
+  { name: "Amaka Obi", email: "amaka@studio.co", city: "Lagos", orders: 4, spend: 52400, enquiries: 7, wishlist: 3 },
+  { name: "Tunde Bakare", email: "tunde@paystack.dev", city: "Lagos", orders: 2, spend: 81000, enquiries: 3, wishlist: 1 },
+  { name: "Grace Mensah", email: "grace.m@gmail.com", city: "Accra", orders: 3, spend: 14200, enquiries: 5, wishlist: 6 },
+  { name: "Chidi Okeke", email: "chidi.okeke@outlook.com", city: "Abuja", orders: 1, spend: 15900, enquiries: 2, wishlist: 2 },
+  { name: "Fatima Sule", email: "fatima@sule.ng", city: "Kano", orders: 5, spend: 28900, enquiries: 9, wishlist: 4 },
 ];
 
 export const searchTerms = [
