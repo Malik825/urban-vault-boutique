@@ -6,22 +6,24 @@ import {
   Bell,
   Box,
   LayoutDashboard,
-  LayoutGrid,
   LogOut,
   Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
   Plus,
   Receipt,
   Search,
   Settings,
   Store,
+  UserCircle2,
   Users,
   Warehouse,
 } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ThemeToggle } from "@/components/storefront/theme-toggle";
 import {
   CommandDialog,
   CommandEmpty,
@@ -42,27 +44,42 @@ const nav = [
   { label: "Customers", to: "/dashboard/customers", icon: Users },
   { label: "Analytics", to: "/dashboard/analytics", icon: BarChart3 },
   { label: "Settings", to: "/dashboard/settings", icon: Settings },
+  { label: "Profile", to: "/dashboard/profile", icon: UserCircle2 },
 ] as const;
 
-function NavList({ onNavigate }: { onNavigate?: () => void }) {
+function NavList({ collapsed = false, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
     <nav className="flex flex-col gap-0.5">
       {nav.map((item) => {
-        const active = item.to === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(item.to);
+        const active =
+          item.to === "/dashboard"
+            ? pathname === "/dashboard"
+            : pathname.startsWith(item.to);
         return (
           <Link
             key={item.to}
             to={item.to}
             onClick={onNavigate}
-            className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+            title={collapsed ? item.label : undefined}
+            className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all ${
+              collapsed ? "justify-center px-2" : ""
+            } ${
               active
-                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                ? "text-foreground bg-transparent"
                 : "text-muted-foreground hover:bg-secondary hover:text-foreground"
             }`}
           >
-            <item.icon className="h-4 w-4 shrink-0" />
-            {item.label}
+            {active && !collapsed && (
+              <div className="absolute inset-y-1.5 left-0 w-1 rounded-r-full bg-primary" />
+            )}
+            {active && collapsed && (
+              <div className="absolute inset-x-1.5 bottom-0 h-1 rounded-t-full bg-primary" />
+            )}
+            <item.icon
+              className={`h-4 w-4 shrink-0 transition-transform ${active ? "scale-110" : ""}`}
+            />
+            {!collapsed && item.label}
           </Link>
         );
       })}
@@ -82,9 +99,25 @@ export function DashboardShell({
   children: React.ReactNode;
 }) {
   const [cmdOpen, setCmdOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [email, setEmail] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  // Persist sidebar preference
+  useEffect(() => {
+    const saved = localStorage.getItem("gh-sidebar");
+    if (saved !== null) setSidebarOpen(saved === "1");
+  }, []);
+
+  function toggleSidebar() {
+    setSidebarOpen((prev) => {
+      const next = !prev;
+      localStorage.setItem("gh-sidebar", next ? "1" : "0");
+      return next;
+    });
+  }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -98,7 +131,10 @@ export function DashboardShell({
   }, []);
 
   useEffect(() => {
-    void supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
+    void supabase.auth.getUser().then(({ data }) => {
+      setEmail(data.user?.email ?? null);
+      setAvatarUrl(data.user?.user_metadata?.avatar_url ?? null);
+    });
   }, []);
 
   async function signOut() {
@@ -108,60 +144,132 @@ export function DashboardShell({
     navigate({ to: "/auth", replace: true });
   }
 
+  // Sidebar widths
+  const sidebarW = sidebarOpen ? "w-64" : "w-[68px]";
+  const mainPl = sidebarOpen ? "lg:pl-64" : "lg:pl-[68px]";
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
-        <div className="flex h-16 items-center gap-2.5 px-5">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-gradient text-primary-foreground shadow-glow">
-            <LayoutGrid className="h-4 w-4" />
-          </span>
-          <div className="min-w-0">
-            <p className="truncate font-display text-sm font-extrabold">{STORE.name}</p>
-            <p className="truncate text-[11px] text-muted-foreground">Ikeja flagship</p>
-          </div>
-        </div>
-        <div className="flex-1 overflow-y-auto px-3 py-2">
-          <NavList />
-        </div>
-        <div className="border-t border-sidebar-border p-3">
-          <Link
-            to="/"
-            className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-          >
-            <Store className="h-4 w-4" /> View storefront
+      {/* ── Desktop Sidebar ── */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-300 ease-in-out lg:flex ${sidebarW}`}
+      >
+        {/* Logo row */}
+        <div className="flex h-16 shrink-0 items-center gap-2.5 overflow-hidden px-4">
+          <Link to="/" aria-label="Home" className="flex items-center gap-2.5">
+            <img
+              src="/logo.jpg"
+              alt={STORE.name}
+              className="h-9 w-9 shrink-0 rounded-xl object-cover shadow-glow"
+            />
           </Link>
-          <div className="mt-2 flex items-center gap-3 rounded-lg bg-surface-muted p-3">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="bg-primary-soft text-xs font-bold text-accent-foreground">
-                {(email ?? "S").slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-semibold">{email ?? "Signed in"}</p>
-              <p className="truncate text-[11px] text-muted-foreground">Store owner</p>
+          {sidebarOpen && (
+            <div className="min-w-0 animate-fade-up">
+              <p className="truncate font-display text-sm font-extrabold">{STORE.name}</p>
+              <p className="truncate text-[11px] text-muted-foreground">Accra flagship</p>
             </div>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Sign out"
-              onClick={() => void signOut()}
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </div>
+          )}
+        </div>
 
+        {/* Nav */}
+        <div className="flex-1 overflow-y-auto px-2 py-2">
+          <NavList collapsed={!sidebarOpen} onNavigate={toggleSidebar} />
+        </div>
+
+        {/* Footer */}
+        <div className="border-t border-sidebar-border p-3">
+          {sidebarOpen ? (
+            <>
+              <Link
+                to="/"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              >
+                <Store className="h-4 w-4 shrink-0" /> View storefront
+              </Link>
+              <div className="mt-1 flex items-center gap-3 rounded-lg bg-surface-muted p-3">
+                <Link to="/dashboard/profile">
+                  <Avatar className="h-8 w-8 cursor-pointer ring-2 ring-transparent transition-all hover:ring-primary">
+                    {avatarUrl && (
+                      <AvatarImage src={avatarUrl} alt="Profile" className="object-cover" />
+                    )}
+                    <AvatarFallback className="bg-primary-soft text-xs font-bold text-accent-foreground">
+                      {(email ?? "S").slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Link>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-xs font-semibold">{email ?? "Signed in"}</p>
+                  <p className="truncate text-[11px] text-muted-foreground">Store owner</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label="Sign out"
+                  onClick={() => void signOut()}
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
+            </>
+          ) : (
+            /* Collapsed footer — just the avatar + sign-out stacked */
+            <div className="flex flex-col items-center gap-2">
+              <Link to="/" title="View storefront">
+                <Store className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
+              </Link>
+              <Link to="/dashboard/profile" title="Profile">
+                <Avatar className="h-8 w-8 cursor-pointer ring-2 ring-transparent transition-all hover:ring-primary">
+                  {avatarUrl && (
+                    <AvatarImage src={avatarUrl} alt="Profile" className="object-cover" />
+                  )}
+                  <AvatarFallback className="bg-primary-soft text-xs font-bold text-accent-foreground">
+                    {(email ?? "S").slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Sign out"
+                onClick={() => void signOut()}
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
       </aside>
 
-      <div className="lg:pl-64">
+      {/* ── Main content ── */}
+      <div className={`transition-[padding] duration-300 ease-in-out ${mainPl}`}>
         {/* Topbar */}
         <header className="glass sticky top-0 z-30 border-b">
-          <div className="grid h-16 grid-cols-[auto_1fr_auto] items-center gap-3 px-4 sm:px-6">
+          <div className="flex h-16 items-center gap-2 px-4 sm:px-6">
+
+            {/* Desktop sidebar toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+              onClick={toggleSidebar}
+              className="hidden shrink-0 lg:flex"
+            >
+              {sidebarOpen ? (
+                <PanelLeftClose className="h-5 w-5" />
+              ) : (
+                <PanelLeftOpen className="h-5 w-5" />
+              )}
+            </Button>
+
+            {/* Mobile sheet trigger */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 lg:hidden"
+                  aria-label="Open menu"
+                >
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -172,44 +280,75 @@ export function DashboardShell({
               </SheetContent>
             </Sheet>
 
-            <button
-              onClick={() => setCmdOpen(true)}
-              className="flex w-full max-w-md items-center gap-2 rounded-xl border border-border bg-surface-muted px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-surface"
-            >
-              <Search className="h-4 w-4 shrink-0" />
-              <span className="flex-1 truncate text-left">Search products, orders…</span>
-              <kbd className="hidden rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] sm:inline">
-                ⌘K
-              </kbd>
-            </button>
+            {/* Page title */}
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-display text-base font-extrabold leading-tight sm:text-lg">
+                {title}
+              </p>
+              {subtitle && (
+                <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
+              )}
+            </div>
 
-            <div className="flex items-center gap-1">
+            {/* Right icons */}
+            <div className="flex items-center gap-1 sm:gap-2">
+              {/* Search — compact on sm, full pill on lg */}
+              <button
+                onClick={() => setCmdOpen(true)}
+                className="hidden sm:flex items-center gap-2 rounded-xl border border-border bg-surface-muted px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-surface"
+                aria-label="Search"
+              >
+                <Search className="h-4 w-4 shrink-0" />
+                <span className="hidden lg:inline text-sm">Search…</span>
+                <kbd className="hidden rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] lg:inline">
+                  ⌘K
+                </kbd>
+              </button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="sm:hidden"
+                aria-label="Search"
+                onClick={() => setCmdOpen(true)}
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+
+              {/* Theme toggle */}
+              <ThemeToggle />
+
+              {/* Notifications */}
               <Button variant="ghost" size="icon" aria-label="Notifications" className="relative">
                 <Bell className="h-5 w-5" />
                 <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary" />
               </Button>
-              <Badge variant="outline" className="hidden rounded-full sm:flex">
-                Pro plan
-              </Badge>
+
+              {/* Avatar → profile */}
+              <Link to="/dashboard/profile" aria-label="Profile">
+                <Avatar className="h-8 w-8 cursor-pointer ring-2 ring-transparent transition-all hover:ring-primary">
+                  {avatarUrl && (
+                    <AvatarImage src={avatarUrl} alt="Profile" className="object-cover" />
+                  )}
+                  <AvatarFallback className="bg-primary-soft text-xs font-bold text-accent-foreground">
+                    {(email ?? "A").slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
             </div>
           </div>
         </header>
 
         <main className="px-4 py-8 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <h1 className="truncate text-2xl font-extrabold sm:text-3xl">{title}</h1>
-                {subtitle && <p className="mt-1.5 text-sm text-muted-foreground">{subtitle}</p>}
-              </div>
-              {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
-            </div>
-            <div className="mt-8 animate-fade-up">{children}</div>
+            {actions && (
+              <div className="mb-6 flex items-center justify-end gap-2">{actions}</div>
+            )}
+            <div className="animate-fade-up">{children}</div>
           </div>
         </main>
       </div>
 
-      {/* Floating action button */}
+      {/* Mobile FAB */}
       <Button
         asChild
         variant="hero"
@@ -221,6 +360,7 @@ export function DashboardShell({
         </Link>
       </Button>
 
+      {/* Command palette */}
       <CommandDialog open={cmdOpen} onOpenChange={setCmdOpen}>
         <CommandInput placeholder="Jump to a page or action…" />
         <CommandList>

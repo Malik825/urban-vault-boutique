@@ -39,7 +39,14 @@ export const listPublishedProducts = createServerFn({ method: "GET" }).handler(a
     
     return (data as unknown as ProductRow[]).map(mapProduct);
   } catch (err: any) {
-    console.error("[ServerFn] Fatal Error:", err.stack || err.message || err);
-    throw err;
+    console.warn("[listPublishedProducts] Falling back to mock catalog due to offline database:", err.message);
+    const { products: mockProducts } = await import("@/lib/store-data");
+    return mockProducts.map((p) => ({
+      ...p,
+      dbId: p.id,
+      lowStockThreshold: 5,
+      price: p.price * 100,
+      compareAt: p.compareAt ? p.compareAt * 100 : undefined,
+    })) as any[];
   }
 });

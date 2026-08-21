@@ -20,11 +20,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProductCard } from "@/components/storefront/product-card";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { SiteHeader } from "@/components/storefront/site-header";
+import { Reveal } from "@/components/reveal";
 import { useCart } from "@/lib/cart";
 import { useWishlist, useCompare } from "@/lib/user-store";
 import { formatPrice, reviews, whatsappLink } from "@/lib/store-data";
 import { groupSpecs, type CatalogProduct } from "@/lib/catalog";
 import { listPublishedProducts } from "@/lib/catalog.functions";
+import { useEffect, useRef } from "react";
+import { gsap } from "@/lib/gsap";
 
 export const Route = createFileRoute("/product/$slug")({
   loader: async ({ params }) => {
@@ -71,6 +74,23 @@ function ProductDetail() {
   const saved = isWishlisted(product.id);
   const comparing = isComparing(product.id);
 
+  const [activeTab, setActiveTab] = useState("description");
+  const tabsContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (tabsContentRef.current) {
+      // Animate active tab content when it switches
+      const activeEl = tabsContentRef.current.querySelector('[data-state="active"]');
+      if (activeEl) {
+        gsap.fromTo(
+          activeEl,
+          { opacity: 0, y: 15, filter: "blur(4px)" },
+          { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.4, ease: "power2.out", overwrite: "auto" }
+        );
+      }
+    }
+  }, [activeTab]);
+
 
   const discount = product.compareAt
     ? Math.round(((product.compareAt - product.price) / product.compareAt) * 100)
@@ -78,7 +98,7 @@ function ProductDetail() {
   const specGroups = groupSpecs(product.specs);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background">
+    <div className="min-h-screen bg-background">
       <SiteHeader />
 
       <div className="mx-auto max-w-7xl container-x pb-16 pt-6">
@@ -123,7 +143,7 @@ function ProductDetail() {
           </div>
 
           {/* Purchase panel */}
-          <div className="animate-fade-up">
+          <Reveal>
             <div className="lg:sticky lg:top-24">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className="rounded-md">
@@ -265,12 +285,12 @@ function ProductDetail() {
                   ))}
               </dl>
             </div>
-          </div>
+          </Reveal>
         </div>
 
         {/* Tabs */}
         <section className="mt-16">
-          <Tabs defaultValue="description">
+          <Tabs defaultValue="description" onValueChange={setActiveTab}>
             <TabsList className="h-auto flex-wrap rounded-xl bg-surface-muted p-1">
               <TabsTrigger value="description" className="rounded-lg px-4 py-2">
                 Description
@@ -283,105 +303,106 @@ function ProductDetail() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="description" className="mt-6">
-              <div className="max-w-3xl space-y-4 text-sm leading-relaxed text-muted-foreground">
-                <p>
-                  The {product.name} is one of our most requested {product.category.toLowerCase()}.
-                  Every unit passes a 22-point inspection covering battery health, port function,
-                  display uniformity and thermal behaviour before it is listed.
-                </p>
-                <p>
-                  Condition is graded as <strong className="text-foreground">{product.condition}</strong>,
-                  and the listing photos are of the exact unit in stock. Bulk pricing is available for
-                  orders of five units or more — message us on WhatsApp with your quantity and we&apos;ll
-                  send a quote the same day.
-                </p>
-                <p>
-                  Delivery is same-day within Lagos for orders placed before 2pm, and 24–48 hours
-                  nationwide with tracked couriers. Pickup from our Ikeja counter is always free.
-                </p>
-              </div>
-            </TabsContent>
+            <div ref={tabsContentRef}>
+              <TabsContent value="description" className="mt-6">
+                <div className="max-w-3xl space-y-4 text-sm leading-relaxed text-muted-foreground">
+                  <p>
+                    The {product.name} is one of our most requested {product.category.toLowerCase()}.
+                    Every unit passes a 22-point inspection covering battery health, port function,
+                    display uniformity and thermal behaviour before it is listed.
+                  </p>
+                  <p>
+                    Condition is graded as <strong className="text-foreground">{product.condition}</strong>,
+                    and the listing photos are of the exact unit in stock. Bulk pricing is available for
+                    orders of five units or more — message us on WhatsApp with your quantity and we&apos;ll
+                    send a quote the same day.
+                  </p>
+                  <p>
+                    Delivery is same-day within Lagos for orders placed before 2pm, and 24–48 hours
+                    nationwide with tracked couriers. Pickup from our Ikeja counter is always free.
+                  </p>
+                </div>
+              </TabsContent>
 
-            <TabsContent value="specs" className="mt-6">
-              <div className="grid max-w-4xl gap-4 sm:grid-cols-2">
-                {specGroups.map((g) => (
-                  <div
-                    key={g.label}
-                    className="overflow-hidden rounded-lg border border-border/70 bg-card transition-shadow duration-300 hover:shadow-card"
-                  >
+              <TabsContent value="specs" className="mt-6">
+                <div className="grid max-w-4xl gap-4 sm:grid-cols-2">
+                  {specGroups.map((g) => (
+                    <div
+                      key={g.label}
+                      className="overflow-hidden rounded-lg border border-border/70 bg-card transition-shadow duration-300 hover:shadow-card"
+                    >
+                      <p className="border-b border-border/70 bg-surface-muted px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        {g.label}
+                      </p>
+                      <table className="w-full text-sm">
+                        <tbody>
+                          {g.rows.map((row) => (
+                            <tr key={row.key} className="border-b border-border/50 last:border-0">
+                              <th className="w-1/2 px-4 py-2.5 text-left font-medium text-muted-foreground">
+                                {row.key}
+                              </th>
+                              <td className="px-4 py-2.5 font-semibold">{row.value}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ))}
+                  <div className="overflow-hidden rounded-lg border border-border/70 bg-card">
                     <p className="border-b border-border/70 bg-surface-muted px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                      {g.label}
+                      Listing
                     </p>
                     <table className="w-full text-sm">
                       <tbody>
-                        {g.rows.map((row) => (
-                          <tr key={row.key} className="border-b border-border/50 last:border-0">
-                            <th className="w-1/2 px-4 py-2.5 text-left font-medium text-muted-foreground">
-                              {row.key}
-                            </th>
-                            <td className="px-4 py-2.5 font-semibold">{row.value}</td>
-                          </tr>
-                        ))}
+                        <tr className="border-b border-border/50">
+                          <th className="w-1/2 px-4 py-2.5 text-left font-medium text-muted-foreground">
+                            Condition
+                          </th>
+                          <td className="px-4 py-2.5 font-semibold">{product.condition}</td>
+                        </tr>
+                        <tr className="border-b border-border/50">
+                          <th className="px-4 py-2.5 text-left font-medium text-muted-foreground">
+                            Brand
+                          </th>
+                          <td className="px-4 py-2.5 font-semibold">{product.brand}</td>
+                        </tr>
+                        <tr>
+                          <th className="px-4 py-2.5 text-left font-medium text-muted-foreground">
+                            Availability
+                          </th>
+                          <td className="px-4 py-2.5 font-semibold">
+                            {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
+                          </td>
+                        </tr>
                       </tbody>
                     </table>
                   </div>
-                ))}
-                <div className="overflow-hidden rounded-lg border border-border/70 bg-card">
-                  <p className="border-b border-border/70 bg-surface-muted px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Listing
-                  </p>
-                  <table className="w-full text-sm">
-                    <tbody>
-                      <tr className="border-b border-border/50">
-                        <th className="w-1/2 px-4 py-2.5 text-left font-medium text-muted-foreground">
-                          Condition
-                        </th>
-                        <td className="px-4 py-2.5 font-semibold">{product.condition}</td>
-                      </tr>
-                      <tr className="border-b border-border/50">
-                        <th className="px-4 py-2.5 text-left font-medium text-muted-foreground">
-                          Brand
-                        </th>
-                        <td className="px-4 py-2.5 font-semibold">{product.brand}</td>
-                      </tr>
-                      <tr>
-                        <th className="px-4 py-2.5 text-left font-medium text-muted-foreground">
-                          Availability
-                        </th>
-                        <td className="px-4 py-2.5 font-semibold">
-                          {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
                 </div>
-              </div>
-            </TabsContent>
+              </TabsContent>
 
-
-            <TabsContent value="reviews" className="mt-6">
-              <div className="grid max-w-4xl gap-4 md:grid-cols-2">
-                {reviews.map((r) => (
-                  <figure key={r.name} className="rounded-2xl border border-border bg-card p-5 shadow-card">
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-3.5 w-3.5 ${i < Math.round(r.rating) ? "fill-warning text-warning" : "text-border"}`}
-                        />
-                      ))}
-                    </div>
-                    <blockquote className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                      “{r.text}”
-                    </blockquote>
-                    <figcaption className="mt-4 text-xs font-semibold">
-                      {r.name} <span className="font-normal text-muted-foreground">· {r.role}</span>
-                    </figcaption>
-                  </figure>
-                ))}
-              </div>
-            </TabsContent>
+              <TabsContent value="reviews" className="mt-6">
+                <div className="grid max-w-4xl gap-4 md:grid-cols-2">
+                  {reviews.map((r) => (
+                    <figure key={r.name} className="rounded-2xl border border-border bg-card p-5 shadow-card">
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-3.5 w-3.5 ${i < Math.round(r.rating) ? "fill-warning text-warning" : "text-border"}`}
+                          />
+                        ))}
+                      </div>
+                      <blockquote className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                        “{r.text}”
+                      </blockquote>
+                      <figcaption className="mt-4 text-xs font-semibold">
+                        {r.name} <span className="font-normal text-muted-foreground">· {r.role}</span>
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </TabsContent>
+            </div>
           </Tabs>
         </section>
 

@@ -1,11 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Download, FileText, Truck } from "lucide-react";
+import { Download, FileText, Truck, ChevronDown } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { formatPrice, orders } from "@/lib/store-data";
+import { formatPrice } from "@/lib/store-data";
+import { adminListOrders, adminUpdateOrderStatus } from "@/lib/admin.functions";
+
+type Order = Awaited<ReturnType<typeof adminListOrders>>[number];
+
+const ORDER_STATUSES = ["pending", "processing", "shipped", "delivered", "cancelled"] as const;
 
 export const Route = createFileRoute("/_authenticated/dashboard/orders")({
   head: () => ({
@@ -19,87 +31,114 @@ export const Route = createFileRoute("/_authenticated/dashboard/orders")({
       { property: "og:description", content: "Status timeline, invoices, payments and shipping." },
     ],
   }),
+  loader: async () => {
+    try {
+      return await adminListOrders();
+    } catch {
+      return [];
+    }
+  },
   component: Orders,
 });
 
-const timeline = ["Placed", "Paid", "Processing", "Shipped", "Delivered"];
+function statusColor(status: string) {
+  if (status === "delivered") return "border-transparent bg-primary-soft text-accent-foreground";
+  if (status === "cancelled") return "border-transparent bg-destructive/10 text-destructive";
+  if (status === "shipped") return "border-transparent bg-blue-500/10 text-blue-600";
+  return "";
+}
 
 function Orders() {
+  const orders = Route.useLoaderData() as Order[];
+  const pending = orders.filter((o) => o.status === "pending" || o.status === "processing");
+
+  async function updateStatus(id: string, status: string) {
+    try {
+      await adminUpdateOrderStatus({ data: { id, status } });
+      toast.success(`Order marked as ${status}`);
+    } catch {
+      toast.error("Failed to update order status");
+    }
+  }
+
   return (
     <DashboardShell
       title="Orders"
-      subtitle="167 orders this month · 12 awaiting dispatch"
+      subtitle={`${orders.length} orders total · ${pending.length} awaiting dispatch`}
       actions={
         <Button variant="outline" size="sm">
           <Download className="h-4 w-4" /> Export
         </Button>
       }
     >
-      <div className="rounded-2xl border border-border bg-card p-5 shadow-card sm:p-6">
-        <h2 className="font-display text-base font-bold">Order #4821 · Amaka Obi</h2>
-        <ol className="mt-6 grid gap-4 sm:grid-cols-5">
-          {timeline.map((t, i) => (
-            <li key={t} className="relative">
-              <span
-                className={`grid h-8 w-8 place-items-center rounded-full text-xs font-bold ${
-                  i <= 3 ? "bg-primary text-primary-foreground" : "border border-border bg-surface"
-                }`}
-              >
-                {i + 1}
-              </span>
-              <p className="mt-2 text-sm font-semibold">{t}</p>
-              <p className="text-xs text-muted-foreground">{i <= 3 ? "Aug 1, 2026" : "Pending"}</p>
-            </li>
-          ))}
-        </ol>
-        <div className="mt-6 grid gap-3 border-t border-border pt-5 sm:grid-cols-3">
-          <Info icon={FileText} label="Invoice" value="INV-4821 · paid in full" />
-          <Info icon={Truck} label="Shipping" value="GIG Logistics · VI, Lagos" />
-          <Info icon={FileText} label="Payment" value="Bank transfer · GH₵2,450,000" />
+      {orders.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center rounded-2xl border border-border bg-card">
+          <FileText className="h-10 w-10 text-muted-foreground mb-4" />
+          <p className="font-display text-base font-bold">No orders yet</p>
+          <p className="mt-1 text-sm text-muted-foreground">Orders placed on the storefront will appear here.</p>
         </div>
-      </div>
-
-      <div className="mt-6 overflow-x-auto rounded-2xl border border-border bg-card shadow-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Order</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Items</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="text-right">Total</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {orders.map((o) => (
-              <TableRow key={o.id} className="transition-colors hover:bg-surface-muted">
-                <TableCell className="font-semibold">{o.id}</TableCell>
-                <TableCell>{o.customer}</TableCell>
-                <TableCell className="max-w-[220px] truncate text-muted-foreground">
-                  {o.item}
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant="secondary"
-                    className={
-                      o.status === "Delivered" || o.status === "Paid"
-                        ? "border-transparent bg-primary-soft text-accent-foreground"
-                        : o.status === "Cancelled"
-                          ? "border-transparent bg-destructive/10 text-destructive"
-                          : ""
-                    }
-                  >
-                    {o.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-muted-foreground">{o.date}</TableCell>
-                <TableCell className="text-right font-semibold">{formatPrice(o.total)}</TableCell>
+      ) : (
+        <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-card">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Order ID</TableHead>
+                <TableHead>Items</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Shipping</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+                <TableHead className="w-10" />
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+            </TableHeader>
+            <TableBody>
+              {orders.map((o) => {
+                const addr = o.shipping_address as Record<string, string> | null;
+                return (
+                  <TableRow key={o.id} className="transition-colors hover:bg-surface-muted">
+                    <TableCell className="font-semibold text-xs">
+                      #{String(o.id).slice(0, 8).toUpperCase()}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      —
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className={statusColor(o.status ?? "")}>
+                        {o.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {new Date(o.created_at).toLocaleDateString("en-GH")}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {addr ? `${addr.city ?? ""}, ${addr.region ?? ""}`.replace(/^, |, $/, "") : "—"}
+                    </TableCell>
+                    <TableCell className="text-right font-semibold">
+                      {formatPrice((o.total ?? 0) / 100)}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon-sm" aria-label="Change status">
+                            <ChevronDown className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {ORDER_STATUSES.map((s) => (
+                            <DropdownMenuItem key={s} onClick={() => void updateStatus(o.id, s)} className="capitalize">
+                              {s}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </DashboardShell>
   );
 }

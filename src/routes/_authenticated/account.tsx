@@ -71,7 +71,7 @@ function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background">
+    <div className="min-h-screen bg-background">
       <SiteHeader />
 
       <div className="mx-auto max-w-5xl container-x pb-20 pt-10">

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ImagePlus, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -27,9 +28,26 @@ export const Route = createFileRoute("/_authenticated/dashboard/settings")({
   component: Settings,
 });
 
-const swatches = ["#10B981", "#059669", "#047857", "#0EA5E9", "#111827"];
+const swatches = [
+  "#10B981", "#059669", "#047857", "#0EA5E9", "#111827",
+  "#8B5CF6", "#F43F5E", "#F59E0B", "#09090B"
+];
 
 function Settings() {
+  const [themeColor, setThemeColor] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("voltix-theme-color") || "#10B981";
+    }
+    return "#10B981";
+  });
+
+  function changeTheme(color: string) {
+    setThemeColor(color);
+    localStorage.setItem("voltix-theme-color", color);
+    window.dispatchEvent(new Event("voltix-theme-change"));
+    toast.success(`Theme colour set to ${color}`);
+  }
+
   return (
     <DashboardShell
       title="Settings"
@@ -47,7 +65,7 @@ function Settings() {
               onClick={() => toast.success("Logo upload opened")}
               className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl border-2 border-dashed border-border bg-surface-muted text-muted-foreground transition-colors hover:border-primary/50"
             >
-              <ImagePlus className="h-5 w-5" />
+               <ImagePlus className="h-5 w-5" />
             </button>
             <div className="min-w-0 flex-1 space-y-2">
               <Label htmlFor="store-name">Store name</Label>
@@ -57,14 +75,14 @@ function Settings() {
           <div className="mt-5 space-y-2">
             <Label>Theme colour</Label>
             <div className="flex gap-2">
-              {swatches.map((c, i) => (
+              {swatches.map((c) => (
                 <button
                   key={c}
                   aria-label={`Theme colour ${c}`}
-                  onClick={() => toast.success(`Theme colour set to ${c}`)}
+                  onClick={() => changeTheme(c)}
                   style={{ backgroundColor: c }}
                   className={`h-9 w-9 rounded-full border-2 transition-transform hover:scale-105 ${
-                    i === 0 ? "border-foreground" : "border-transparent"
+                    themeColor === c ? "border-foreground scale-105" : "border-transparent"
                   }`}
                 />
               ))}
