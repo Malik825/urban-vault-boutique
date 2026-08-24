@@ -20,7 +20,6 @@ import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/storefront/site-header";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { STORE, whatsappLink } from "@/lib/store-data";
-import ecommerceBg from "@/assets/ecommerce-bg.jpg";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/services")({
@@ -88,28 +87,22 @@ const metrics = [
 
 function HeroSection() {
   return (
-    <section className="relative min-h-[75vh] flex items-center justify-center overflow-hidden">
-      {/* Background Image with Fixed Parallax */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center bg-fixed bg-no-repeat"
-        style={{ backgroundImage: `url(${ecommerceBg})` }}
-      >
-        <div className="absolute inset-0 bg-black/70" />
-      </div>
+    <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden bg-background">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--surface-muted)_0%,var(--background)_100%)] opacity-50 z-0" />
 
-      <div className="relative z-20 container-x mx-auto text-center w-full max-w-5xl">
+      <div className="relative z-20 container-x mx-auto text-center w-full max-w-5xl py-20">
         <div className="flex flex-col items-center">
-          <Badge variant="outline" className="mb-8 rounded-full border-white/30 bg-white/10 px-5 py-2 text-sm font-medium text-white backdrop-blur-md">
+          <Badge variant="outline" className="mb-8 rounded-full border-primary/30 bg-primary/10 px-5 py-2 text-sm font-medium text-primary backdrop-blur-md">
             <Sparkles className="mr-2 h-4 w-4" />
             Infrastructure for the Future
           </Badge>
           
-          <h1 className="font-display text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.95] text-white mb-8">
+          <h1 className="font-display text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.95] text-foreground mb-8">
             Elevate your <br className="hidden sm:block" />
             <span className="text-primary">tech experience.</span>
           </h1>
           
-          <p className="max-w-2xl text-xl sm:text-2xl text-white/80 leading-relaxed mb-12">
+          <p className="max-w-2xl text-xl sm:text-2xl text-muted-foreground leading-relaxed mb-12">
             Beyond commerce. We provide end-to-end logistics, rigorous quality control, and dedicated B2B support to power your growth.
           </p>
 
