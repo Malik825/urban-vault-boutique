@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRef } from "react";
 import {
   ArrowRight,
@@ -20,10 +20,11 @@ import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/storefront/site-header";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { STORE, whatsappLink } from "@/lib/store-data";
-import infraImg from "@/assets/infrastructure-bg.jpg";
+import ecommerceBg from "@/assets/ecommerce-bg.jpg";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/services")({
+  head: () => ({
     meta: [
       { title: `Services — ${STORE.name}` },
       {
@@ -86,20 +87,15 @@ const metrics = [
 ];
 
 function HeroSection() {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-
   return (
-    <section ref={ref} className="relative min-h-[75vh] flex items-center justify-center overflow-hidden">
-      {/* Background Image with Parallax */}
-      <motion.div style={{ y }} className="absolute inset-0 z-0 h-[130%] -top-[15%]">
-        <img src={infraImg} alt="Services Background" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-black/60" />
-      </motion.div>
+    <section className="relative min-h-[75vh] flex items-center justify-center overflow-hidden">
+      {/* Background Image with Fixed Parallax */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-fixed bg-no-repeat"
+        style={{ backgroundImage: `url(${ecommerceBg})` }}
+      >
+        <div className="absolute inset-0 bg-black/70" />
+      </div>
 
       <div className="relative z-20 container-x mx-auto text-center w-full max-w-5xl">
         <div className="flex flex-col items-center">
