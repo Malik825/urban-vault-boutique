@@ -8,7 +8,7 @@ export const getRouter = () => {
       queries: {
         // Cache data for 30 minutes, consider it fresh for 5 minutes
         staleTime: 5 * 60 * 1000,
-        cacheTime: 30 * 60 * 1000,
+        gcTime: 30 * 60 * 1000,
       },
     },
   });
