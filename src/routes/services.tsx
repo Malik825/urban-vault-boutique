@@ -42,7 +42,7 @@ const allServices = [
     icon: ShieldCheck,
     category: "For Buyers",
     colSpan: "md:col-span-2 lg:col-span-2",
-    bgClass: "bg-gradient-to-br from-zinc-900 via-zinc-900 to-primary/20",
+    bgClass: "bg-card hover:bg-surface-muted",
   },
   {
     title: "Secure Logistics",
@@ -50,7 +50,7 @@ const allServices = [
     icon: Truck,
     category: "Universal",
     colSpan: "md:col-span-1 lg:col-span-1",
-    bgClass: "bg-gradient-to-bl from-zinc-900 to-zinc-950",
+    bgClass: "bg-card hover:bg-surface-muted",
   },
   {
     title: "Device Trade-ins",
@@ -58,7 +58,7 @@ const allServices = [
     icon: Repeat2,
     category: "For Buyers",
     colSpan: "md:col-span-1 lg:col-span-1",
-    bgClass: "bg-gradient-to-tr from-zinc-950 to-zinc-900",
+    bgClass: "bg-card hover:bg-surface-muted",
   },
   {
     title: "Retailer Dashboard",
@@ -66,7 +66,7 @@ const allServices = [
     icon: Building,
     category: "For Retailers",
     colSpan: "md:col-span-2 lg:col-span-2",
-    bgClass: "bg-gradient-to-tl from-primary/10 via-zinc-900 to-zinc-900",
+    bgClass: "bg-card hover:bg-surface-muted",
   },
   {
     title: "Verified Seller Status",
@@ -74,7 +74,7 @@ const allServices = [
     icon: BadgeCheck,
     category: "For Retailers",
     colSpan: "md:col-span-3 lg:col-span-3",
-    bgClass: "bg-gradient-to-r from-zinc-900 via-zinc-900 to-zinc-800",
+    bgClass: "bg-card hover:bg-surface-muted",
   },
 ];
 
@@ -98,9 +98,7 @@ function HeroSection() {
     <section ref={ref} className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-background">
       {/* Dynamic Background */}
       <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary/20 blur-[120px] mix-blend-screen" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[150px] mix-blend-screen" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,var(--background)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--surface-muted)_0%,var(--background)_100%)]" />
       </motion.div>
 
       {/* Floating Elements */}
@@ -108,16 +106,16 @@ function HeroSection() {
         <motion.div 
           animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }} 
           transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/4 left-[15%] hidden lg:flex items-center justify-center w-16 h-16 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl"
+          className="absolute top-1/4 left-[15%] hidden lg:flex items-center justify-center w-16 h-16 rounded-2xl bg-card border border-border shadow-xl"
         >
-          <Cpu className="w-8 h-8 text-primary/70" />
+          <Cpu className="w-8 h-8 text-primary" />
         </motion.div>
         <motion.div 
           animate={{ y: [0, 25, 0], rotate: [0, -10, 0] }} 
           transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute bottom-1/3 right-[15%] hidden lg:flex items-center justify-center w-20 h-20 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl"
+          className="absolute bottom-1/3 right-[15%] hidden lg:flex items-center justify-center w-20 h-20 rounded-full bg-card border border-border shadow-xl"
         >
-          <ShieldCheck className="w-10 h-10 text-blue-400/70" />
+          <ShieldCheck className="w-10 h-10 text-primary" />
         </motion.div>
       </div>
 
@@ -135,7 +133,7 @@ function HeroSection() {
           
           <h1 className="font-display text-6xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.95] text-foreground mb-8">
             Elevate your <br className="hidden sm:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-primary bg-300% animate-gradient">tech experience.</span>
+            <span className="text-primary">tech experience.</span>
           </h1>
           
           <p className="max-w-2xl text-xl sm:text-2xl text-muted-foreground leading-relaxed mb-12">
@@ -143,7 +141,7 @@ function HeroSection() {
           </p>
 
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button size="lg" className="rounded-full h-16 px-10 text-lg font-bold shadow-[0_0_40px_-10px_var(--primary)] hover:shadow-[0_0_60px_-15px_var(--primary)] transition-shadow">
+            <Button size="lg" className="rounded-full h-16 px-10 text-lg font-bold shadow-xl">
               Explore Capabilities <ArrowRight className="ml-3 h-5 w-5" />
             </Button>
           </motion.div>
@@ -176,24 +174,21 @@ function BentoServices() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.5 }}
               whileHover={{ y: -5 }}
-              className={`group relative overflow-hidden rounded-[2rem] border border-white/5 ${service.bgClass} ${service.colSpan} p-10 shadow-2xl transition-all duration-500 hover:border-white/10`}
+              className={`group relative overflow-hidden rounded-[2rem] border border-border ${service.bgClass} ${service.colSpan} p-10 shadow-lg transition-all duration-300`}
             >
-              {/* Hover Glow Effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:to-transparent transition-colors duration-500" />
-              
               <div className="relative z-10 h-full flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-8">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 group-hover:scale-110 transition-transform duration-500">
-                      <service.icon className="h-7 w-7 text-white" />
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-surface border border-border group-hover:scale-110 transition-transform duration-300">
+                      <service.icon className="h-7 w-7 text-primary" />
                     </div>
-                    <Badge variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-none rounded-full px-4">
+                    <Badge variant="secondary" className="rounded-full px-4">
                       {service.category}
                     </Badge>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-primary transition-colors">{service.title}</h3>
+                  <h3 className="text-2xl font-bold text-foreground mb-4 group-hover:text-primary transition-colors">{service.title}</h3>
                 </div>
-                <p className="text-lg text-white/70 leading-relaxed">
+                <p className="text-lg text-muted-foreground leading-relaxed">
                   {service.description}
                 </p>
               </div>
@@ -241,26 +236,21 @@ function CTASection() {
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative overflow-hidden rounded-[3rem] bg-zinc-950 border border-white/10 px-8 py-24 text-center shadow-2xl sm:px-16"
+          className="relative overflow-hidden rounded-[3rem] bg-card border border-border px-8 py-24 text-center shadow-xl sm:px-16"
         >
-          {/* Animated Gradient Background */}
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-blue-500/20 to-primary/20 opacity-30 animate-gradient bg-300%" />
-          <div className="absolute -inset-[100%] bg-[conic-gradient(from_90deg_at_50%_50%,#00000000_50%,var(--primary)_100%)] opacity-20 animate-spin-slow" />
-          <div className="absolute inset-[1px] rounded-[3rem] bg-zinc-950/90 backdrop-blur-3xl" />
-          
           <div className="relative z-10">
-            <Badge className="mb-6 bg-white/10 text-white hover:bg-white/20 border-white/10 px-4 py-1.5 text-sm rounded-full">
+            <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm rounded-full">
               Enterprise Solutions
             </Badge>
-            <h2 className="font-display text-4xl font-black text-white sm:text-5xl lg:text-6xl tracking-tight mb-8">
+            <h2 className="font-display text-4xl font-black text-foreground sm:text-5xl lg:text-6xl tracking-tight mb-8">
               Need a Custom Solution?
             </h2>
-            <p className="mx-auto max-w-2xl text-xl text-zinc-400 leading-relaxed mb-12">
+            <p className="mx-auto max-w-2xl text-xl text-muted-foreground leading-relaxed mb-12">
               We offer corporate procurement, bulk purchasing, and custom logistics solutions tailored specifically for enterprise clients.
             </p>
             
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button asChild size="lg" className="rounded-full px-12 h-16 text-lg font-bold bg-white text-zinc-950 hover:bg-zinc-200 shadow-xl transition-all">
+              <Button asChild size="lg" className="rounded-full px-12 h-16 text-lg font-bold shadow-md transition-all">
                 <a href={whatsappLink("Hi Voltix, I'd like to discuss a custom solution.")} target="_blank" rel="noreferrer">
                   <MessageCircle className="mr-3 h-6 w-6" /> Contact Sales
                 </a>
