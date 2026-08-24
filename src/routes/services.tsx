@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRef } from "react";
 import {
   ArrowRight,
@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/storefront/site-header";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { STORE, whatsappLink } from "@/lib/store-data";
+import laptopImg from "@/assets/laptop.jpg";
 
 export const Route = createFileRoute("/services")({
   head: () => ({
@@ -86,66 +87,35 @@ const metrics = [
 ];
 
 function HeroSection() {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
-    <section ref={ref} className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-background">
-      {/* Dynamic Background */}
-      <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--surface-muted)_0%,var(--background)_100%)]" />
-      </motion.div>
-
-      {/* Floating Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
-        <motion.div 
-          animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }} 
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/4 left-[15%] hidden lg:flex items-center justify-center w-16 h-16 rounded-2xl bg-card border border-border shadow-xl"
-        >
-          <Cpu className="w-8 h-8 text-primary" />
-        </motion.div>
-        <motion.div 
-          animate={{ y: [0, 25, 0], rotate: [0, -10, 0] }} 
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute bottom-1/3 right-[15%] hidden lg:flex items-center justify-center w-20 h-20 rounded-full bg-card border border-border shadow-xl"
-        >
-          <ShieldCheck className="w-10 h-10 text-primary" />
-        </motion.div>
+    <section className="relative min-h-[75vh] flex items-center justify-center overflow-hidden">
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <img src={laptopImg} alt="Services Background" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/60" />
       </div>
 
-      <div className="relative z-20 container-x mx-auto max-w-5xl text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="flex flex-col items-center"
-        >
-          <Badge variant="outline" className="mb-8 rounded-full border-primary/30 bg-primary/10 px-5 py-2 text-sm font-medium text-primary backdrop-blur-md">
+      <div className="relative z-20 container-x mx-auto text-center w-full max-w-5xl">
+        <div className="flex flex-col items-center">
+          <Badge variant="outline" className="mb-8 rounded-full border-white/30 bg-white/10 px-5 py-2 text-sm font-medium text-white backdrop-blur-md">
             <Sparkles className="mr-2 h-4 w-4" />
             Infrastructure for the Future
           </Badge>
           
-          <h1 className="font-display text-6xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.95] text-foreground mb-8">
+          <h1 className="font-display text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.95] text-white mb-8">
             Elevate your <br className="hidden sm:block" />
             <span className="text-primary">tech experience.</span>
           </h1>
           
-          <p className="max-w-2xl text-xl sm:text-2xl text-muted-foreground leading-relaxed mb-12">
+          <p className="max-w-2xl text-xl sm:text-2xl text-white/80 leading-relaxed mb-12">
             Beyond commerce. We provide end-to-end logistics, rigorous quality control, and dedicated B2B support to power your growth.
           </p>
 
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button size="lg" className="rounded-full h-16 px-10 text-lg font-bold shadow-xl">
-              Explore Capabilities <ArrowRight className="ml-3 h-5 w-5" />
-            </Button>
-          </motion.div>
-        </motion.div>
+          <Button size="lg" className="rounded-full h-16 px-10 text-lg font-bold shadow-xl">
+            Explore Capabilities <ArrowRight className="ml-3 h-5 w-5" />
+          </Button>
+        </div>
       </div>
     </section>
   );
