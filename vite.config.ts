@@ -6,7 +6,9 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [
-    tanstackStart(),
+    tanstackStart({
+      server: { entry: "src/server.ts" }
+    }),
     nitro({ preset: "vercel" }),
     react(),
     tailwindcss(),
