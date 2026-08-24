@@ -32,3 +32,8 @@ dist-ssr
 *.sw?
 .env  
 .env.* 
+
+# Vercel
+.vercel
+vercel_out.txt
+github.json
