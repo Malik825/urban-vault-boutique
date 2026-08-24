@@ -1,28 +1,26 @@
-import { useEffect, useRef } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { gsap } from "@/lib/gsap";
+import { createFileRoute } from "@tanstack/react-router";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 import {
   ArrowRight,
   BadgeCheck,
   Building,
-  Headset,
-  MapPin,
+  CheckCircle2,
+  Cpu,
+  Globe,
   MessageCircle,
   Repeat2,
   ShieldCheck,
+  Sparkles,
   Truck,
-  Wrench,
+  Zap,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/storefront/site-header";
 import { SiteFooter } from "@/components/storefront/site-footer";
-import { Reveal } from "@/components/reveal";
-import TextAnimation from "@/components/ui/scroll-text";
 import { STORE, whatsappLink } from "@/lib/store-data";
-import phoneImg from "@/assets/phone.jpg";
-import laptopImg from "@/assets/laptop.jpg";
 
 export const Route = createFileRoute("/services")({
   head: () => ({
@@ -40,188 +38,252 @@ export const Route = createFileRoute("/services")({
 const allServices = [
   {
     title: "Quality Assurance",
-    description: "Every device sold on our platform is physically inspected, graded, and verified by our in-house technicians. No fake specs or hidden defects.",
+    description: "Every device is physically inspected, graded, and verified by our in-house technicians. No fake specs or hidden defects.",
     icon: ShieldCheck,
-    img: phoneImg,
-    category: "For Buyers"
+    category: "For Buyers",
+    colSpan: "md:col-span-2 lg:col-span-2",
+    bgClass: "bg-gradient-to-br from-zinc-900 via-zinc-900 to-primary/20",
   },
   {
     title: "Secure Logistics",
-    description: "We handle the entire delivery process. Get same-day delivery within Accra and secure, tracked shipping nationwide across Ghana.",
+    description: "Same-day delivery within Accra and secure, tracked shipping nationwide.",
     icon: Truck,
-    img: laptopImg,
-    category: "For Buyers & Retailers"
+    category: "Universal",
+    colSpan: "md:col-span-1 lg:col-span-1",
+    bgClass: "bg-gradient-to-bl from-zinc-900 to-zinc-950",
   },
   {
     title: "Device Trade-ins",
-    description: "Upgrade your current device by trading it in. We offer competitive valuations and instant credit towards your next purchase.",
+    description: "Upgrade your current device by trading it in for instant credit.",
     icon: Repeat2,
-    img: phoneImg,
-    category: "For Buyers"
+    category: "For Buyers",
+    colSpan: "md:col-span-1 lg:col-span-1",
+    bgClass: "bg-gradient-to-tr from-zinc-950 to-zinc-900",
   },
   {
     title: "Retailer Dashboard",
-    description: "Manage your inventory, track orders, and monitor your sales performance with our intuitive dashboard built specifically for electronics retailers.",
+    description: "Manage inventory, track orders, and monitor sales performance with our intuitive dashboard built specifically for electronics retailers.",
     icon: Building,
-    img: laptopImg,
-    category: "For Retailers"
+    category: "For Retailers",
+    colSpan: "md:col-span-2 lg:col-span-2",
+    bgClass: "bg-gradient-to-tl from-primary/10 via-zinc-900 to-zinc-900",
   },
   {
     title: "Verified Seller Status",
     description: "Pass our vetting process to earn the Verified Seller badge, increasing buyer trust and boosting your visibility on our platform.",
     icon: BadgeCheck,
-    img: phoneImg,
-    category: "For Retailers"
-  }
+    category: "For Retailers",
+    colSpan: "md:col-span-3 lg:col-span-3",
+    bgClass: "bg-gradient-to-r from-zinc-900 via-zinc-900 to-zinc-800",
+  },
 ];
 
-function InteractiveStickyScroll() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
+const metrics = [
+  { value: "10k+", label: "Devices Verified", icon: CheckCircle2 },
+  { value: "24h", label: "Average Delivery", icon: Zap },
+  { value: "50+", label: "Verified Retailers", icon: Globe },
+  { value: "99%", label: "Satisfaction Rate", icon: Sparkles },
+];
+
+function HeroSection() {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
   return (
-    <div ref={containerRef} className="relative mx-auto max-w-7xl container-x flex items-start gap-12">
-      {/* Left Sticky Content */}
-      <div className="hidden lg:flex w-1/2 sticky top-32 flex-col gap-6 py-20 pr-10">
-        <p className="text-sm font-bold uppercase tracking-[0.2em] text-primary">Capabilities</p>
-        <h2 className="font-display text-4xl font-extrabold sm:text-5xl leading-[1.1]">
-          Everything you need to <span className="text-gradient-brand">thrive in tech</span>.
-        </h2>
-        <p className="mt-4 text-xl text-muted-foreground leading-relaxed">
-          Whether you're buying your first MacBook or scaling a nationwide electronics chain, our infrastructure is built to support you.
-        </p>
+    <section ref={ref} className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-background">
+      {/* Dynamic Background */}
+      <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
+        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary/20 blur-[120px] mix-blend-screen" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[150px] mix-blend-screen" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,var(--background)_100%)]" />
+      </motion.div>
+
+      {/* Floating Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
+        <motion.div 
+          animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }} 
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/4 left-[15%] hidden lg:flex items-center justify-center w-16 h-16 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl"
+        >
+          <Cpu className="w-8 h-8 text-primary/70" />
+        </motion.div>
+        <motion.div 
+          animate={{ y: [0, 25, 0], rotate: [0, -10, 0] }} 
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="absolute bottom-1/3 right-[15%] hidden lg:flex items-center justify-center w-20 h-20 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl"
+        >
+          <ShieldCheck className="w-10 h-10 text-blue-400/70" />
+        </motion.div>
       </div>
 
-      {/* Right Scrolling Features */}
-      <div className="w-full lg:w-1/2 flex flex-col gap-24 py-20">
-        {allServices.map((service, i) => (
-          <Reveal key={i}>
-            <div className="group">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] shadow-2xl">
-              <img src={service.img} alt={service.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+      <div className="relative z-20 container-x mx-auto max-w-5xl text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="flex flex-col items-center"
+        >
+          <Badge variant="outline" className="mb-8 rounded-full border-primary/30 bg-primary/10 px-5 py-2 text-sm font-medium text-primary backdrop-blur-md">
+            <Sparkles className="mr-2 h-4 w-4" />
+            Infrastructure for the Future
+          </Badge>
+          
+          <h1 className="font-display text-6xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.95] text-foreground mb-8">
+            Elevate your <br className="hidden sm:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-primary bg-300% animate-gradient">tech experience.</span>
+          </h1>
+          
+          <p className="max-w-2xl text-xl sm:text-2xl text-muted-foreground leading-relaxed mb-12">
+            Beyond commerce. We provide end-to-end logistics, rigorous quality control, and dedicated B2B support to power your growth.
+          </p>
+
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button size="lg" className="rounded-full h-16 px-10 text-lg font-bold shadow-[0_0_40px_-10px_var(--primary)] hover:shadow-[0_0_60px_-15px_var(--primary)] transition-shadow">
+              Explore Capabilities <ArrowRight className="ml-3 h-5 w-5" />
+            </Button>
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+function BentoServices() {
+  return (
+    <section className="py-32 bg-background relative z-20">
+      <div className="container-x mx-auto max-w-7xl">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-20 text-center"
+        >
+          <h2 className="text-4xl md:text-5xl font-display font-extrabold mb-6">Built for scale.</h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">Everything you need to buy, sell, and manage electronics securely.</p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
+          {allServices.map((service, i) => (
+            <motion.div
+              key={service.title}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1, duration: 0.5 }}
+              whileHover={{ y: -5 }}
+              className={`group relative overflow-hidden rounded-[2rem] border border-white/5 ${service.bgClass} ${service.colSpan} p-10 shadow-2xl transition-all duration-500 hover:border-white/10`}
+            >
+              {/* Hover Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/5 group-hover:to-transparent transition-colors duration-500" />
               
-              <div className="absolute inset-x-0 bottom-0 p-8 sm:p-10">
-                <Badge className="mb-4 bg-primary/90 text-primary-foreground border-transparent">
-                  {service.category}
-                </Badge>
-                <div className="flex items-center gap-4 mb-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md">
-                    <service.icon className="h-6 w-6 text-white" />
+              <div className="relative z-10 h-full flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-8">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 group-hover:scale-110 transition-transform duration-500">
+                      <service.icon className="h-7 w-7 text-white" />
+                    </div>
+                    <Badge variant="secondary" className="bg-white/10 text-white hover:bg-white/20 border-none rounded-full px-4">
+                      {service.category}
+                    </Badge>
                   </div>
-                  <h3 className="text-2xl font-bold text-white">{service.title}</h3>
+                  <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-primary transition-colors">{service.title}</h3>
                 </div>
-                <p className="text-base text-white/80 leading-relaxed">
+                <p className="text-lg text-white/70 leading-relaxed">
                   {service.description}
                 </p>
               </div>
-            </div>
-            </div>
-          </Reveal>
-        ))}
+            </motion.div>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
+  );
+}
+
+function MetricsSection() {
+  return (
+    <section className="py-24 bg-surface-muted relative overflow-hidden border-y border-border">
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
+      <div className="container-x mx-auto max-w-7xl relative z-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-12">
+          {metrics.map((metric, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="flex flex-col items-center text-center space-y-4"
+            >
+              <div className="p-4 rounded-full bg-primary/10 text-primary mb-2">
+                <metric.icon className="w-8 h-8" />
+              </div>
+              <h4 className="text-4xl md:text-5xl font-black text-foreground tracking-tighter">{metric.value}</h4>
+              <p className="text-lg font-medium text-muted-foreground">{metric.label}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CTASection() {
+  return (
+    <section className="py-32 bg-background relative">
+      <div className="container-x mx-auto max-w-5xl">
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="relative overflow-hidden rounded-[3rem] bg-zinc-950 border border-white/10 px-8 py-24 text-center shadow-2xl sm:px-16"
+        >
+          {/* Animated Gradient Background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-blue-500/20 to-primary/20 opacity-30 animate-gradient bg-300%" />
+          <div className="absolute -inset-[100%] bg-[conic-gradient(from_90deg_at_50%_50%,#00000000_50%,var(--primary)_100%)] opacity-20 animate-spin-slow" />
+          <div className="absolute inset-[1px] rounded-[3rem] bg-zinc-950/90 backdrop-blur-3xl" />
+          
+          <div className="relative z-10">
+            <Badge className="mb-6 bg-white/10 text-white hover:bg-white/20 border-white/10 px-4 py-1.5 text-sm rounded-full">
+              Enterprise Solutions
+            </Badge>
+            <h2 className="font-display text-4xl font-black text-white sm:text-5xl lg:text-6xl tracking-tight mb-8">
+              Need a Custom Solution?
+            </h2>
+            <p className="mx-auto max-w-2xl text-xl text-zinc-400 leading-relaxed mb-12">
+              We offer corporate procurement, bulk purchasing, and custom logistics solutions tailored specifically for enterprise clients.
+            </p>
+            
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button asChild size="lg" className="rounded-full px-12 h-16 text-lg font-bold bg-white text-zinc-950 hover:bg-zinc-200 shadow-xl transition-all">
+                <a href={whatsappLink("Hi Voltix, I'd like to discuss a custom solution.")} target="_blank" rel="noreferrer">
+                  <MessageCircle className="mr-3 h-6 w-6" /> Contact Sales
+                </a>
+              </Button>
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
   );
 }
 
 function ServicesPage() {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const parallaxBgRef = useRef<HTMLDivElement>(null);
-  const heroContentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!heroRef.current || !parallaxBgRef.current || !heroContentRef.current) return;
-
-    const ctx = gsap.context(() => {
-      // Parallax effect on scroll
-      gsap.to(parallaxBgRef.current, {
-        yPercent: 50,
-        opacity: 0,
-        ease: "none",
-        scrollTrigger: {
-          trigger: heroRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
-
-      // Entry animation
-      gsap.fromTo(
-        heroContentRef.current,
-        { opacity: 0, scale: 0.95, filter: "blur(10px)" },
-        {
-          opacity: 1,
-          scale: 1,
-          filter: "blur(0px)",
-          duration: 0.8,
-          ease: "power3.out",
-        }
-      );
-    });
-
-    return () => ctx.revert();
-  }, []);
-
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background selection:bg-primary/30">
       <SiteHeader />
-
-      {/* Parallax Hero */}
-      <section ref={heroRef} className="relative h-[70vh] min-h-[500px] overflow-hidden flex items-center justify-center text-center">
-        <div 
-          ref={parallaxBgRef}
-          className="absolute inset-0 z-0"
-        >
-          <div className="absolute left-1/2 top-0 h-[600px] w-[1000px] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-background/0 to-background" />
-        </div>
-        
-        <div className="relative z-10 mx-auto max-w-4xl container-x">
-          <div ref={heroContentRef}>
-            <Badge variant="outline" className="mb-8 rounded-full border px-5 py-2 text-sm font-semibold backdrop-blur-md bg-background/50 shadow-sm">
-              <Building className="mr-2 h-4 w-4 text-primary" />
-              Infrastructure for Retail
-            </Badge>
-            <h1 className="font-display text-5xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl text-foreground">
-              Services for <span className="text-gradient-brand">Elevate your</span> tech experience.
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg sm:text-xl leading-relaxed text-muted-foreground">
-              We offer more than just products. Benefit from end-to-end logistics, rigorous quality control, and dedicated B2B support.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Sticky Scroll Section */}
-      <section className="bg-surface-muted border-t border-border">
-        <InteractiveStickyScroll />
-      </section>
-
-      {/* CTA */}
-      <Reveal>
-        <section className="section-pad py-32">
-          <div className="mx-auto max-w-5xl container-x">
-            <div className="overflow-hidden rounded-[3rem] bg-card border border-border/50 px-8 py-24 text-center shadow-2xl sm:px-16 relative">
-              <div className="absolute inset-0 bg-primary/5" />
-              <div className="relative z-10">
-                <h2 className="font-display text-4xl font-extrabold text-foreground sm:text-5xl">
-                  Need a Custom Solution?
-                </h2>
-                <p className="mx-auto mt-6 max-w-xl text-xl text-muted-foreground leading-relaxed">
-                  We also offer corporate procurement, bulk purchasing, and custom logistics solutions for enterprise clients.
-                </p>
-                <div className="mt-12 flex flex-wrap justify-center gap-4">
-                  <Button asChild size="lg" className="rounded-full px-10 h-14 text-base font-bold shadow-xl hover:-translate-y-1 transition-transform">
-                    <a href={whatsappLink("Hi Voltix, I'd like to discuss a custom solution.")} target="_blank" rel="noreferrer">
-                      <MessageCircle className="mr-2 h-5 w-5" /> Contact Sales
-                    </a>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </Reveal>
+      
+      <main>
+        <HeroSection />
+        <BentoServices />
+        <MetricsSection />
+        <CTASection />
+      </main>
 
       <SiteFooter />
     </div>
