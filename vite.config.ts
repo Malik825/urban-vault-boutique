@@ -7,7 +7,10 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [
     tanstackStart({
-      server: { entry: "src/server.ts" }
+      server: { entry: "src/server.ts" },
+      serverFns: {
+        disableCsrfMiddlewareWarning: true,
+      },
     }),
     nitro({ preset: "vercel" }),
     react(),

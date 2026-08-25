@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { Menu, Search, Heart, LayoutGrid, ArrowUpRight, ShoppingCart, Repeat2, ChevronDown, Info, Briefcase, Phone, HelpCircle } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Menu, Search, Heart, LayoutGrid, ShoppingCart, Repeat2, ChevronDown, Info, Briefcase, Phone, HelpCircle, Home } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -25,12 +25,6 @@ const companyLinks = [
     label: "About us",
     description: "Our story and values",
     to: "/about" as const,
-  },
-  {
-    icon: Briefcase,
-    label: "Services",
-    description: "What we offer retailers",
-    to: "/services" as const,
   },
   {
     icon: HelpCircle,
@@ -146,6 +140,7 @@ function CompanyDropdown() {
 export function SiteHeader() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const { count } = useCart();
@@ -199,7 +194,7 @@ export function SiteHeader() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-0 sm:gap-1">
             <ThemeToggle />
 
             {/* Search Icon */}
@@ -239,47 +234,70 @@ export function SiteHeader() {
               </Button>
             </CartDrawer>
 
-            {/* Dashboard Button */}
-            <Button asChild size="sm" variant="hero" className="hidden lg:flex ml-2 rounded-full px-5">
-              <Link to="/dashboard">
-                Seller dashboard
-                <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
-              </Link>
-            </Button>
-
             {/* Mobile Menu */}
-            <Sheet>
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full lg:hidden" aria-label="Open menu">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[280px] pt-10">
-                <nav className="flex flex-col gap-1">
+              <SheetContent side="right" className="w-[280px] p-0 flex flex-col">
+                {/* Sheet header with logo */}
+                <div className="flex items-center gap-2.5 border-b border-border px-5 py-4">
+                  <img src="/logo.jpg" alt="Logo" className="h-8 w-8 rounded-lg object-cover" />
+                  <span className="font-display text-sm font-extrabold">{STORE.name}</span>
+                </div>
+
+                <nav className="flex flex-col gap-0.5 overflow-y-auto flex-1 p-3">
+                  {/* Home */}
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); navigate({ to: "/" }); }}
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground w-full text-left"
+                  >
+                    <Home className="h-4 w-4 shrink-0" /> Home
+                  </button>
+
                   {nav.map((item) => (
-                    <Link
+                    <button
                       key={item.label}
-                      to={item.to}
-                      search={item.search as never}
-                      className="rounded-xl px-4 py-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        navigate({ to: item.to, search: (item.search ?? {}) as never });
+                      }}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground w-full text-left"
                     >
                       {item.label}
-                    </Link>
+                    </button>
                   ))}
+
                   <div className="mt-2 border-t border-border pt-3">
-                    <p className="px-4 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Company</p>
+                    <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Company</p>
                     {companyLinks.map((item) => {
                       const Icon = item.icon;
-                      const inner = (
-                        <div className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground">
+                      return item.href ? (
+                        <a
+                          key={item.label}
+                          href={item.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground"
+                        >
                           <Icon className="h-4 w-4 shrink-0" />
                           {item.label}
-                        </div>
-                      );
-                      return item.href ? (
-                        <a key={item.label} href={item.href} target="_blank" rel="noreferrer">{inner}</a>
+                        </a>
                       ) : (
-                        <Link key={item.label} to={item.to!}>{inner}</Link>
+                        <button
+                          key={item.label}
+                          onClick={() => {
+                            setMobileMenuOpen(false);
+                            navigate({ to: item.to! });
+                          }}
+                          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground w-full text-left"
+                        >
+                          <Icon className="h-4 w-4 shrink-0" />
+                          {item.label}
+                        </button>
                       );
                     })}
                   </div>

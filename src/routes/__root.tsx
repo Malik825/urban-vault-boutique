@@ -8,7 +8,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, Ghost, Home, RefreshCw } from "lucide-react";
 
@@ -374,6 +374,7 @@ const THEME_PRESETS: Record<string, Record<string, string>> = {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [themeMode, setThemeMode] = useState<"light" | "dark" | "system">("system");
 
   useEffect(() => {
     function applyTheme() {
@@ -386,6 +387,7 @@ function RootComponent() {
       }
       
       const mode = localStorage.getItem("voltix-theme-mode") || "system";
+      setThemeMode(mode as "light" | "dark" | "system");
       const isDark = mode === "dark" || (mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
       if (isDark) document.documentElement.classList.add("dark");
       else document.documentElement.classList.remove("dark");
@@ -412,7 +414,7 @@ function RootComponent() {
                 <Outlet />
                 <MobileNav />
               </div>
-              <Toaster position="top-center" richColors theme="system" />
+              <Toaster position="top-center" theme={themeMode} />
             </CompareProvider>
           </WishlistProvider>
         </CartProvider>

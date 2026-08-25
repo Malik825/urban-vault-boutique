@@ -29,6 +29,7 @@ export type ProductRow = {
 
 export type CatalogProduct = Product & {
   dbId: string;
+  sku: string;
   lowStockThreshold: number;
 };
 
@@ -53,6 +54,7 @@ export function mapProduct(row: ProductRow): CatalogProduct {
   return {
     dbId: row.id,
     id: row.sku,
+    sku: row.sku,
     slug: row.slug,
     name: row.name,
     brand: row.brand,

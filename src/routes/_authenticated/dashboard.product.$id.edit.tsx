@@ -44,17 +44,17 @@ function EditProduct() {
     brand: product.brand || "",
     category: product.category || "",
     blurb: product.blurb || "",
-    price: (product.price ? product.price / 100 : "").toString(),
-    compareAt: product.compareAt ? (product.compareAt / 100).toString() : "",
+    price: (product.price ?? "").toString(),
+    compareAt: product.compareAt != null ? product.compareAt.toString() : "",
     cost: "", // not saved yet
-    sku: product.sku || "",
-    stock: product.stock?.toString() || "",
+    sku: product.sku || product.id || "",
+    stock: product.stock != null ? product.stock.toString() : "",
     condition: product.condition || "New",
     warranty: "", // not saved yet
     slug: product.slug || "",
     seoTitle: "", // maybe map from name
     seoDesc: "",
-    flashDeal: product.badge === "Flash Deal",
+    flashDeal: product.badge === "Flash Deal" || product.badge === "Flash deal",
     images: product.images || [],
     specs: product.specs || {},
   });
@@ -82,27 +82,32 @@ function EditProduct() {
 
   const handleUpdate = async () => {
     try {
+      const priceNum = formData.price !== "" ? Number(formData.price) : undefined;
+      const compareAtNum = formData.compareAt !== "" ? Number(formData.compareAt) : null;
+      const stockNum = formData.stock !== "" ? Number(formData.stock) : undefined;
+
       await adminUpdateProduct({
         data: {
-          id: product.id,
+          id: product.dbId || product.id,
           name: formData.name,
           brand: formData.brand,
           category: formData.category,
           blurb: formData.blurb,
-          price: formData.price ? Number(formData.price) : undefined,
-          compare_at: formData.compareAt ? Number(formData.compareAt) : undefined,
-          sku: formData.sku,
-          stock: formData.stock ? Number(formData.stock) : undefined,
+          price: priceNum,
+          compare_at: compareAtNum,
+          sku: formData.sku || undefined,
+          stock: stockNum,
           condition: formData.condition,
-          slug: formData.slug,
-          badge: formData.flashDeal ? "Flash Deal" : undefined,
+          slug: formData.slug || undefined,
+          badge: formData.flashDeal ? "Flash Deal" : null,
           specs: formData.specs,
         },
       });
       toast.success("Product updated successfully");
       navigate({ to: "/dashboard/products" });
-    } catch (err) {
-      toast.error("Failed to update product");
+    } catch (err: any) {
+      console.error("[handleUpdate] Error:", err);
+      toast.error(err?.message || "Failed to update product");
     }
   };
 

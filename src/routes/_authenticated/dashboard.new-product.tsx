@@ -105,8 +105,9 @@ function AddProduct() {
       });
       toast.success("Product published successfully");
       navigate({ to: "/dashboard/products" });
-    } catch (err) {
-      toast.error("Failed to publish product");
+    } catch (err: any) {
+      console.error("[handlePublish] Error:", err);
+      toast.error(err?.message || "Failed to publish product");
     }
   };
 

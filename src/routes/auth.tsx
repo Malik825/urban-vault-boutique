@@ -105,7 +105,7 @@ function AuthPage() {
         <p className="text-xs text-primary-foreground/70">{STORE.city}</p>
       </div>
 
-      <div className="flex items-center justify-center px-4 py-16">
+      <div className="flex items-center justify-center px-4 py-10 sm:py-16">
         <div className="w-full max-w-sm">
           <Link to="/" className="mb-8 flex items-center gap-2.5 lg:hidden">
             <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-gradient text-primary-foreground">
@@ -128,10 +128,10 @@ function AuthPage() {
             className="mt-6"
           >
             <TabsList className="grid w-full grid-cols-2 rounded-lg bg-surface-muted p-1">
-              <TabsTrigger value="signin" className="rounded-md">
+              <TabsTrigger value="signin" className="rounded-md text-sm">
                 Sign in
               </TabsTrigger>
-              <TabsTrigger value="signup" className="rounded-md">
+              <TabsTrigger value="signup" className="rounded-md text-sm">
                 Create account
               </TabsTrigger>
             </TabsList>
@@ -146,11 +146,11 @@ function AuthPage() {
                   </p>
                 </div>
               ) : (
-                <form onSubmit={submit} className="space-y-4">
+                <form onSubmit={submit} className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Work email</Label>
+                    <Label htmlFor="email" className="text-sm font-semibold">Work email</Label>
                     <div className="relative">
-                      <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         id="email"
                         type="email"
@@ -158,15 +158,15 @@ function AuthPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@store.com"
-                        className="pl-9"
+                        className="pl-11 h-13 rounded-xl border-border bg-surface-muted shadow-none text-base focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all placeholder:text-muted-foreground/60"
                         required
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password" className="text-sm font-semibold">Password</Label>
                     <div className="relative">
-                      <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         id="password"
                         type="password"
@@ -174,12 +174,12 @@ function AuthPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="At least 8 characters"
-                        className="pl-9"
+                        className="pl-11 h-13 rounded-xl border-border bg-surface-muted shadow-none text-base focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary transition-all placeholder:text-muted-foreground/60"
                         required
                       />
                     </div>
                   </div>
-                  <Button type="submit" variant="hero" className="w-full" disabled={busy}>
+                  <Button type="submit" variant="hero" className="w-full h-12 rounded-lg text-sm sm:text-base font-bold mt-2" disabled={busy}>
                     {busy && <Loader2 className="h-4 w-4 animate-spin" />}
                     {mode === "signup" ? "Create seller account" : "Sign in"}
                   </Button>

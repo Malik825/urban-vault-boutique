@@ -17,7 +17,6 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as FaqsRouteImport } from './routes/faqs'
 import { Route as ProductsRouteImport } from './routes/products'
-import { Route as ServicesRouteImport } from './routes/services'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
@@ -69,11 +68,6 @@ const FaqsRoute = FaqsRouteImport.update({
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ServicesRoute = ServicesRouteImport.update({
-  id: '/services',
-  path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WishlistRoute = WishlistRouteImport.update({
@@ -160,7 +154,6 @@ export interface FileRoutesByFullPath {
   '/compare': typeof CompareRoute
   '/faqs': typeof FaqsRoute
   '/products': typeof ProductsRoute
-  '/services': typeof ServicesRoute
   '/wishlist': typeof WishlistRoute
   '/account': typeof AuthenticatedAccountRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -183,7 +176,6 @@ export interface FileRoutesByTo {
   '/compare': typeof CompareRoute
   '/faqs': typeof FaqsRoute
   '/products': typeof ProductsRoute
-  '/services': typeof ServicesRoute
   '/wishlist': typeof WishlistRoute
   '/account': typeof AuthenticatedAccountRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -208,7 +200,6 @@ export interface FileRoutesById {
   '/compare': typeof CompareRoute
   '/faqs': typeof FaqsRoute
   '/products': typeof ProductsRoute
-  '/services': typeof ServicesRoute
   '/wishlist': typeof WishlistRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -233,7 +224,6 @@ export interface FileRouteTypes {
     | '/compare'
     | '/faqs'
     | '/products'
-    | '/services'
     | '/wishlist'
     | '/account'
     | '/product/$slug'
@@ -256,7 +246,6 @@ export interface FileRouteTypes {
     | '/compare'
     | '/faqs'
     | '/products'
-    | '/services'
     | '/wishlist'
     | '/account'
     | '/product/$slug'
@@ -280,7 +269,6 @@ export interface FileRouteTypes {
     | '/compare'
     | '/faqs'
     | '/products'
-    | '/services'
     | '/wishlist'
     | '/_authenticated/account'
     | '/product/$slug'
@@ -305,7 +293,6 @@ export interface RootRouteChildren {
   CompareRoute: typeof CompareRoute
   FaqsRoute: typeof FaqsRoute
   ProductsRoute: typeof ProductsRoute
-  ServicesRoute: typeof ServicesRoute
   WishlistRoute: typeof WishlistRoute
   ProductSlugRoute: typeof ProductSlugRoute
 }
@@ -366,13 +353,6 @@ declare module '@tanstack/react-router' {
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof ProductsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/services': {
-      id: '/services'
-      path: '/services'
-      fullPath: '/services'
-      preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/wishlist': {
@@ -510,7 +490,6 @@ const rootRouteChildren: RootRouteChildren = {
   CompareRoute: CompareRoute,
   FaqsRoute: FaqsRoute,
   ProductsRoute: ProductsRoute,
-  ServicesRoute: ServicesRoute,
   WishlistRoute: WishlistRoute,
   ProductSlugRoute: ProductSlugRoute,
 }

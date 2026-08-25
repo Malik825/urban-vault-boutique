@@ -17,6 +17,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { ProductCard } from "@/components/storefront/product-card";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { SiteHeader } from "@/components/storefront/site-header";
@@ -25,7 +37,7 @@ import { useCart } from "@/lib/cart";
 import { useWishlist, useCompare } from "@/lib/user-store";
 import { formatPrice, reviews, whatsappLink } from "@/lib/store-data";
 import { groupSpecs, type CatalogProduct } from "@/lib/catalog";
-import { listPublishedProducts } from "@/lib/catalog.functions";
+import { listPublishedProducts, recordProductView } from "@/lib/catalog.functions";
 import { useEffect, useRef } from "react";
 import { gsap } from "@/lib/gsap";
 
@@ -76,6 +88,20 @@ function ProductDetail() {
 
   const [activeTab, setActiveTab] = useState("description");
   const tabsContentRef = useRef<HTMLDivElement>(null);
+
+  // Reviews state
+  const [reviewList, setReviewList] = useState(reviews);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [newReviewRating, setNewReviewRating] = useState(5);
+  const [newReviewName, setNewReviewName] = useState("");
+  const [newReviewRole, setNewReviewRole] = useState("");
+  const [newReviewText, setNewReviewText] = useState("");
+
+  useEffect(() => {
+    if (product?.slug) {
+      recordProductView({ data: { slug: product.slug } }).catch(() => {});
+    }
+  }, [product?.slug]);
 
   useEffect(() => {
     if (tabsContentRef.current) {
@@ -381,9 +407,124 @@ function ProductDetail() {
               </TabsContent>
 
               <TabsContent value="reviews" className="mt-6">
+                <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <h3 className="font-display text-lg font-bold">Customer Feedback</h3>
+                    <p className="text-xs text-muted-foreground">Real reviews from verified gadget buyers across Africa.</p>
+                  </div>
+
+                  <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="gap-1.5 rounded-full font-semibold">
+                        <Star className="h-3.5 w-3.5 fill-primary text-primary" /> Write a Review
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Write a Review</DialogTitle>
+                        <DialogDescription>
+                          Share your experience with the {product.name}.
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          if (!newReviewName.trim() || !newReviewText.trim()) {
+                            toast.error("Please fill in your name and review.");
+                            return;
+                          }
+                          setReviewList([
+                            {
+                              name: newReviewName.trim(),
+                              role: newReviewRole.trim() || "Verified Buyer",
+                              rating: newReviewRating,
+                              text: newReviewText.trim(),
+                            },
+                            ...reviewList,
+                          ]);
+                          setNewReviewName("");
+                          setNewReviewRole("");
+                          setNewReviewText("");
+                          setNewReviewRating(5);
+                          setReviewDialogOpen(false);
+                          toast.success("Thank you! Your review has been published.");
+                        }}
+                        className="space-y-4 pt-2"
+                      >
+                        <div className="space-y-1.5">
+                          <Label>Rating</Label>
+                          <div className="flex items-center gap-1.5 pt-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                type="button"
+                                onClick={() => setNewReviewRating(star)}
+                                className="p-1 transition-transform hover:scale-125 focus:outline-none"
+                              >
+                                <Star
+                                  className={`h-6 w-6 ${
+                                    star <= newReviewRating
+                                      ? "fill-amber-400 text-amber-400"
+                                      : "text-muted-foreground/30 hover:text-amber-300"
+                                  }`}
+                                />
+                              </button>
+                            ))}
+                            <span className="ml-2 text-xs font-bold text-muted-foreground">
+                              {newReviewRating} out of 5 stars
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="review-name">Your Name</Label>
+                            <Input
+                              id="review-name"
+                              required
+                              placeholder="e.g. Kwame A."
+                              value={newReviewName}
+                              onChange={(e) => setNewReviewName(e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <Label htmlFor="review-role">Location / Role</Label>
+                            <Input
+                              id="review-role"
+                              placeholder="e.g. Accra, Ghana"
+                              value={newReviewRole}
+                              onChange={(e) => setNewReviewRole(e.target.value)}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label htmlFor="review-text">Review</Label>
+                          <Textarea
+                            id="review-text"
+                            required
+                            rows={3}
+                            placeholder="How is the build quality, battery life, performance?"
+                            value={newReviewText}
+                            onChange={(e) => setNewReviewText(e.target.value)}
+                          />
+                        </div>
+
+                        <DialogFooter className="pt-2">
+                          <Button type="button" variant="ghost" onClick={() => setReviewDialogOpen(false)}>
+                            Cancel
+                          </Button>
+                          <Button type="submit">Submit Review</Button>
+                        </DialogFooter>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
                 <div className="grid max-w-4xl gap-4 md:grid-cols-2">
-                  {reviews.map((r) => (
-                    <figure key={r.name} className="rounded-2xl border border-border bg-card p-5 shadow-card">
+                  {reviewList.map((r, idx) => (
+                    <figure key={idx} className="rounded-2xl border border-border bg-card p-5 shadow-card">
                       <div className="flex items-center gap-1">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
+  ChevronLeft,
   ChevronRight,
   LayoutGrid,
   List,
@@ -26,6 +27,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 import { ProductCard } from "@/components/storefront/product-card";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { SiteHeader } from "@/components/storefront/site-header";
@@ -39,6 +49,7 @@ type ProductSearch = {
   category?: string | undefined;
   deals?: boolean | undefined;
   sort?: string | undefined;
+  page?: number | undefined;
 };
 
 export const Route = createFileRoute("/products")({
@@ -48,6 +59,7 @@ export const Route = createFileRoute("/products")({
     category: typeof search["category"] === "string" ? (search["category"] as string) : undefined,
     deals: search["deals"] === true || search["deals"] === "true" ? true : undefined,
     sort: typeof search["sort"] === "string" ? (search["sort"] as string) : undefined,
+    page: search["page"] ? Number(search["page"]) : undefined,
   }),
   head: () => ({
     meta: [
@@ -68,7 +80,7 @@ export const Route = createFileRoute("/products")({
   component: Listing,
 });
 
-const MAX_PRICE = 2800000;
+const MAX_PRICE = 28000;
 
 function Listing() {
   const products: CatalogProduct[] = Route.useLoaderData();
@@ -91,11 +103,24 @@ function Listing() {
   });
 
   const PAGE_SIZE = 12;
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [currentPage, setCurrentPage] = useState(search.page ? Math.max(1, Number(search.page)) : 1);
 
-  // Reset page limit when filters or query change
+  // Sync state if search.page changes
   useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
+    if (search.page && Number(search.page) !== currentPage) {
+      setCurrentPage(Number(search.page));
+    }
+  }, [search.page]);
+
+  // Reset page to 1 when filters or query change
+  useEffect(() => {
+    setCurrentPage(1);
+    if (search.page && search.page > 1) {
+      navigate({
+        search: (prev) => ({ ...prev, page: undefined }),
+        replace: true,
+      });
+    }
   }, [query, sel, price, sort]);
 
   const toggle = (group: string, value: string) =>
@@ -143,11 +168,23 @@ function Listing() {
     return list;
   }, [query, sel, price, sort, search.deals]);
 
-  const displayedResults = useMemo(() => {
-    return results.slice(0, visibleCount);
-  }, [results, visibleCount]);
+  const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
+  const safePage = Math.min(Math.max(1, currentPage), totalPages);
 
-  const hasMore = results.length > visibleCount;
+  const displayedResults = useMemo(() => {
+    const start = (safePage - 1) * PAGE_SIZE;
+    return results.slice(start, start + PAGE_SIZE);
+  }, [results, safePage, PAGE_SIZE]);
+
+  const handlePageChange = (newPage: number) => {
+    const targetPage = Math.min(Math.max(1, newPage), totalPages);
+    setCurrentPage(targetPage);
+    navigate({
+      search: (prev) => ({ ...prev, page: targetPage > 1 ? targetPage : undefined }),
+      replace: true,
+    });
+    window.scrollTo({ top: 120, behavior: "smooth" });
+  };
 
   const filters = (
     <div className="space-y-6">
@@ -362,15 +399,86 @@ function Listing() {
                   ))}
                 </div>
 
-                {hasMore && (
-                  <div className="flex justify-center pt-4">
-                    <Button
-                      onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
-                      size="lg"
-                      className="rounded-full px-8 shadow-sm"
-                    >
-                      Load more devices
-                    </Button>
+                {totalPages > 1 && (
+                  <div className="flex flex-col items-center justify-between gap-4 pt-6 sm:flex-row border-t border-border/60">
+                    <p className="text-xs text-muted-foreground order-2 sm:order-1">
+                      Showing{" "}
+                      <span className="font-semibold text-foreground">
+                        {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, results.length)}
+                      </span>{" "}
+                      of <span className="font-semibold text-foreground">{results.length}</span> devices
+                    </p>
+
+                    <div className="order-1 sm:order-2">
+                      <Pagination>
+                        <PaginationContent>
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled={safePage <= 1}
+                              onClick={() => handlePageChange(safePage - 1)}
+                              className="gap-1 pl-2.5 h-9"
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                              <span>Previous</span>
+                            </Button>
+                          </PaginationItem>
+
+                          {Array.from({ length: totalPages }, (_, i) => i + 1)
+                            .filter(
+                              (p) =>
+                                p === 1 ||
+                                p === totalPages ||
+                                Math.abs(p - safePage) <= 1,
+                            )
+                            .reduce<(number | string)[]>((acc, p, idx, arr) => {
+                              if (idx > 0) {
+                                const prev = arr[idx - 1]!;
+                                if (p - prev === 2) acc.push(prev + 1);
+                                else if (p - prev > 2) acc.push(`ellipsis-${p}`);
+                              }
+                              acc.push(p);
+                              return acc;
+                            }, [])
+                            .map((item) =>
+                              typeof item === "string" ? (
+                                <PaginationItem key={item}>
+                                  <PaginationEllipsis />
+                                </PaginationItem>
+                              ) : (
+                                <PaginationItem key={item}>
+                                  <Button
+                                    variant={item === safePage ? "outline" : "ghost"}
+                                    size="sm"
+                                    onClick={() => handlePageChange(item)}
+                                    className={`h-9 w-9 p-0 font-medium ${
+                                      item === safePage
+                                        ? "border-primary bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                                        : ""
+                                    }`}
+                                  >
+                                    {item}
+                                  </Button>
+                                </PaginationItem>
+                              ),
+                            )}
+
+                          <PaginationItem>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled={safePage >= totalPages}
+                              onClick={() => handlePageChange(safePage + 1)}
+                              className="gap-1 pr-2.5 h-9"
+                            >
+                              <span>Next</span>
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
+                    </div>
                   </div>
                 )}
               </div>

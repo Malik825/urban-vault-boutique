@@ -100,6 +100,7 @@ export function DashboardShell({
 }) {
   const [cmdOpen, setCmdOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -173,7 +174,7 @@ export function DashboardShell({
 
         {/* Nav */}
         <div className="flex-1 overflow-y-auto px-2 py-2">
-          <NavList collapsed={!sidebarOpen} onNavigate={toggleSidebar} />
+          <NavList collapsed={!sidebarOpen} />
         </div>
 
         {/* Footer */}
@@ -262,7 +263,7 @@ export function DashboardShell({
             </Button>
 
             {/* Mobile sheet trigger */}
-            <Sheet>
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
@@ -275,7 +276,7 @@ export function DashboardShell({
               </SheetTrigger>
               <SheetContent side="left" className="w-[80vw] max-w-xs bg-sidebar">
                 <div className="mt-8">
-                  <NavList />
+                  <NavList onNavigate={() => setMobileOpen(false)} />
                 </div>
               </SheetContent>
             </Sheet>

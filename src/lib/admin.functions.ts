@@ -2,19 +2,21 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { mapProduct, type ProductRow } from "@/lib/catalog";
-import { products as mockProducts, orders as mockOrders } from "@/lib/store-data";
+
 
 function getAdminClient() {
   const url =
     process.env["SUPABASE_URL"] ||
     process.env["VITE_SUPABASE_URL"] ||
-    import.meta.env.VITE_SUPABASE_URL!;
+    import.meta.env["VITE_SUPABASE_URL"]!;
 
+  // Prefer service role key (bypasses RLS for admin writes).
+  // Falls back to publishable key for read-only operations.
   const key =
     process.env["SUPABASE_SERVICE_ROLE_KEY"] ||
     process.env["SUPABASE_PUBLISHABLE_KEY"] ||
     process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
-    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY!;
+    import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"]!;
 
   return createClient<Database>(url, key, {
     auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
@@ -41,29 +43,16 @@ export const adminListProducts = createServerFn({ method: "GET" }).handler(async
       .select(
         "id, sku, slug, name, brand, category, price, compare_at, rating, reviews_count, stock, low_stock_threshold, condition, status, badge, views, blurb, specs, created_at",
       )
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .order("name", { ascending: true });
 
     if (error) throw new Error(error.message);
     if (!data || data.length === 0) {
-      // Fallback to mapped mock products if database table is empty
-      return mockProducts.map((p) => ({
-        ...p,
-        dbId: p.id,
-        lowStockThreshold: 5,
-        price: p.price * 100, // format back to cents/pesewas
-        compareAt: p.compareAt ? p.compareAt * 100 : undefined,
-      })) as any[];
+      return [];
     }
     return (data as unknown as ProductRow[]).map(mapProduct);
   } catch (err: any) {
-    console.warn("[adminListProducts] Falling back to mock data due to:", err.message);
-    return mockProducts.map((p) => ({
-      ...p,
-      dbId: p.id,
-      lowStockThreshold: 5,
-      price: p.price * 100,
-      compareAt: p.compareAt ? p.compareAt * 100 : undefined,
-    })) as any[];
+    throw err;
   }
 });
 
@@ -72,10 +61,13 @@ export const adminDeleteProduct = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     try {
       const supabase = getAdminClient();
-      const { error } = await supabase.from("products").delete().eq("id", data.id);
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(data.id);
+      let query = supabase.from("products").delete();
+      query = isUuid ? query.eq("id", data.id) : query.eq("sku", data.id);
+      const { error } = await query;
       if (error) throw new Error(error.message);
     } catch (err: any) {
-      console.warn("[adminDeleteProduct] Mock operation success:", err.message);
+      throw err;
     }
     return { ok: true };
   });
@@ -85,28 +77,20 @@ export const adminGetProduct = createServerFn({ method: "GET" })
   .handler(async ({ data: { id } }) => {
     try {
       const supabase = getAdminClient();
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("id", id)
-        .single();
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+      let query = supabase.from("products").select("*");
+      query = isUuid ? query.eq("id", id) : query.eq("sku", id);
+      const { data, error } = await query.maybeSingle();
 
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error("[adminGetProduct] Error:", error.message);
+        throw new Error(error.message);
+      }
       if (!data) throw new Error("Product not found");
       return mapProduct(data as unknown as ProductRow);
     } catch (err: any) {
-      console.warn("[adminGetProduct] Falling back to mock data due to:", err.message);
-      const mock = mockProducts.find(p => p.id === id || p.slug === id);
-      if (mock) {
-        return {
-          ...mock,
-          dbId: mock.id,
-          lowStockThreshold: 5,
-          price: mock.price * 100,
-          compareAt: mock.compareAt ? mock.compareAt * 100 : undefined,
-        } as any;
-      }
-      throw new Error("Product not found in mock data");
+      console.error("[adminGetProduct] Catch Error:", err.message);
+      throw err;
     }
   });
 
@@ -117,7 +101,7 @@ export const adminUpdateProduct = createServerFn({ method: "POST" })
     brand?: string;
     category?: string;
     price?: number; 
-    compare_at?: number;
+    compare_at?: number | null;
     stock?: number; 
     low_stock_threshold?: number;
     condition?: string;
@@ -126,16 +110,31 @@ export const adminUpdateProduct = createServerFn({ method: "POST" })
     slug?: string;
     sku?: string;
     specs?: Record<string, string>;
-    badge?: string;
+    badge?: string | null;
   }) => data)
   .handler(async ({ data }) => {
     try {
       const supabase = getAdminClient();
       const { id, ...patch } = data;
-      const { error } = await supabase.from("products").update(patch).eq("id", id);
-      if (error) throw new Error(error.message);
+      const cleanPatch: Record<string, any> = {};
+      for (const [key, value] of Object.entries(patch)) {
+        if (value !== undefined) {
+          cleanPatch[key] = value;
+        }
+      }
+      cleanPatch["updated_at"] = new Date().toISOString();
+
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+      let query = supabase.from("products").update(cleanPatch);
+      query = isUuid ? query.eq("id", id) : query.eq("sku", id);
+      const { error } = await query;
+      if (error) {
+        console.error("[adminUpdateProduct] Supabase error:", error.message);
+        throw new Error(error.message);
+      }
     } catch (err: any) {
-      console.warn("[adminUpdateProduct] Mock operation success:", err.message);
+      console.error("[adminUpdateProduct] Catch error:", err.message);
+      throw err;
     }
     return { ok: true };
   });
@@ -155,26 +154,11 @@ export const adminListOrders = createServerFn({ method: "GET" }).handler(async (
 
     if (error) throw new Error(error.message);
     if (!data || data.length === 0) {
-      return mockOrders.map((o) => ({
-        id: o.id,
-        status: o.status.toLowerCase(),
-        total: o.total * 100,
-        shipping_address: { city: "Accra", region: "Greater Accra" },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })) as any[];
+      return [];
     }
-    return data ?? [];
+    return data;
   } catch (err: any) {
-    console.warn("[adminListOrders] Falling back to mock data due to:", err.message);
-    return mockOrders.map((o) => ({
-      id: o.id,
-      status: o.status.toLowerCase(),
-      total: o.total * 100,
-      shipping_address: { city: "Accra", region: "Greater Accra" },
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })) as any[];
+    throw err;
   }
 });
 
@@ -189,7 +173,7 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
         .eq("id", data.id);
       if (error) throw new Error(error.message);
     } catch (err: any) {
-      console.warn("[adminUpdateOrderStatus] Mock operation success:", err.message);
+      throw err;
     }
     return { ok: true };
   });
@@ -197,47 +181,17 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
 // ─── Dashboard Stats ──────────────────────────────────────────────────────────
 
 export const adminGetStats = createServerFn({ method: "GET" }).handler(async () => {
-  let products: any[] = [];
-  let orders: any[] = [];
-  let useFallback = false;
+  const supabase = getAdminClient();
+  const [productsRes, ordersRes] = await Promise.all([
+    supabase.from("products").select("id, sku, slug, name, brand, category, price, compare_at, rating, reviews_count, stock, low_stock_threshold, condition, status, badge, views, blurb, specs, created_at"),
+    supabase.from("orders").select("id, status, total, created_at"),
+  ]);
 
-  try {
-    const supabase = getAdminClient();
-    const [productsRes, ordersRes] = await Promise.all([
-      supabase.from("products").select("id, sku, slug, name, brand, category, price, compare_at, rating, reviews_count, stock, low_stock_threshold, condition, status, badge, views, blurb, specs, created_at"),
-      supabase.from("orders").select("id, status, total, created_at"),
-    ]);
+  if (productsRes.error) throw new Error(productsRes.error.message);
+  if (ordersRes.error) throw new Error(ordersRes.error.message);
 
-    if (productsRes.error || ordersRes.error) {
-      throw new Error(productsRes.error?.message || ordersRes.error?.message);
-    }
-
-    products = (productsRes.data as unknown as ProductRow[] ?? []).map(mapProduct);
-    orders = ordersRes.data ?? [];
-
-    if (products.length === 0) {
-      useFallback = true;
-    }
-  } catch (err: any) {
-    console.warn("[adminGetStats] Falling back to mock data due to:", err.message);
-    useFallback = true;
-  }
-
-  if (useFallback) {
-    products = mockProducts.map((p) => ({
-      ...p,
-      dbId: p.id,
-      lowStockThreshold: 5,
-      price: p.price * 100,
-      compareAt: p.compareAt ? p.compareAt * 100 : undefined,
-    }));
-    orders = mockOrders.map((o) => ({
-      id: o.id,
-      status: o.status.toLowerCase(),
-      total: o.total * 100,
-      created_at: new Date().toISOString(),
-    }));
-  }
+  const products = (productsRes.data as unknown as ProductRow[] ?? []).map(mapProduct);
+  const orders = ordersRes.data ?? [];
 
   const publishedProducts = products.filter((p) => p.status === "Published");
   const draftProducts = products.filter((p) => p.status === "Draft");
@@ -279,8 +233,7 @@ export const adminListCustomers = createServerFn({ method: "GET" }).handler(asyn
     if (error) throw new Error(error.message);
     return data ?? [];
   } catch (err: any) {
-    console.warn("[adminListCustomers] Returning empty list due to:", err.message);
-    return [];
+    throw err;
   }
 });
 
@@ -307,10 +260,15 @@ export const adminCreateProduct = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const supabase = getAdminClient();
+    const sku = data.sku?.trim() || `PRD-${Math.floor(1000 + Math.random() * 9000)}`;
+    const slug = data.slug?.trim() || data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
     const { error, data: created } = await supabase
       .from("products")
       .insert({
         ...data,
+        sku,
+        slug,
         rating: 0,
         reviews_count: 0,
         views: 0,
@@ -336,21 +294,7 @@ export const adminGetAnalytics = createServerFn({ method: "GET" }).handler(async
     products = (productsRes.data as unknown as ProductRow[] ?? []).map(mapProduct);
     orders = ordersRes.data ?? [];
   } catch (err: any) {
-    console.warn("[adminGetAnalytics] Falling back to mock data due to:", err.message);
-    const { products: mockProducts, orders: mockOrders } = await import("@/lib/store-data");
-    products = mockProducts.map((p) => ({
-      ...p,
-      dbId: p.id,
-      lowStockThreshold: 5,
-      price: p.price * 100,
-      compareAt: p.compareAt ? p.compareAt * 100 : undefined,
-    }));
-    orders = mockOrders.map((o) => ({
-      id: o.id,
-      status: o.status.toLowerCase(),
-      total: o.total * 100,
-      created_at: new Date().toISOString(),
-    }));
+    throw err;
   }
 
   const totalRevenue = orders

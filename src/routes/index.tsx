@@ -101,7 +101,7 @@ function Landing() {
   }, []);
 
   const trending = products.filter((p) => p.status === "Published").slice(0, 8);
-  const deals = products.filter((p) => p.badge === "Flash deal");
+  const deals = products.filter((p) => p.badge?.toLowerCase() === "flash deal").slice(0, 4);
   const arrivals = products.filter((p) => p.badge === "New" || p.badge === "Best seller").slice(0, 4);
   const popular = products.slice(4, 8);
 
@@ -110,14 +110,14 @@ function Landing() {
       <SiteHeader />
 
       {/* Hero Section */}
-      <section className="sm:pt-6 sm:pb-12 sm:px-6">
+      <section className="pt-4 sm:pt-6 sm:pb-12 sm:px-6">
         <div className="mx-auto max-w-7xl sm:container-x sm:px-0">
           {/* Background wrapper: hidden on mobile, shown on sm+ */}
           <div className="sm:bg-primary-soft/30 sm:dark:bg-primary-dark/20 sm:rounded-[2.5rem] sm:p-10 lg:p-16">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 sm:gap-8 lg:gap-12 items-center">
 
               {/* Right: Sliding Image Carousel — full-bleed on mobile */}
-              <div className="relative h-[52vw] min-h-[240px] max-h-[420px] sm:h-[300px] lg:h-[450px] w-full overflow-hidden sm:rounded-3xl shadow-xl order-1 lg:order-2">
+              <div className="relative h-[52vw] min-h-[240px] max-h-[420px] sm:h-[300px] lg:h-[450px] w-full overflow-hidden sm:rounded-3xl order-1 lg:order-2">
                 {HERO_IMAGES.map((img, i) => (
                   <img
                     key={i}
@@ -236,7 +236,9 @@ function Landing() {
           </div>
           <div className="mt-8">
             {deals.length === 0 ? (
-              <ProductGridSkeleton />
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                No flash deals at the moment — check back soon!
+              </p>
             ) : (
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {deals.map((p) => (
