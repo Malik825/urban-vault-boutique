@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, Search, Heart, LayoutGrid, ShoppingCart, Repeat2, ChevronDown, Info, Briefcase, Phone, HelpCircle, Home } from "lucide-react";
+import {
+  Menu, Search, Heart, LayoutGrid, ShoppingCart,
+  Repeat2, ChevronDown, Info, Phone, HelpCircle, Home, X,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
@@ -12,61 +15,45 @@ import { SearchCommand } from "./search-command";
 import { CartDrawer } from "./cart-drawer";
 import { ThemeToggle } from "./theme-toggle";
 
-const nav = [
-  { label: "Shop all", to: "/products" as const },
-  { label: "Laptops", to: "/products" as const, search: { category: "Laptops" } },
-  { label: "Phones", to: "/products" as const, search: { category: "Phones" } },
-  { label: "Deals", to: "/products" as const, search: { deals: true } },
+/* ── Navigation data ──────────────────────────────────────── */
+const categoryNav = [
+  { label: "Laptops",     search: { category: "Laptops" } },
+  { label: "Phones",      search: { category: "Phones" } },
+  { label: "Tablets",     search: { category: "Tablets" } },
+  { label: "Accessories", search: { category: "Accessories" } },
+  { label: "Deals 🔥",   search: { deals: true } },
 ];
 
 const companyLinks = [
-  {
-    icon: Info,
-    label: "About us",
-    description: "Our story and values",
-    to: "/about" as const,
-  },
-  {
-    icon: HelpCircle,
-    label: "FAQs",
-    description: "Answers to common questions",
-    to: "/faqs" as const,
-  },
-  {
-    icon: Phone,
-    label: "Contact",
-    description: "Get in touch with our team",
-    href: whatsappLink("Hi Voltix, I'd like to get in touch."),
-  },
+  { icon: Info,       label: "About us", description: "Our story and values",          to: "/about" as const },
+  { icon: HelpCircle, label: "FAQs",     description: "Answers to common questions",   to: "/faqs"  as const },
+  { icon: Phone,      label: "Contact",  description: "Get in touch with our team",    href: whatsappLink("Hi Voltix, I'd like to get in touch.") },
 ];
 
+/* ── Company mega-dropdown ───────────────────────────────── */
 function CompanyDropdown() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   return (
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className={`flex items-center gap-1 rounded-full px-4 py-2 text-[13px] font-semibold transition-all hover:bg-surface-muted hover:text-foreground ${
-          open ? "bg-surface-muted text-foreground" : "text-muted-foreground"
-        }`}
         aria-expanded={open}
         aria-haspopup="true"
+        className={`cat-nav__link flex items-center gap-1 ${open ? "text-foreground" : ""}`}
       >
         Company
         <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
-          <ChevronDown className="h-3.5 w-3.5" />
+          <ChevronDown className="h-3 w-3" />
         </motion.span>
       </button>
 
@@ -77,14 +64,14 @@ function CompanyDropdown() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.97 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="absolute left-0 top-full mt-2 w-64 overflow-hidden rounded-2xl border border-border bg-card shadow-xl ring-1 ring-black/5 dark:ring-white/5 z-50"
+            className="absolute right-0 top-full mt-2 z-50 w-64 overflow-hidden rounded-2xl border border-border bg-card shadow-xl ring-1 ring-black/5 dark:ring-white/5"
           >
             <div className="p-2">
               {companyLinks.map((item) => {
                 const Icon = item.icon;
                 const inner = (
                   <div className="flex items-start gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-surface-muted group cursor-pointer">
-                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                    <div className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10">
                       <Icon className="h-4 w-4 text-primary" />
                     </div>
                     <div>
@@ -93,39 +80,17 @@ function CompanyDropdown() {
                     </div>
                   </div>
                 );
-
-                return item.href ? (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={() => setOpen(false)}
-                  >
-                    {inner}
-                  </a>
+                return "href" in item ? (
+                  <a key={item.label} href={item.href} target="_blank" rel="noreferrer" onClick={() => setOpen(false)}>{inner}</a>
                 ) : (
-                  <Link
-                    key={item.label}
-                    to={item.to!}
-                    onClick={() => setOpen(false)}
-                  >
-                    {inner}
-                  </Link>
+                  <Link key={item.label} to={item.to!} onClick={() => setOpen(false)}>{inner}</Link>
                 );
               })}
             </div>
-
-            {/* Footer row */}
             <div className="border-t border-border bg-surface-muted px-4 py-3">
               <p className="text-[11px] text-muted-foreground">
                 Need help?{" "}
-                <a
-                  href={whatsappLink("Hi Voltix!")}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-semibold text-primary hover:underline"
-                >
+                <a href={whatsappLink("Hi Voltix!")} target="_blank" rel="noreferrer" className="font-semibold text-primary hover:underline">
                   Chat on WhatsApp
                 </a>
               </p>
@@ -137,52 +102,102 @@ function CompanyDropdown() {
   );
 }
 
+/* ── Main header ─────────────────────────────────────────── */
 export function SiteHeader() {
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const [searchOpen, setSearchOpen]     = useState(false);
+  const [cartOpen, setCartOpen]         = useState(false);
+  const [mobileOpen, setMobileOpen]     = useState(false);
+  const [announcementOn, setAnnounce]   = useState(true);
+  const [scrolled, setScrolled]         = useState(false);
+  const [scrollProgress, setProgress]   = useState(0);
   const { count } = useCart();
+  const navigate   = useNavigate();
 
+  /* Persist dismissal across soft navigations */
+  useEffect(() => {
+    if (sessionStorage.getItem("voltix-ann-off")) setAnnounce(false);
+  }, []);
+
+  /* Scroll effects */
   useEffect(() => {
     const onScroll = () => {
-      setScrolled(window.scrollY > 60);
-      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      if (height > 0) {
-        setScrollProgress((winScroll / height) * 100);
-      } else {
-        setScrollProgress(0);
-      }
+      setScrolled(window.scrollY > 50);
+      const scrolled = document.documentElement.scrollTop;
+      const height   = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      setProgress(height > 0 ? (scrolled / height) * 100 : 0);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  function dismiss() {
+    setAnnounce(false);
+    sessionStorage.setItem("voltix-ann-off", "1");
+  }
+
+  /* Total header height for the spacer div (Announcement bar + 64px main header) */
+  const HEADER_H = announcementOn ? 100 : 64;
+
   return (
     <>
-      <div className="h-16 w-full shrink-0" />
+      {/* Spacer so page content clears the fixed header */}
+      <div style={{ height: HEADER_H }} className="w-full shrink-0 transition-all duration-300" />
+
       <header
         className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ${
-          scrolled ? "glass border-b border-border shadow-sm" : "border-b border-transparent bg-background"
+          scrolled ? "glass border-b border-border shadow-sm" : "bg-background border-b border-transparent"
         }`}
       >
+        {/* ── ROW 1 · Announcement bar ── */}
+        <AnimatePresence initial={false}>
+          {announcementOn && (
+            <motion.div
+              key="ann"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.22, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              <div className="announcement-bar">
+                <div className="mx-auto flex max-w-7xl items-center justify-between container-x">
+                  <div className="announcement-bar__content">
+                    <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M1 3h15v13H1z"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                    </svg>
+                    <span>Same-day delivery in Accra</span>
+                    <span className="announcement-bar__dot" aria-hidden="true">·</span>
+                    <span>Nationwide delivery</span>
+                  </div>
+                  <button
+                    onClick={dismiss}
+                    aria-label="Dismiss announcement"
+                    className="announcement-bar__close ml-4 shrink-0"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── ROW 2 · Main Header (Original Layout) ── */}
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 container-x w-full">
           {/* Logo & Desktop Nav */}
           <div className="flex min-w-0 items-center gap-8">
             <Link to="/" className="flex shrink-0 items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl">
-              <img src="/logo.jpg" alt="Voltix Logo" className="h-9 w-9 rounded-xl object-cover shadow-glow" />
+              <img src="/logo.jpg" alt={`${STORE.name} logo`} className="h-9 w-9 rounded-xl object-cover shadow-glow" />
               <span className="font-display text-base font-bold tracking-tight hidden sm:block">
                 {STORE.name}
               </span>
             </Link>
             <nav className="hidden items-center gap-1 lg:flex">
-              {nav.map((item) => (
+              {categoryNav.map((item) => (
                 <Link
                   key={item.label}
-                  to={item.to}
+                  to="/products"
                   search={item.search as never}
                   className="rounded-full px-4 py-2 text-[13px] font-semibold text-muted-foreground transition-all hover:bg-surface-muted hover:text-foreground"
                 >
@@ -193,16 +208,16 @@ export function SiteHeader() {
             </nav>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-0 sm:gap-1">
+          {/* Right-side actions */}
+          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
             <ThemeToggle />
 
-            {/* Search Icon */}
+            {/* Search Action */}
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Search products"
               className="rounded-full"
-              aria-label="Search"
               onClick={() => setSearchOpen(true)}
             >
               <Search className="h-5 w-5" />
@@ -222,81 +237,72 @@ export function SiteHeader() {
               </Button>
             </div>
 
-            {/* Cart Drawer Toggle */}
+            {/* Cart – desktop & mobile */}
             <CartDrawer open={cartOpen} onOpenChange={setCartOpen}>
-              <Button variant="ghost" size="icon" aria-label="Cart" className="relative group rounded-full hidden sm:flex">
+              <Button variant="ghost" size="icon" aria-label="Open cart" className="relative rounded-full group">
                 <ShoppingCart className="h-5 w-5 transition-transform group-hover:scale-110" />
                 {count > 0 && (
-                  <Badge className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center p-0 text-[10px] shadow-xs border-transparent">
+                  <Badge className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center p-0 text-[10px] border-transparent">
                     {count}
                   </Badge>
                 )}
               </Button>
             </CartDrawer>
 
-            {/* Mobile Menu */}
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            {/* Mobile hamburger */}
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full lg:hidden" aria-label="Open menu">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[280px] p-0 flex flex-col">
-                {/* Sheet header with logo */}
+              <SheetContent side="right" className="flex w-[280px] flex-col p-0">
                 <div className="flex items-center gap-2.5 border-b border-border px-5 py-4">
                   <img src="/logo.jpg" alt="Logo" className="h-8 w-8 rounded-lg object-cover" />
                   <span className="font-display text-sm font-extrabold">{STORE.name}</span>
                 </div>
 
-                <nav className="flex flex-col gap-0.5 overflow-y-auto flex-1 p-3">
-                  {/* Home */}
-                  <button
-                    onClick={() => { setMobileMenuOpen(false); navigate({ to: "/" }); }}
-                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground w-full text-left"
-                  >
+                <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-3">
+                  <button onClick={() => { setMobileOpen(false); navigate({ to: "/" }); }} className="mobile-nav-item">
                     <Home className="h-4 w-4 shrink-0" /> Home
                   </button>
 
-                  {nav.map((item) => (
+                  <p className="px-3 pb-1 pt-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Shop</p>
+                  {categoryNav.map((item) => (
                     <button
                       key={item.label}
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        navigate({ to: item.to, search: (item.search ?? {}) as never });
-                      }}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground w-full text-left"
+                      onClick={() => { setMobileOpen(false); navigate({ to: "/products", search: item.search as never }); }}
+                      className="mobile-nav-item"
                     >
                       {item.label}
                     </button>
                   ))}
 
                   <div className="mt-2 border-t border-border pt-3">
+                    <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Account</p>
+                    <button onClick={() => { setMobileOpen(false); navigate({ to: "/wishlist" }); }} className="mobile-nav-item">
+                      <Heart className="h-4 w-4 shrink-0" /> Wishlist
+                    </button>
+                    <button onClick={() => { setMobileOpen(false); navigate({ to: "/compare" }); }} className="mobile-nav-item">
+                      <Repeat2 className="h-4 w-4 shrink-0" /> Compare
+                    </button>
+                    <button onClick={() => { setMobileOpen(false); navigate({ to: "/account" }); }} className="mobile-nav-item">
+                      <LayoutGrid className="h-4 w-4 shrink-0" /> My Account
+                    </button>
+                  </div>
+
+                  <div className="mt-2 border-t border-border pt-3">
                     <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Company</p>
                     {companyLinks.map((item) => {
                       const Icon = item.icon;
-                      return item.href ? (
-                        <a
-                          key={item.label}
-                          href={item.href}
-                          target="_blank"
-                          rel="noreferrer"
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground"
-                        >
-                          <Icon className="h-4 w-4 shrink-0" />
-                          {item.label}
+                      return "href" in item ? (
+                        <a key={item.label} href={item.href} target="_blank" rel="noreferrer"
+                          onClick={() => setMobileOpen(false)} className="mobile-nav-item">
+                          <Icon className="h-4 w-4 shrink-0" />{item.label}
                         </a>
                       ) : (
-                        <button
-                          key={item.label}
-                          onClick={() => {
-                            setMobileMenuOpen(false);
-                            navigate({ to: item.to! });
-                          }}
-                          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground w-full text-left"
-                        >
-                          <Icon className="h-4 w-4 shrink-0" />
-                          {item.label}
+                        <button key={item.label} onClick={() => { setMobileOpen(false); navigate({ to: item.to! }); }} className="mobile-nav-item">
+                          <Icon className="h-4 w-4 shrink-0" />{item.label}
                         </button>
                       );
                     })}
@@ -308,8 +314,11 @@ export function SiteHeader() {
         </div>
       </header>
 
-      {/* Scroll Progress Indicator */}
-      <div className="fixed top-16 left-0 z-50 w-full h-[2px]">
+      {/* Scroll-progress bar — sits just below the header */}
+      <div
+        className="fixed left-0 right-0 z-50 h-[2px]"
+        style={{ top: HEADER_H }}
+      >
         <div
           className="h-full bg-primary transition-all duration-150 ease-out"
           style={{ width: `${scrollProgress}%` }}

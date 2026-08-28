@@ -35,12 +35,12 @@ import { Reveal } from "@/components/reveal";
 import { LandingSkeleton, ProductGridSkeleton } from "@/components/storefront/product-skeletons";
 import { gsap } from "@/lib/gsap";
 
-import heroImg from "@/assets/hero.jpg";
-import laptopImg from "@/assets/laptop.jpg";
-import phoneImg from "@/assets/phone.jpg";
-import tabletImg from "@/assets/tablet.jpg";
+import slide1 from "@/assets/hero-slide-01.jpg";
+import slide2 from "@/assets/hero-slide-02.jpg";
+import slide3 from "@/assets/hero-slide-03.jpg";
+import slide4 from "@/assets/hero-slide-04.jpg";
 
-const HERO_IMAGES = [heroImg, laptopImg, phoneImg, tabletImg];
+const HERO_IMAGES = [slide1, slide2, slide3, slide4];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -150,16 +150,17 @@ function Landing() {
                 <div className="hero-element">
                   <Badge variant="outline" className="w-fit bg-background/50 rounded-full border px-3 py-1.5 text-[0.7rem] sm:text-xs shadow-sm">
                     <Sparkles className="mr-1.5 h-3.5 w-3.5 shrink-0 text-primary" />
-                    <span>1,400+ verified devices · updated hourly</span>
+                    <span className="uppercase tracking-wider font-semibold">Verified Tech · Ghana 🇬🇭</span>
                   </Badge>
                 </div>
 
                 <h1 className="hero-element mt-5 font-display text-3xl font-extrabold leading-[1.1] tracking-tight sm:text-4xl md:text-5xl xl:text-6xl text-foreground">
-                  Find Your Next <span className="text-gradient-brand">Device</span>
+                  Premium tech.<br/>
+                  <span className="text-gradient-brand">Verified</span> before you buy.
                 </h1>
 
                 <p className="hero-element mt-4 sm:mt-6 text-sm sm:text-base lg:text-lg leading-relaxed text-muted-foreground">
-                  Real stock levels, full specifications and honest condition grading for laptops, phones, tablets and accessories — from Accra's most trusted electronics retailers.
+                  Shop genuine laptops, phones and gadgets with honest condition grading, competitive prices and fast delivery across Ghana.
                 </p>
                 <div className="hero-element mt-6 sm:mt-8 flex flex-wrap gap-3">
                   <Button asChild variant="hero" size="lg" className="rounded-full px-6 sm:px-8 shadow-md">

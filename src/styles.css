@@ -72,12 +72,15 @@
   --shadow-lift:
     0 2px 4px oklch(0.2 0.03 250 / 0.02), 0 10px 24px -6px oklch(0.2 0.03 250 / 0.08);
   --shadow-glow: 0 8px 24px -6px oklch(0.696 0.15 162 / 0.3);
+  --shadow-glow-lg: 0 0 40px -8px oklch(0.696 0.15 162 / 0.45);
 
   --animate-fade-up: fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-fade-in: fade-in 0.4s ease-out both;
   --animate-scale-in: scale-in 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-marquee: marquee 32s linear infinite;
   --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 2.4s ease-in-out infinite;
+  --animate-bg-shift: bg-shift 12s ease-in-out infinite alternate;
 }
 
 @keyframes fade-up {
@@ -124,6 +127,14 @@
   50% {
     opacity: 1;
   }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px 0 oklch(0.696 0.15 162 / 0.25); }
+  50%        { box-shadow: 0 0 22px 4px oklch(0.696 0.15 162 / 0.55); }
+}
+@keyframes bg-shift {
+  from { background-position: 0% 50%; }
+  to   { background-position: 100% 50%; }
 }
 
 :root {
@@ -184,35 +195,87 @@
 }
 
 .dark {
-  --background: oklch(0.17 0.015 258);
-  --foreground: oklch(0.97 0.004 247);
-  --surface: oklch(0.215 0.017 258);
-  --surface-muted: oklch(0.245 0.018 258);
-  --card: oklch(0.215 0.017 258);
-  --card-foreground: oklch(0.97 0.004 247);
-  --popover: oklch(0.215 0.017 258);
-  --popover-foreground: oklch(0.97 0.004 247);
-  --primary: oklch(0.72 0.15 162.48);
-  --primary-foreground: oklch(0.18 0.03 165);
-  --primary-soft: oklch(0.3 0.05 164);
-  --secondary: oklch(0.27 0.018 258);
-  --secondary-foreground: oklch(0.97 0.004 247);
-  --muted: oklch(0.27 0.018 258);
-  --muted-foreground: oklch(0.7 0.02 257);
-  --accent: oklch(0.3 0.05 164);
-  --accent-foreground: oklch(0.88 0.09 164);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 14%);
+  /* ── Deep slate background — not just plain black ── */
+  --background: oklch(0.135 0.018 258);
+  --foreground: oklch(0.96 0.006 240);
+
+  /* Layered surfaces for depth perception */
+  --surface: oklch(0.185 0.018 256);
+  --surface-muted: oklch(0.225 0.02 256);
+
+  /* Cards sit slightly above the page */
+  --card: oklch(0.195 0.019 256);
+  --card-foreground: oklch(0.96 0.006 240);
+  --popover: oklch(0.20 0.019 256);
+  --popover-foreground: oklch(0.96 0.006 240);
+
+  /* Vibrant emerald — slightly lighter & more saturated for dark bg */
+  --primary: oklch(0.74 0.165 162.5);
+  --primary-foreground: oklch(0.12 0.04 163);
+  --primary-deep: oklch(0.63 0.145 163);
+  --primary-dark: oklch(0.52 0.12 163);
+  --primary-soft: oklch(0.28 0.055 163);
+
+  --secondary: oklch(0.265 0.022 256);
+  --secondary-foreground: oklch(0.95 0.006 240);
+  --muted: oklch(0.265 0.022 256);
+  --muted-foreground: oklch(0.68 0.022 255);
+
+  --accent: oklch(0.28 0.055 163);
+  --accent-foreground: oklch(0.86 0.1 163);
+
+  /* Hairline borders that glow faintly in emerald */
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.74 0.165 162.5);
+
+  /* Dark-mode shadows — use emerald glow instead of grey */
+  --shadow-xs: 0 1px 3px oklch(0 0 0 / 0.35);
+  --shadow-card:
+    0 1px 3px oklch(0 0 0 / 0.30),
+    0 4px 16px -4px oklch(0 0 0 / 0.45);
+  --shadow-lift:
+    0 2px 8px oklch(0 0 0 / 0.4),
+    0 12px 32px -8px oklch(0 0 0 / 0.55),
+    0 0 0 1px oklch(0.74 0.165 162.5 / 0.12);
+  --shadow-glow: 0 8px 32px -6px oklch(0.74 0.165 162.5 / 0.45);
+  --shadow-glow-lg: 0 0 56px -8px oklch(0.74 0.165 162.5 / 0.55);
+
+  /* Chart tokens */
+  --chart-1: oklch(0.74 0.165 162.5);
+  --chart-2: oklch(0.55 0.135 163);
+  --chart-3: oklch(0.62 0.14 258);
+  --chart-4: oklch(0.79 0.15 78);
+  --chart-5: oklch(0.70 0.07 250);
+
   --sidebar: var(--surface-muted);
   --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: var(--accent);
   --sidebar-accent-foreground: var(--accent-foreground);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
 }
 
+/* Subtle animated mesh on the dark body */
+.dark body {
+  background-image:
+    radial-gradient(
+      ellipse 80% 50% at 85% -10%,
+      oklch(0.74 0.165 162.5 / 0.06) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 60% 60% at -10% 110%,
+      oklch(0.62 0.14 258 / 0.05) 0%,
+      transparent 60%
+    );
+  background-attachment: fixed;
+}
+
 .dark img {
-  filter: grayscale(20%) brightness(0.9);
+  filter: grayscale(15%) brightness(0.88);
   transition: filter 0.3s ease;
 }
 
@@ -254,10 +317,33 @@
   background-color: color-mix(in oklab, var(--surface) 72%, transparent);
   backdrop-filter: blur(20px) saturate(180%);
   border-color: color-mix(in oklab, var(--border) 80%, transparent);
+
+  /* Dark-mode glass gets a subtle emerald-tinted border glow */
+  .dark & {
+    background-color: color-mix(in oklab, var(--surface) 55%, transparent);
+    backdrop-filter: blur(24px) saturate(200%) brightness(1.08);
+    border-color: oklch(0.74 0.165 162.5 / 12%);
+    box-shadow:
+      0 0 0 1px oklch(0.74 0.165 162.5 / 10%),
+      inset 0 1px 0 oklch(1 0 0 / 6%);
+  }
 }
 
 @utility text-gradient-brand {
+  /* Light mode: solid deep emerald */
   color: var(--primary-deep);
+
+  /* Dark mode: vivid emerald→cyan gradient */
+  .dark & {
+    background: linear-gradient(
+      135deg,
+      oklch(0.82 0.17 162) 0%,
+      oklch(0.78 0.18 200) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 }
 
 @utility bg-brand-gradient {
@@ -304,6 +390,10 @@
   &:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-lift);
+    /* In dark mode, cards also get a faint emerald outline on hover */
+    .dark & {
+      border-color: oklch(0.74 0.165 162.5 / 22%);
+    }
   }
 }
 
@@ -534,4 +624,153 @@
   background: oklch(from var(--primary) l c h / 12%);
   color: var(--primary);
   border: 1px solid oklch(from var(--primary) l c h / 25%);
+}
+
+/* ── Announcement bar ──────────────────────────────────────── */
+.announcement-bar {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 0.4rem 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.announcement-bar__content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.announcement-bar__dot {
+  opacity: 0.5;
+}
+
+.announcement-bar__cta {
+  opacity: 0.85;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 0.15s;
+  &:hover { opacity: 1; }
+}
+
+.announcement-bar__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 0.2rem;
+  opacity: 0.65;
+  transition: opacity 0.15s, background 0.15s;
+  &:hover { opacity: 1; background: oklch(1 0 0 / 12%); }
+}
+
+/* ── Site search bar (clickable pill) ─────────────────────── */
+.site-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  height: 2.375rem;       /* 38px */
+  padding: 0 0.875rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-muted);
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  text-align: left;
+
+  &:hover {
+    border-color: oklch(from var(--primary) l c h / 40%);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px oklch(from var(--primary) l c h / 8%);
+    color: var(--foreground);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px oklch(from var(--primary) l c h / 15%);
+  }
+}
+
+.site-search-bar__icon {
+  color: var(--muted-foreground);
+  transition: color 0.2s;
+  .site-search-bar:hover & { color: var(--primary); }
+}
+
+.site-search-bar__kbd {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  border-radius: 0.35rem;
+  border: 1px solid var(--border);
+  background: var(--background);
+  padding: 0.15rem 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+/* ── Category nav bar (Row 3) ─────────────────────────────── */
+.category-nav-bar {
+  height: 2.5rem;         /* 40px */
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.cat-nav__link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.875rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+  transition: background 0.18s, color 0.18s;
+
+  &:hover {
+    background: var(--surface-muted);
+    color: var(--foreground);
+  }
+}
+
+.cat-nav__action {
+  height: 1.75rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  transition: background 0.18s, color 0.18s;
+  padding: 0 0.75rem;
+
+  &:hover {
+    background: var(--surface-muted);
+    color: var(--foreground);
+  }
+}
+
+/* ── Mobile nav items ─────────────────────────────────────── */
+.mobile-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background: var(--surface-muted);
+    color: var(--foreground);
+  }
 }
