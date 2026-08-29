@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -25,6 +25,9 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/lib/cart";
 import { formatPrice, STORE, whatsappLink } from "@/lib/store-data";
+import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
+import { getReferralCode, clearReferralCode } from "@/lib/referral";
 
 export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
@@ -53,6 +56,8 @@ interface OrderConfirmationData {
   total: number;
   paymentMethod: string;
   createdAt: string;
+  storeCreditUsed: number;
+  referralCodeUsed: string | null;
 }
 
 const PROMO_CODES: Record<string, { discountPercent?: number; freeShipping?: boolean; label: string }> = {
@@ -63,9 +68,21 @@ const PROMO_CODES: Record<string, { discountPercent?: number; freeShipping?: boo
 
 function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderConfirmation, setOrderConfirmation] = useState<OrderConfirmationData | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Profile / Credit
+  const [storeCredit, setStoreCredit] = useState(0);
+  const [useStoreCredit, setUseStoreCredit] = useState(false);
+  
+  useEffect(() => {
+    if (user) {
+      supabase.from("profiles").select("store_credit").eq("id", user.id).single()
+        .then(({ data }) => { if (data) setStoreCredit(data.store_credit || 0); });
+    }
+  }, [user]);
 
   // Form Fields
   const [email, setEmail] = useState("");
@@ -88,7 +105,10 @@ function CheckoutPage() {
 
   const discountPercent = appliedPromo && PROMO_CODES[appliedPromo]?.discountPercent ? PROMO_CODES[appliedPromo].discountPercent! : 0;
   const discountAmount = Math.round((subtotal * discountPercent) / 100);
-  const total = Math.max(0, subtotal - discountAmount + shipping);
+  
+  let totalBeforeCredit = Math.max(0, subtotal - discountAmount + shipping);
+  const creditApplied = useStoreCredit ? Math.min(storeCredit, totalBeforeCredit) : 0;
+  const total = totalBeforeCredit - creditApplied;
 
   const handleApplyPromo = (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,11 +170,14 @@ function CheckoutPage() {
           hour: "2-digit",
           minute: "2-digit",
         }),
+        storeCreditUsed: creditApplied,
+        referralCodeUsed: getReferralCode(),
       };
 
       setOrderConfirmation(confirmation);
       setIsSubmitting(false);
       clearCart();
+      clearReferralCode();
       toast.success("Order placed successfully!");
     }, 1500);
   };
@@ -287,6 +310,12 @@ function CheckoutPage() {
                       <span>Shipping Fee</span>
                       <span>{orderConfirmation.shipping > 0 ? formatPrice(orderConfirmation.shipping) : "Free"}</span>
                     </div>
+                    {orderConfirmation.storeCreditUsed > 0 && (
+                      <div className="flex justify-between text-emerald-600 font-medium">
+                        <span>Store Credit Applied</span>
+                        <span>-{formatPrice(orderConfirmation.storeCreditUsed)}</span>
+                      </div>
+                    )}
                     <Separator className="my-2" />
                     <div className="flex justify-between font-bold text-base text-foreground">
                       <span>Total Paid</span>
@@ -587,6 +616,28 @@ function CheckoutPage() {
                 {shipping > 0 ? formatPrice(shipping) : "Free"}
               </p>
             </div>
+            
+            {storeCredit > 0 && (
+              <div className="pt-3 border-t border-border mt-3">
+                <label className="flex items-center justify-between cursor-pointer group">
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="checkbox" 
+                      checked={useStoreCredit}
+                      onChange={(e) => setUseStoreCredit(e.target.checked)}
+                      className="rounded border-border text-primary focus:ring-primary h-4 w-4"
+                    />
+                    <div>
+                      <p className="font-semibold group-hover:text-primary transition-colors">Apply Store Credit</p>
+                      <p className="text-xs text-muted-foreground">Balance: {formatPrice(storeCredit)}</p>
+                    </div>
+                  </div>
+                  {useStoreCredit && (
+                    <span className="font-medium text-emerald-600 dark:text-emerald-400">-{formatPrice(creditApplied)}</span>
+                  )}
+                </label>
+              </div>
+            )}
           </div>
 
           <Separator />

@@ -18,6 +18,7 @@ import { CartProvider } from "@/lib/cart";
 import { AuthProvider } from "@/lib/auth";
 import { WishlistProvider, CompareProvider } from "@/lib/user-store";
 import { MobileNav } from "@/components/storefront/mobile-nav";
+import { useReferralTracking } from "@/lib/referral";
 
 function NotFoundComponent() {
   return (
@@ -375,6 +376,8 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [themeMode, setThemeMode] = useState<"light" | "dark" | "system">("system");
+
+  useReferralTracking();
 
   useEffect(() => {
     function applyTheme() {

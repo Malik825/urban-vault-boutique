@@ -143,7 +143,7 @@ export const adminUpdateProduct = createServerFn({ method: "POST" })
 
 export const adminListOrders = createServerFn({ method: "GET" }).handler(async () => {
   try {
-    const supabase = getAdminClient();
+    const supabase = getAdminClient() as any;
     const { data, error } = await supabase
       .from("orders")
       .select(
@@ -167,7 +167,40 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     try {
       const supabase = getAdminClient();
-      const { error } = await supabase
+      
+      // If marking as delivered, process referral reward
+      // Uses untyped cast until migration is applied and types are regenerated
+      if (data.status === "delivered") {
+        const db = supabase as any;
+        const { data: order } = await db
+          .from("orders")
+          .select("total, referred_by, status")
+          .eq("id", data.id)
+          .single();
+          
+        // Only reward if it wasn't already delivered and has a referrer
+        if (order && order.status !== "delivered" && order.referred_by) {
+          const rewardAmount = Math.floor((order.total || 0) * 0.05); // 5% = store credit reward
+
+          if (rewardAmount > 0) {
+            const { data: referrer } = await db
+              .from("profiles")
+              .select("store_credit")
+              .eq("id", order.referred_by)
+              .single();
+              
+            if (referrer) {
+              await db
+                .from("profiles")
+                .update({ store_credit: (referrer.store_credit || 0) + rewardAmount })
+                .eq("id", order.referred_by);
+            }
+          }
+        }
+      }
+
+      const db2 = supabase as any;
+      const { error } = await db2
         .from("orders")
         .update({ status: data.status, updated_at: new Date().toISOString() })
         .eq("id", data.id);
@@ -181,7 +214,7 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
 // ─── Dashboard Stats ──────────────────────────────────────────────────────────
 
 export const adminGetStats = createServerFn({ method: "GET" }).handler(async () => {
-  const supabase = getAdminClient();
+  const supabase = getAdminClient() as any;
   const [productsRes, ordersRes] = await Promise.all([
     supabase.from("products").select("id, sku, slug, name, brand, category, price, compare_at, rating, reviews_count, stock, low_stock_threshold, condition, status, badge, views, blurb, specs, created_at"),
     supabase.from("orders").select("id, status, total, created_at"),
@@ -223,7 +256,7 @@ export const adminGetStats = createServerFn({ method: "GET" }).handler(async () 
 
 export const adminListCustomers = createServerFn({ method: "GET" }).handler(async () => {
   try {
-    const supabase = getAdminClient();
+    const supabase = getAdminClient() as any;
     const { data, error } = await supabase
       .from("profiles")
       .select("id, full_name, avatar_url, phone, updated_at")
@@ -285,7 +318,7 @@ export const adminGetAnalytics = createServerFn({ method: "GET" }).handler(async
   let products: any[] = [];
   let orders: any[] = [];
   try {
-    const supabase = getAdminClient();
+    const supabase = getAdminClient() as any;
     const [productsRes, ordersRes] = await Promise.all([
       supabase.from("products").select("id, slug, name, brand, category, price, views, status"),
       supabase.from("orders").select("id, status, total, created_at"),

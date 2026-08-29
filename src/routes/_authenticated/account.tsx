@@ -21,6 +21,8 @@ import { useWishlist } from "@/lib/user-store";
 import { useCompare } from "@/lib/user-store";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/store-data";
+import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
@@ -60,6 +62,20 @@ function AccountPage() {
   const { wishlist } = useWishlist();
   const { compareList } = useCompare();
   const { items: cartItems, count: cartCount } = useCart();
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from("profiles")
+        .select("referral_code, store_credit")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) setProfile(data);
+        });
+    }
+  }, [user]);
 
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? "GH";
   const displayName =
@@ -251,6 +267,61 @@ function AccountPage() {
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </Link>
             ))}
+          </div>
+        </div>
+
+        <Separator className="my-8" />
+
+        {/* Refer & Earn Section */}
+        <div>
+          <h2 className="font-display text-xl font-extrabold flex items-center gap-2">
+            <span className="text-xl">🎁</span> Refer & Earn
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1 mb-4">
+            Share your link with friends. They get a discount, and you earn store credit when they order!
+          </p>
+          
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Wallet Card */}
+            <div className="rounded-2xl border border-border bg-card shadow-card p-6 flex flex-col items-center text-center justify-center">
+              <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">Available Store Credit</p>
+              {profile ? (
+                <p className="font-display text-4xl font-extrabold text-primary">
+                  {formatPrice(profile.store_credit || 0)}
+                </p>
+              ) : (
+                <div className="h-10 w-24 bg-muted animate-pulse rounded-full mt-1"></div>
+              )}
+              <p className="text-xs text-muted-foreground mt-3">
+                Credit automatically applies at checkout.
+              </p>
+            </div>
+
+            {/* Share Link Card */}
+            <div className="rounded-2xl border border-border bg-card shadow-card p-6 flex flex-col justify-center">
+              <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Your Referral Link</p>
+              
+              {profile?.referral_code ? (
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 truncate rounded-lg bg-surface-muted px-4 py-3 text-sm font-mono border border-border">
+                    {typeof window !== 'undefined' ? `${window.location.origin}/?ref=${profile.referral_code}` : ''}
+                  </div>
+                  <Button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${window.location.origin}/?ref=${profile.referral_code}`);
+                      toast.success("Referral link copied!");
+                    }}
+                  >
+                    Copy
+                  </Button>
+                </div>
+              ) : (
+                <div className="h-11 w-full bg-muted animate-pulse rounded-lg"></div>
+              )}
+              <p className="text-xs text-muted-foreground mt-4">
+                Code: <strong className="font-mono text-foreground">{profile?.referral_code || '...'}</strong>
+              </p>
+            </div>
           </div>
         </div>
       </div>
