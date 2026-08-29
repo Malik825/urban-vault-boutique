@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Menu, Search, Heart, LayoutGrid, ShoppingCart,
-  Repeat2, ChevronDown, Info, Phone, HelpCircle, Home, X,
+  Repeat2, ChevronDown, Info, Phone, HelpCircle, Home, X, Tag
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -163,12 +163,10 @@ export function SiteHeader() {
               <div className="announcement-bar">
                 <div className="mx-auto flex max-w-7xl items-center justify-between container-x">
                   <div className="announcement-bar__content">
-                    <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M1 3h15v13H1z"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-                    </svg>
-                    <span>Same-day delivery in Accra</span>
-                    <span className="announcement-bar__dot" aria-hidden="true">·</span>
-                    <span>Nationwide delivery</span>
+                    <Tag className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                    <span className="hidden sm:inline font-semibold">Special Offer: Get 10% off your first order!</span>
+                    <span className="announcement-bar__dot hidden sm:inline" aria-hidden="true">·</span>
+                    <span>Use code <span className="font-bold">VOLTIX10</span></span>
                   </div>
                   <button
                     onClick={dismiss}
