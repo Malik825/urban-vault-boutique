@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Minus, Plus, ShoppingCart, Trash2, X } from "lucide-react";
+import { MessageCircle, Minus, Plus, ShoppingCart, Trash2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +10,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useCart } from "@/lib/cart";
-import { formatPrice } from "@/lib/store-data";
+import { createCartWhatsAppMessage, formatPrice, whatsappLink } from "@/lib/store-data";
 
 export function CartDrawer({
   open,
@@ -127,20 +127,49 @@ export function CartDrawer({
         </div>
 
         {items.length > 0 && (
-          <div className="border-t border-border px-1 py-6">
-            <div className="flex justify-between text-base font-medium text-foreground">
-              <p>Subtotal</p>
-              <p>{formatPrice(subtotal)}</p>
+          <div className="border-t border-border px-1 py-4 space-y-3">
+            <div className="space-y-1.5 text-sm">
+              <div className="flex justify-between text-muted-foreground">
+                <span>Subtotal</span>
+                <span className="font-semibold text-foreground">{formatPrice(subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-muted-foreground text-xs">
+                <span>Estimated Delivery</span>
+                <span>From GH₵ 40 (Accra) · Free Pickup</span>
+              </div>
+              <div className="flex justify-between text-base font-bold text-foreground pt-1 border-t border-border/60">
+                <span>Estimated Total</span>
+                <span className="text-primary font-display">{formatPrice(subtotal + 40)}</span>
+              </div>
             </div>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              Shipping and taxes calculated at checkout.
+
+            <p className="text-[11px] text-muted-foreground">
+              Choose instant web checkout or order directly via WhatsApp.
             </p>
-            <div className="mt-6">
+
+            <div className="space-y-2 pt-1">
               <SheetTrigger asChild>
                 <Button asChild className="w-full" size="lg">
                   <Link to="/checkout">Proceed to Checkout</Link>
                 </Button>
               </SheetTrigger>
+
+              <Button
+                asChild
+                variant="outline"
+                className="w-full border-emerald-500/50 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 dark:text-emerald-300 font-semibold"
+                size="lg"
+              >
+                <a
+                  href={whatsappLink(createCartWhatsAppMessage(items, subtotal))}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-2"
+                >
+                  <MessageCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  Send Cart to WhatsApp
+                </a>
+              </Button>
             </div>
           </div>
         )}

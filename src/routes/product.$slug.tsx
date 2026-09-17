@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, notFound } from "@tanstack/react-router";
 import {
   ChevronRight,
   Heart,
@@ -10,6 +10,9 @@ import {
   Truck,
   RotateCcw,
   ShoppingCart,
+  CreditCard,
+  Zap,
+  CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -35,7 +38,7 @@ import { SiteHeader } from "@/components/storefront/site-header";
 import { Reveal } from "@/components/reveal";
 import { useCart } from "@/lib/cart";
 import { useWishlist, useCompare } from "@/lib/user-store";
-import { formatPrice, reviews, whatsappLink } from "@/lib/store-data";
+import { formatPrice, reviews, whatsappLink, createProductEnquiry, STORE } from "@/lib/store-data";
 import { groupSpecs, type CatalogProduct } from "@/lib/catalog";
 import { listPublishedProducts, recordProductView } from "@/lib/catalog.functions";
 import { useEffect, useRef } from "react";
@@ -78,6 +81,7 @@ export const Route = createFileRoute("/product/$slug")({
 
 function ProductDetail() {
   const { product, related, suggested, recent } = Route.useLoaderData();
+  const navigate = useNavigate();
   const [active, setActive] = useState(0);
   const { items, addItem } = useCart();
   const { isWishlisted, toggleWishlist } = useWishlist();
@@ -220,16 +224,38 @@ function ProductDetail() {
 
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{product.blurb}</p>
 
-              <div className="mt-6 rounded-2xl border border-border bg-card p-4 shadow-card">
-                <p className="text-sm font-semibold">
-                  {product.stock > 0
-                    ? `${product.stock} units available · ships today`
-                    : "Currently out of stock — join the restock list"}
-                </p>
+              <div className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-card">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold">
+                    {product.stock > 0
+                      ? `${product.stock} units available in stock`
+                      : "Currently out of stock — join restock list"}
+                  </p>
+                  <Badge variant="outline" className="text-xs">
+                    Condition: {product.condition}
+                  </Badge>
+                </div>
+
                 <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
                   <Button
                     size="lg"
-                    className="col-span-2 sm:flex-1"
+                    className="col-span-2 sm:flex-1 font-bold"
+                    disabled={product.stock === 0}
+                    onClick={() => {
+                      if (!items.some((i) => i.product.id === product.id)) {
+                        addItem(product);
+                      }
+                      navigate({ to: "/checkout" });
+                    }}
+                  >
+                    <Zap className="mr-2 h-4 w-4" />
+                    Buy Now
+                  </Button>
+
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="col-span-2 sm:flex-1 font-semibold"
                     disabled={product.stock === 0}
                     onClick={() => {
                       if (items.some((i) => i.product.id === product.id)) {
@@ -243,33 +269,34 @@ function ProductDetail() {
                     <ShoppingCart className="mr-2 h-5 w-5" />
                     Add to Cart
                   </Button>
-                  <Button asChild variant="whatsapp" size="lg" className="col-span-2 sm:flex-1">
+
+                  <Button asChild variant="whatsapp" size="lg" className="col-span-2 font-bold bg-emerald-600 hover:bg-emerald-700 text-white">
                     <a
-                      href={whatsappLink(
-                        `Hi Voltix, I want to buy the ${product.name} (${formatPrice(product.price)}). Is it available?`,
-                      )}
+                      href={whatsappLink(createProductEnquiry(product))}
                       target="_blank"
                       rel="noreferrer"
                     >
                       <MessageCircle className="mr-2 h-5 w-5" />
-                      Enquire on WhatsApp
+                      Order / Enquire on WhatsApp
                     </a>
                   </Button>
+
                   <Button
                     variant="outline"
-                    size="lg"
+                    size="sm"
                     className="col-span-1"
                     onClick={() => {
                       toggleWishlist(product as CatalogProduct);
                       toast.success(saved ? "Removed from wishlist" : "Saved to wishlist");
                     }}
                   >
-                    <Heart className={`mr-2 h-5 w-5 ${saved ? "fill-primary text-primary" : ""}`} />
-                    <span className="sm:hidden lg:inline">Wishlist</span>
+                    <Heart className={`mr-1.5 h-4 w-4 ${saved ? "fill-primary text-primary" : ""}`} />
+                    Wishlist
                   </Button>
+
                   <Button
                     variant="outline"
-                    size="lg"
+                    size="sm"
                     className={`col-span-1 ${comparing ? "border-primary text-primary" : ""}`}
                     onClick={() => {
                       if (comparing) {
@@ -281,20 +308,44 @@ function ProductDetail() {
                       }
                     }}
                   >
-                    <Repeat2 className="mr-2 h-5 w-5" />
-                    <span className="sm:hidden lg:inline">Compare</span>
+                    <Repeat2 className="mr-1.5 h-4 w-4" />
+                    Compare
                   </Button>
                 </div>
+
                 <div className="mt-4 grid gap-2 border-t border-border pt-4 text-xs text-muted-foreground sm:grid-cols-3">
                   <p className="flex items-center gap-1.5">
-                    <ShieldCheck className="h-4 w-4 shrink-0 text-primary" /> Verified unit
+                    <ShieldCheck className="h-4 w-4 shrink-0 text-primary" /> Verified hardware
                   </p>
                   <p className="flex items-center gap-1.5">
-                    <Truck className="h-4 w-4 shrink-0 text-primary" /> Same-day Lagos
+                    <Truck className="h-4 w-4 shrink-0 text-primary" /> Same-day Accra dispatch
                   </p>
                   <p className="flex items-center gap-1.5">
-                    <RotateCcw className="h-4 w-4 shrink-0 text-primary" /> 7-day returns
+                    <RotateCcw className="h-4 w-4 shrink-0 text-primary" /> 7-day return policy
                   </p>
+                </div>
+
+                {/* Ghana Delivery & Payment Information Preview */}
+                <div className="mt-4 rounded-xl border border-border/70 bg-surface-muted/60 p-3.5 text-xs space-y-2.5">
+                  <div>
+                    <p className="font-bold text-foreground flex items-center gap-1.5">
+                      <Truck className="h-3.5 w-3.5 text-primary" /> Ghana Delivery Information
+                    </p>
+                    <p className="text-muted-foreground mt-0.5 leading-relaxed">
+                      • Greater Accra: Same-day delivery (GH₵ 40)<br/>
+                      • Ashanti (Kumasi) &amp; Regional: 24–48 hours tracked courier (GH₵ 65)<br/>
+                      • Store Pickup: Free collection at Osu Hub, Accra
+                    </p>
+                  </div>
+
+                  <div className="pt-2 border-t border-border/60">
+                    <p className="font-bold text-foreground flex items-center gap-1.5">
+                      <CreditCard className="h-3.5 w-3.5 text-amber-500" /> Payment Methods Supported
+                    </p>
+                    <p className="text-muted-foreground mt-0.5 leading-relaxed">
+                      MTN MoMo, Telecel Cash, Paystack cards (Visa/Mastercard), or WhatsApp manual confirmation.
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -344,8 +395,9 @@ function ProductDetail() {
                     send a quote the same day.
                   </p>
                   <p>
-                    Delivery is same-day within Lagos for orders placed before 2pm, and 24–48 hours
-                    nationwide with tracked couriers. Pickup from our Ikeja counter is always free.
+                    Delivery is same-day within Greater Accra for orders placed before 2pm, and 24–48 hours
+                    nationwide to Kumasi, Takoradi, Tamale and other regional capitals with tracked couriers.
+                    Pickup from our Osu Hub counter is always free.
                   </p>
                 </div>
               </TabsContent>
@@ -550,6 +602,43 @@ function ProductDetail() {
         <Rail title="You may also like" items={suggested} />
         <Rail title={`More from ${product.brand}`} items={related} />
         <Rail title="Recently viewed" items={recent} />
+      </div>
+
+      {/* Sticky Mobile Bottom CTA Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-t border-border px-4 py-3 sm:hidden shadow-xl flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Price</p>
+          <p className="font-display text-base font-extrabold text-primary truncate">
+            {formatPrice(product.price)}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            className="border-emerald-500/50 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold px-2.5 h-9"
+            asChild
+          >
+            <a href={whatsappLink(createProductEnquiry(product))} target="_blank" rel="noreferrer">
+              <MessageCircle className="h-4 w-4" />
+            </a>
+          </Button>
+
+          <Button
+            size="sm"
+            disabled={product.stock === 0}
+            onClick={() => {
+              if (!items.some((i) => i.product.id === product.id)) {
+                addItem(product);
+              }
+              navigate({ to: "/checkout" });
+            }}
+            className="h-9 px-4 font-bold text-xs"
+          >
+            <Zap className="h-3.5 w-3.5 mr-1" />
+            Buy Now
+          </Button>
+        </div>
       </div>
 
       <SiteFooter />

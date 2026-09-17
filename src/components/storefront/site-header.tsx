@@ -17,17 +17,19 @@ import { ThemeToggle } from "./theme-toggle";
 
 /* ── Navigation data ──────────────────────────────────────── */
 const categoryNav = [
-  { label: "Laptops",     search: { category: "Laptops" } },
-  { label: "Phones",      search: { category: "Phones" } },
-  { label: "Tablets",     search: { category: "Tablets" } },
+  { label: "Phones", search: { category: "Smartphones" } },
+  { label: "Laptops", search: { category: "Laptops" } },
+  { label: "Tablets", search: { category: "Tablets" } },
+  { label: "Audio & Wearables", search: { category: "Audio" } },
   { label: "Accessories", search: { category: "Accessories" } },
-  { label: "Deals 🔥",   search: { deals: true } },
+  { label: "Deals 🔥", search: { deals: true } },
 ];
 
 const companyLinks = [
-  { icon: Info,       label: "About us", description: "Our story and values",          to: "/about" as const },
-  { icon: HelpCircle, label: "FAQs",     description: "Answers to common questions",   to: "/faqs"  as const },
-  { icon: Phone,      label: "Contact",  description: "Get in touch with our team",    href: whatsappLink("Hi Voltix, I'd like to get in touch.") },
+  { icon: Info, label: "About Us", description: "Our technology & retail story", to: "/about" as const },
+  { icon: HelpCircle, label: "FAQs & Shipping", description: "MoMo payments & delivery details", to: "/faqs" as const },
+  { icon: Tag, label: "Get a Store Like This", description: "View developer packages & pricing", href: "https://www.webaddict.me/pricing" },
+  { icon: Phone, label: "WhatsApp Support", description: "Chat directly with our support team", href: whatsappLink("Hello! I have an enquiry about GadgetHaus products.") },
 ];
 
 /* ── Company mega-dropdown ───────────────────────────────── */
@@ -164,9 +166,9 @@ export function SiteHeader() {
                 <div className="mx-auto flex max-w-7xl items-center justify-between container-x">
                   <div className="announcement-bar__content">
                     <Tag className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                    <span className="hidden sm:inline font-semibold">Special Offer: Get 10% off your first order!</span>
+                    <span className="font-semibold">Modern Online Shopping for Electronics &amp; Tech · Accra, Ghana</span>
                     <span className="announcement-bar__dot hidden sm:inline" aria-hidden="true">·</span>
-                    <span>Use code <span className="font-bold">VOLTIX10</span></span>
+                    <span className="hidden md:inline">Use code <span className="font-bold">WELCOME10</span> for 10% off</span>
                   </div>
                   <button
                     onClick={dismiss}
@@ -187,9 +189,12 @@ export function SiteHeader() {
           <div className="flex min-w-0 items-center gap-8">
             <Link to="/" className="flex shrink-0 items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl">
               <img src="/logo.jpg" alt={`${STORE.name} logo`} className="h-9 w-9 rounded-xl object-cover shadow-glow" />
-              <span className="font-display text-base font-bold tracking-tight hidden sm:block">
-                {STORE.name}
-              </span>
+              <div className="hidden sm:flex flex-col">
+                <span className="font-display text-base font-bold tracking-tight">
+                  {STORE.name}
+                </span>
+                <span className="text-[10px] text-muted-foreground -mt-0.5">Accra, Ghana 🇬🇭</span>
+              </div>
             </Link>
             <nav className="hidden items-center gap-1 lg:flex">
               {categoryNav.map((item) => (

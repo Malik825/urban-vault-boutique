@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -13,7 +13,11 @@ import {
   ShoppingBag,
   Tag,
   Truck,
-  ShieldCheck
+  ShieldCheck,
+  Building2,
+  CreditCard,
+  Smartphone,
+  Info,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,13 +27,27 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useCart } from "@/lib/cart";
-import { formatPrice, STORE, whatsappLink } from "@/lib/store-data";
-import { useAuth } from "@/lib/auth";
-import { supabase } from "@/integrations/supabase/client";
-import { getReferralCode, clearReferralCode } from "@/lib/referral";
+import { formatPrice, STORE, GHANA_REGIONS, whatsappLink } from "@/lib/store-data";
 
 export const Route = createFileRoute("/checkout")({
+  head: () => ({
+    meta: [
+      { title: `Checkout — ${STORE.name}` },
+      {
+        name: "description",
+        content:
+          "Secure checkout with Ghana Mobile Money (MTN MoMo, Telecel Cash), cards via Paystack, and direct WhatsApp order confirmation.",
+      },
+    ],
+  }),
   component: CheckoutPage,
 });
 
@@ -38,6 +56,7 @@ interface OrderConfirmationData {
   customerName: string;
   email: string;
   phone: string;
+  deliveryMethod: "delivery" | "pickup";
   address: string;
   city: string;
   region: string;
@@ -55,60 +74,48 @@ interface OrderConfirmationData {
   shipping: number;
   total: number;
   paymentMethod: string;
+  momoProvider?: string;
   createdAt: string;
-  storeCreditUsed: number;
-  referralCodeUsed: string | null;
 }
 
 const PROMO_CODES: Record<string, { discountPercent?: number; freeShipping?: boolean; label: string }> = {
   WELCOME10: { discountPercent: 10, label: "10% off welcome discount" },
-  GADGET5: { discountPercent: 5, label: "5% off gadget promo" },
-  FREESHIP: { freeShipping: true, label: "Free Express Shipping" },
+  GHANA10: { discountPercent: 10, label: "10% African retail promo" },
+  FREESHIP: { freeShipping: true, label: "Free shipping across Ghana" },
 };
 
 function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
-  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderConfirmation, setOrderConfirmation] = useState<OrderConfirmationData | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Profile / Credit
-  const [storeCredit, setStoreCredit] = useState(0);
-  const [useStoreCredit, setUseStoreCredit] = useState(false);
-  
-  useEffect(() => {
-    if (user) {
-      supabase.from("profiles").select("store_credit").eq("id", user.id).single()
-        .then(({ data }) => { if (data) setStoreCredit(data.store_credit || 0); });
-    }
-  }, [user]);
-
   // Form Fields
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState<"delivery" | "pickup">("delivery");
   const [address, setAddress] = useState("");
-  const [apartment, setApartment] = useState("");
-  const [city, setCity] = useState("");
-  const [region, setRegion] = useState("");
+  const [city, setCity] = useState("Accra");
+  const [region, setRegion] = useState("Greater Accra");
   const [paymentMethod, setPaymentMethod] = useState("momo");
+  const [momoProvider, setMomoProvider] = useState("MTN Mobile Money");
+  const [momoNumber, setMomoNumber] = useState("");
 
   // Promo Code State
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
 
-  const initialShipping = subtotal > 0 ? 5000 : 0;
+  // Shipping Calculation
+  const selectedRegionData = GHANA_REGIONS.find((r) => r.name === region) || GHANA_REGIONS[0];
+  const baseShipping = deliveryMethod === "pickup" ? 0 : (selectedRegionData?.deliveryFee ?? 40);
   const isFreeShipping = appliedPromo === "FREESHIP";
-  const shipping = isFreeShipping ? 0 : initialShipping;
+  const shipping = isFreeShipping ? 0 : baseShipping;
 
   const discountPercent = appliedPromo && PROMO_CODES[appliedPromo]?.discountPercent ? PROMO_CODES[appliedPromo].discountPercent! : 0;
   const discountAmount = Math.round((subtotal * discountPercent) / 100);
-  
-  let totalBeforeCredit = Math.max(0, subtotal - discountAmount + shipping);
-  const creditApplied = useStoreCredit ? Math.min(storeCredit, totalBeforeCredit) : 0;
-  const total = totalBeforeCredit - creditApplied;
+  const total = Math.max(0, subtotal - discountAmount + shipping);
 
   const handleApplyPromo = (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,7 +126,7 @@ function CheckoutPage() {
       setAppliedPromo(code);
       toast.success(`Coupon applied: ${PROMO_CODES[code].label}`);
     } else {
-      toast.error("Invalid coupon code. Try WELCOME10 or FREESHIP");
+      toast.error("Invalid promo code. Try WELCOME10 or FREESHIP");
     }
   };
 
@@ -137,18 +144,23 @@ function CheckoutPage() {
     }
 
     setIsSubmitting(true);
-
     const generatedId = `GH-${Math.floor(100000 + Math.random() * 900000)}`;
 
     setTimeout(() => {
+      let paymentLabel = "Mobile Money";
+      if (paymentMethod === "momo") paymentLabel = `Mobile Money (${momoProvider})`;
+      else if (paymentMethod === "card") paymentLabel = "Debit/Credit Card (Paystack)";
+      else if (paymentMethod === "whatsapp") paymentLabel = "WhatsApp Direct Order";
+
       const confirmation: OrderConfirmationData = {
         orderId: generatedId,
-        customerName: `${firstName} ${lastName}`.trim(),
-        email,
-        phone,
-        address: apartment ? `${address}, ${apartment}` : address,
-        city,
-        region,
+        customerName: `${firstName} ${lastName}`.trim() || "Customer",
+        email: email || "customer@example.com",
+        phone: phone || "+233 24 000 0000",
+        deliveryMethod,
+        address: deliveryMethod === "pickup" ? STORE.pickupLocation : address,
+        city: deliveryMethod === "pickup" ? "Accra" : city,
+        region: deliveryMethod === "pickup" ? "Greater Accra" : region,
         items: items.map((i) => ({
           id: i.product.id,
           name: i.product.name,
@@ -162,24 +174,22 @@ function CheckoutPage() {
         promoCode: appliedPromo,
         shipping,
         total,
-        paymentMethod: paymentMethod === "momo" ? "Mobile Money (MTN / Vodafone / AirtelTigo)" : "Card Payment",
-        createdAt: new Date().toLocaleDateString("en-US", {
+        paymentMethod: paymentLabel,
+        momoProvider,
+        createdAt: new Date().toLocaleDateString("en-GH", {
           month: "short",
           day: "numeric",
           year: "numeric",
           hour: "2-digit",
           minute: "2-digit",
         }),
-        storeCreditUsed: creditApplied,
-        referralCodeUsed: getReferralCode(),
       };
 
       setOrderConfirmation(confirmation);
       setIsSubmitting(false);
       clearCart();
-      clearReferralCode();
-      toast.success("Order placed successfully!");
-    }, 1500);
+      toast.success("Order placed! We'll confirm via WhatsApp shortly.");
+    }, 1200);
   };
 
   const copyOrderId = () => {
@@ -190,17 +200,17 @@ function CheckoutPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Order Confirmation View
   if (orderConfirmation) {
     const waText = encodeURIComponent(
-      `Hello ${STORE.name}! I just placed an order:\n\n*Order ID:* ${orderConfirmation.orderId}\n*Customer:* ${orderConfirmation.customerName}\n*Phone:* ${orderConfirmation.phone}\n*Delivery Address:* ${orderConfirmation.address}, ${orderConfirmation.city}\n*Total:* ${formatPrice(orderConfirmation.total)}\n\nPlease confirm availability and delivery dispatch.`
+      `Hello ${STORE.name}! I just placed an order:\n\n*Order ID:* ${orderConfirmation.orderId}\n*Customer:* ${orderConfirmation.customerName}\n*Phone:* ${orderConfirmation.phone}\n*Delivery Method:* ${orderConfirmation.deliveryMethod === "pickup" ? "Pickup in Osu" : `Delivery to ${orderConfirmation.address}, ${orderConfirmation.city} (${orderConfirmation.region})`}\n*Payment Method:* ${orderConfirmation.paymentMethod}\n*Total:* ${formatPrice(orderConfirmation.total)}\n\nPlease confirm my order and provide dispatch details.`
     );
 
     return (
-      <div className="min-h-screen bg-surface-muted">
-        {/* Header */}
+      <div className="min-h-screen bg-surface-muted text-foreground">
         <header className="border-b border-border bg-background py-4 sticky top-0 z-30">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl">
+            <Link to="/" className="flex items-center gap-2.5 outline-none">
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-gradient text-primary-foreground shadow-glow">
                 <LayoutGrid className="h-4 w-4" />
               </span>
@@ -219,19 +229,17 @@ function CheckoutPage() {
           </div>
         </header>
 
-        {/* Confirmation Content */}
-        <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
+        <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
           <div className="rounded-3xl border border-border bg-card p-6 shadow-card sm:p-10 space-y-8">
-            {/* Top Success Badge */}
             <div className="text-center space-y-3">
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary-soft text-primary animate-in zoom-in-50 duration-300">
-                <CheckCircle2 className="h-10 w-10" />
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 animate-in zoom-in-50 duration-300">
+                <CheckCircle2 className="h-9 w-9" />
               </div>
               <h1 className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">
                 Thank You For Your Order!
               </h1>
-              <p className="text-muted-foreground text-sm max-w-md mx-auto">
-                Your order has been recorded. Our logistics team will review and contact you on WhatsApp to confirm delivery details.
+              <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
+                Your order has been placed. Our logistics team will contact you on WhatsApp to confirm delivery details and dispatch.
               </p>
             </div>
 
@@ -248,7 +256,7 @@ function CheckoutPage() {
                   {copied ? "Copied" : "Copy ID"}
                 </Button>
                 <a
-                  href={`https://wa.me/${STORE.whatsapp.replace(/[^0-9]/g, "")}?text=${waText}`}
+                  href={`https://wa.me/${STORE.whatsappRaw}?text=${waText}`}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition-colors"
@@ -259,104 +267,77 @@ function CheckoutPage() {
               </div>
             </div>
 
-            {/* Two Column Details */}
-            <div className="grid gap-6 md:grid-cols-2">
-              {/* Customer & Shipping Details */}
-              <div className="space-y-4 rounded-2xl border border-border bg-surface-muted/50 p-5">
-                <h3 className="font-display text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                  Shipping &amp; Contact
+            {/* Summary Details */}
+            <div className="grid gap-6 sm:grid-cols-2 text-sm">
+              <div className="space-y-3 rounded-2xl border border-border bg-surface-muted/50 p-5">
+                <h3 className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Delivery &amp; Customer
                 </h3>
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Recipient</p>
-                    <p className="font-semibold text-foreground">{orderConfirmation.customerName}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Phone &amp; Email</p>
-                    <p className="font-medium text-foreground">{orderConfirmation.phone} · {orderConfirmation.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Delivery Destination</p>
-                    <p className="font-medium text-foreground">{orderConfirmation.address}, {orderConfirmation.city}, {orderConfirmation.region}</p>
-                  </div>
-                  <div className="pt-2 flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                    <Truck className="h-4 w-4" /> Same-day / Next-day dispatch
-                  </div>
+                <div className="space-y-1.5">
+                  <p className="font-semibold text-foreground">{orderConfirmation.customerName}</p>
+                  <p className="text-muted-foreground">{orderConfirmation.phone} · {orderConfirmation.email}</p>
+                  <p className="text-muted-foreground">
+                    {orderConfirmation.deliveryMethod === "pickup" ? (
+                      <span className="font-medium text-foreground">In-Store Pickup ({STORE.pickupLocation})</span>
+                    ) : (
+                      <span>{orderConfirmation.address}, {orderConfirmation.city}, {orderConfirmation.region}</span>
+                    )}
+                  </p>
+                  <p className="text-xs text-primary font-medium pt-1">
+                    {orderConfirmation.deliveryMethod === "pickup" ? "Ready in 2–4 hours" : "Estimated dispatch: 24–48 hours"}
+                  </p>
                 </div>
               </div>
 
-              {/* Payment Summary */}
-              <div className="space-y-4 rounded-2xl border border-border bg-surface-muted/50 p-5">
-                <h3 className="font-display text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                  Payment Details
+              <div className="space-y-3 rounded-2xl border border-border bg-surface-muted/50 p-5">
+                <h3 className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Payment Summary
                 </h3>
-                <div className="space-y-2 text-sm">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Payment Method</p>
-                    <p className="font-semibold text-foreground">{orderConfirmation.paymentMethod}</p>
+                <div className="space-y-1.5">
+                  <p className="font-semibold text-foreground">{orderConfirmation.paymentMethod}</p>
+                  <div className="flex justify-between text-muted-foreground text-xs pt-1">
+                    <span>Subtotal:</span>
+                    <span>{formatPrice(orderConfirmation.subtotal)}</span>
                   </div>
-                  <div className="space-y-1.5 pt-2">
-                    <div className="flex justify-between text-muted-foreground">
-                      <span>Subtotal</span>
-                      <span>{formatPrice(orderConfirmation.subtotal)}</span>
+                  {orderConfirmation.discount > 0 && (
+                    <div className="flex justify-between text-emerald-600 text-xs">
+                      <span>Discount ({orderConfirmation.promoCode}):</span>
+                      <span>-{formatPrice(orderConfirmation.discount)}</span>
                     </div>
-                    {orderConfirmation.discount > 0 && (
-                      <div className="flex justify-between text-emerald-600 font-medium">
-                        <span>Discount ({orderConfirmation.promoCode})</span>
-                        <span>-{formatPrice(orderConfirmation.discount)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between text-muted-foreground">
-                      <span>Shipping Fee</span>
-                      <span>{orderConfirmation.shipping > 0 ? formatPrice(orderConfirmation.shipping) : "Free"}</span>
-                    </div>
-                    {orderConfirmation.storeCreditUsed > 0 && (
-                      <div className="flex justify-between text-emerald-600 font-medium">
-                        <span>Store Credit Applied</span>
-                        <span>-{formatPrice(orderConfirmation.storeCreditUsed)}</span>
-                      </div>
-                    )}
-                    <Separator className="my-2" />
-                    <div className="flex justify-between font-bold text-base text-foreground">
-                      <span>Total Paid</span>
-                      <span className="font-display text-lg text-primary">{formatPrice(orderConfirmation.total)}</span>
-                    </div>
+                  )}
+                  <div className="flex justify-between text-muted-foreground text-xs">
+                    <span>Shipping Fee:</span>
+                    <span>{orderConfirmation.shipping > 0 ? formatPrice(orderConfirmation.shipping) : "Free Pickup"}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-sm text-foreground pt-1 border-t border-border">
+                    <span>Total Amount:</span>
+                    <span className="text-primary font-display text-base">{formatPrice(orderConfirmation.total)}</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Order Items List */}
-            <div className="space-y-3 pt-2">
-              <h3 className="font-display text-base font-bold tracking-tight">Ordered Items</h3>
-              <div className="divide-y divide-border/60 rounded-2xl border border-border overflow-hidden">
+            {/* Ordered Items */}
+            <div className="space-y-3">
+              <h3 className="font-display text-base font-bold">Ordered Products</h3>
+              <div className="divide-y divide-border rounded-2xl border border-border overflow-hidden">
                 {orderConfirmation.items.map((item) => (
-                  <div key={item.id} className="flex items-center gap-4 p-4 bg-card">
+                  <div key={item.id} className="flex items-center gap-4 p-3.5 bg-card">
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="h-16 w-16 rounded-xl object-cover border border-border shrink-0"
+                      className="h-14 w-14 rounded-lg object-cover border border-border shrink-0"
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold truncate">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">Condition: {item.condition} · Qty: {item.qty}</p>
+                      <p className="text-xs text-muted-foreground">Grade: {item.condition} · Qty: {item.qty}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-bold">{formatPrice(item.price * item.qty)}</p>
-                      <p className="text-xs text-muted-foreground">{formatPrice(item.price)} each</p>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-
-            {/* Trust Footer */}
-            <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-border text-xs text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-primary" />
-                <span>All devices backed by Voltix Warranty &amp; Authenticity Guarantee</span>
-              </div>
-              <p>Questions? Call/WhatsApp: {STORE.phone}</p>
             </div>
           </div>
         </main>
@@ -365,154 +346,300 @@ function CheckoutPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-surface-muted lg:flex-row">
+    <div className="flex min-h-screen flex-col bg-surface-muted lg:flex-row text-foreground">
       {/* Left Column - Form */}
-      <div className="flex-1 bg-background px-4 py-8 sm:px-6 lg:px-12 lg:py-16 xl:px-24">
+      <div className="flex-1 bg-background px-4 py-8 sm:px-6 lg:px-12 lg:py-12 xl:px-20">
         <div className="mx-auto max-w-2xl">
-          <Link to="/" className="flex shrink-0 items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl w-fit mb-8 lg:mb-12">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-gradient text-primary-foreground shadow-glow">
-              <LayoutGrid className="h-4 w-4" />
-            </span>
-            <span className="font-display text-lg font-extrabold tracking-tight">
-              {STORE.name}
-            </span>
-          </Link>
+          <div className="flex items-center justify-between mb-8">
+            <Link to="/" className="flex items-center gap-2.5 outline-none">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-gradient text-primary-foreground shadow-glow">
+                <LayoutGrid className="h-4 w-4" />
+              </span>
+              <span className="font-display text-lg font-extrabold tracking-tight">
+                {STORE.name}
+              </span>
+            </Link>
+          </div>
 
-          <nav className="mb-8 flex items-center gap-2 text-sm text-muted-foreground">
-            <Link to="/products" className="hover:text-foreground">Store</Link>
-            <ChevronRight className="h-4 w-4" />
+          <nav className="mb-6 flex items-center gap-2 text-xs text-muted-foreground">
+            <Link to="/products" className="hover:text-foreground">Products</Link>
+            <ChevronRight className="h-3.5 w-3.5" />
             <span className="font-semibold text-foreground">Checkout</span>
           </nav>
 
-          <form onSubmit={handleSubmit} className="space-y-10">
-            {/* Contact Info */}
-            <section>
-              <h2 className="font-display text-lg font-bold tracking-tight mb-4">Contact Information</h2>
-              <div className="space-y-4">
-                <div className="space-y-2">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* 1. Contact Information */}
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-base font-bold tracking-tight flex items-center gap-2">
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary text-xs font-bold">1</span>
+                  Contact Information
+                </h2>
+                <span className="text-xs text-muted-foreground">No account required</span>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="firstName">First name *</Label>
+                  <Input
+                    id="firstName"
+                    required
+                    placeholder="Kwame"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="lastName">Last name *</Label>
+                  <Input
+                    id="lastName"
+                    required
+                    placeholder="Mensah"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="phone">Phone / WhatsApp Number *</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    required
+                    placeholder="+233 24 123 4567"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                  <p className="text-[11px] text-muted-foreground">Used for delivery updates &amp; WhatsApp receipt</p>
+                </div>
+
+                <div className="space-y-1.5">
                   <Label htmlFor="email">Email address</Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="you@example.com"
-                    required
+                    placeholder="kwame@gmail.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-surface-muted"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone number (WhatsApp preferred)</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="+233 24 000 0000"
-                    required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="bg-surface-muted"
                   />
                 </div>
               </div>
             </section>
 
-            {/* Shipping Address */}
-            <section>
-              <h2 className="font-display text-lg font-bold tracking-tight mb-4">Shipping Address</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First name</Label>
-                  <Input
-                    id="firstName"
-                    required
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="bg-surface-muted"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last name</Label>
-                  <Input
-                    id="lastName"
-                    required
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="bg-surface-muted"
-                  />
-                </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="address">Street address</Label>
-                  <Input
-                    id="address"
-                    required
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className="bg-surface-muted"
-                    placeholder="e.g. 14 Oxford Street, Osu"
-                  />
-                </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="apartment">Apartment, suite, landmark (optional)</Label>
-                  <Input
-                    id="apartment"
-                    value={apartment}
-                    onChange={(e) => setApartment(e.target.value)}
-                    className="bg-surface-muted"
-                    placeholder="Near Total Filling Station"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="city">City / Town</Label>
-                  <Input
-                    id="city"
-                    required
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="bg-surface-muted"
-                    placeholder="Accra / Lagos"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="region">Region / State</Label>
-                  <Input
-                    id="region"
-                    required
-                    value={region}
-                    onChange={(e) => setRegion(e.target.value)}
-                    className="bg-surface-muted"
-                    placeholder="Greater Accra"
-                  />
-                </div>
-              </div>
-            </section>
+            {/* 2. Delivery Experience - Requirement 7 */}
+            <section className="space-y-4 pt-4 border-t border-border">
+              <h2 className="font-display text-base font-bold tracking-tight flex items-center gap-2">
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary text-xs font-bold">2</span>
+                Delivery Details
+              </h2>
 
-            {/* Payment Method */}
-            <section>
-              <h2 className="font-display text-xl font-bold tracking-tight mb-4">Payment Method</h2>
-              <div className="rounded-xl border border-border bg-surface-muted p-4">
-                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                  <div className="flex items-center space-x-3 rounded-lg border border-border bg-background p-4 shadow-sm">
-                    <RadioGroupItem value="momo" id="momo" />
-                    <Label htmlFor="momo" className="flex-1 cursor-pointer font-medium">
-                      Mobile Money (MTN MoMo, Vodafone Cash, AirtelTigo)
-                    </Label>
+              {/* Delivery vs Pickup Toggle */}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeliveryMethod("delivery")}
+                  className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
+                    deliveryMethod === "delivery"
+                      ? "border-primary bg-primary/5 ring-1 ring-primary"
+                      : "border-border bg-card hover:bg-surface-muted"
+                  }`}
+                >
+                  <Truck className="h-5 w-5 text-primary shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold">Delivery</p>
+                    <p className="text-xs text-muted-foreground">Doorstep dispatch</p>
                   </div>
-                  <div className="mt-3 flex items-center space-x-3 rounded-lg border border-border bg-background p-4 shadow-sm opacity-60">
-                    <RadioGroupItem value="card" id="card" disabled />
-                    <Label htmlFor="card" className="flex-1 font-medium">
-                      Debit / Credit Card (Coming soon)
-                    </Label>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setDeliveryMethod("pickup")}
+                  className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
+                    deliveryMethod === "pickup"
+                      ? "border-primary bg-primary/5 ring-1 ring-primary"
+                      : "border-border bg-card hover:bg-surface-muted"
+                  }`}
+                >
+                  <Building2 className="h-5 w-5 text-primary shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold">In-Store Pickup</p>
+                    <p className="text-xs text-muted-foreground">Free in Osu, Accra</p>
                   </div>
-                </RadioGroup>
+                </button>
               </div>
+
+              {deliveryMethod === "delivery" ? (
+                <div className="grid gap-3 sm:grid-cols-2 pt-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="region">Region *</Label>
+                    <Select value={region} onValueChange={setRegion}>
+                      <SelectTrigger id="region" className="w-full">
+                        <SelectValue placeholder="Select region" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GHANA_REGIONS.map((r) => (
+                          <SelectItem key={r.name} value={r.name}>
+                            {r.name} ({formatPrice(r.deliveryFee)})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="city">City / Town *</Label>
+                    <Input
+                      id="city"
+                      required
+                      placeholder="e.g. Accra / Kumasi / Tema"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label htmlFor="address">Street Address / Landmark *</Label>
+                    <Input
+                      id="address"
+                      required
+                      placeholder="e.g. 14 Ring Road Central, near Total Station"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-border bg-surface-muted p-4 text-xs space-y-1">
+                  <p className="font-semibold text-foreground">Pickup Location:</p>
+                  <p className="text-muted-foreground">{STORE.pickupLocation}</p>
+                  <p className="text-primary font-medium pt-1">
+                    Pickup is free. Orders are prepared within 2 hours of confirmation.
+                  </p>
+                </div>
+              )}
             </section>
 
-            <div className="flex items-center justify-between pt-6 border-t border-border">
-              <Link to="/products" className="flex items-center text-sm font-medium text-primary hover:underline">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Return to shopping
+            {/* 3. Ghana Payment Experience - Requirement 6 */}
+            <section className="space-y-4 pt-4 border-t border-border">
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-base font-bold tracking-tight flex items-center gap-2">
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary text-xs font-bold">3</span>
+                  Payment Method
+                </h2>
+              </div>
+
+              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
+                {/* Mobile Money */}
+                <div
+                  className={`rounded-2xl border p-4 transition-all ${
+                    paymentMethod === "momo" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border bg-card"
+                  }`}
+                >
+                  <div className="flex items-start justify-between cursor-pointer" onClick={() => setPaymentMethod("momo")}>
+                    <div className="flex items-start gap-3">
+                      <RadioGroupItem value="momo" id="momo" className="mt-1" />
+                      <div>
+                        <Label htmlFor="momo" className="font-bold text-sm cursor-pointer block">
+                          Mobile Money (MoMo)
+                        </Label>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          MTN Mobile Money, Telecel Cash &amp; AirtelTigo Money
+                        </p>
+                      </div>
+                    </div>
+                    <Smartphone className="h-5 w-5 text-amber-500 shrink-0" />
+                  </div>
+
+                  {paymentMethod === "momo" && (
+                    <div className="mt-4 pt-3 border-t border-border/80 space-y-3">
+                      <div className="grid grid-cols-3 gap-2">
+                        {["MTN Mobile Money", "Telecel Cash", "AirtelTigo"].map((provider) => (
+                          <button
+                            type="button"
+                            key={provider}
+                            onClick={() => setMomoProvider(provider)}
+                            className={`rounded-lg border px-2 py-1.5 text-xs font-semibold text-center transition-colors ${
+                              momoProvider === provider
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-card text-foreground hover:bg-surface-muted border-border"
+                            }`}
+                          >
+                            {provider}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="momoNumber" className="text-xs">
+                          {momoProvider} Number
+                        </Label>
+                        <Input
+                          id="momoNumber"
+                          placeholder="e.g. 024 123 4567"
+                          value={momoNumber}
+                          onChange={(e) => setMomoNumber(e.target.value)}
+                          className="text-xs"
+                        />
+                        <p className="text-[10px] text-muted-foreground">
+                          Instant USSD confirmation prompt will be sent to your phone.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Card / Paystack */}
+                <div
+                  className={`rounded-2xl border p-4 transition-all ${
+                    paymentMethod === "card" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border bg-card"
+                  }`}
+                >
+                  <div className="flex items-start justify-between cursor-pointer" onClick={() => setPaymentMethod("card")}>
+                    <div className="flex items-start gap-3">
+                      <RadioGroupItem value="card" id="card" className="mt-1" />
+                      <div>
+                        <Label htmlFor="card" className="font-bold text-sm cursor-pointer block">
+                          Debit / Credit Card (Paystack)
+                        </Label>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Visa, Mastercard, GH-Link &amp; Bank Transfer
+                        </p>
+                      </div>
+                    </div>
+                    <CreditCard className="h-5 w-5 text-blue-500 shrink-0" />
+                  </div>
+                </div>
+
+                {/* WhatsApp Order Option */}
+                <div
+                  className={`rounded-2xl border p-4 transition-all ${
+                    paymentMethod === "whatsapp" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border bg-card"
+                  }`}
+                >
+                  <div className="flex items-start justify-between cursor-pointer" onClick={() => setPaymentMethod("whatsapp")}>
+                    <div className="flex items-start gap-3">
+                      <RadioGroupItem value="whatsapp" id="whatsapp" className="mt-1" />
+                      <div>
+                        <Label htmlFor="whatsapp" className="font-bold text-sm cursor-pointer block">
+                          Order Directly via WhatsApp
+                        </Label>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Confirm specs, negotiate bulk discount, or pay cash upon physical verification
+                        </p>
+                      </div>
+                    </div>
+                    <MessageCircle className="h-5 w-5 text-emerald-500 shrink-0" />
+                  </div>
+                </div>
+              </RadioGroup>
+            </section>
+
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border">
+              <Link to="/products" className="flex items-center text-xs font-medium text-primary hover:underline">
+                <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
+                Return to catalogue
               </Link>
-              <Button type="submit" size="lg" disabled={isSubmitting || items.length === 0} className="w-full sm:w-auto px-8">
+              <Button type="submit" size="lg" disabled={isSubmitting || items.length === 0} className="w-full sm:w-auto px-8 font-bold">
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -527,21 +654,21 @@ function CheckoutPage() {
         </div>
       </div>
 
-      {/* Right Column - Order Summary & Promo Code */}
-      <div className="w-full border-t border-border bg-surface-muted px-4 py-8 sm:px-6 lg:w-[45%] lg:max-w-md lg:border-l lg:border-t-0 lg:px-12 xl:max-w-lg">
+      {/* Right Column - Order Summary */}
+      <div className="w-full border-t border-border bg-surface-muted px-4 py-8 sm:px-6 lg:w-[42%] lg:max-w-md lg:border-l lg:border-t-0 lg:px-8 xl:max-w-lg">
         <div className="sticky top-12 mx-auto max-w-2xl space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-xl font-bold tracking-tight">Order Summary</h2>
-            <Badge variant="secondary" className="gap-1 font-semibold">
+            <h2 className="font-display text-lg font-bold tracking-tight">Order Summary</h2>
+            <Badge variant="secondary" className="gap-1 font-semibold text-xs">
               <ShoppingBag className="h-3.5 w-3.5" />
               {items.reduce((acc, i) => acc + i.qty, 0)} items
             </Badge>
           </div>
 
-          <ul className="divide-y divide-border/50 max-h-72 overflow-y-auto pr-1">
+          <ul className="divide-y divide-border/60 max-h-72 overflow-y-auto pr-1">
             {items.map((item) => (
-              <li key={item.product.id} className="flex py-4">
-                <div className="relative h-16 w-16 shrink-0 rounded-lg border border-border bg-background p-1">
+              <li key={item.product.id} className="flex py-3.5 items-center">
+                <div className="relative h-14 w-14 shrink-0 rounded-lg border border-border bg-background p-1">
                   <img
                     src={item.product.images[0]}
                     alt={item.product.name}
@@ -551,12 +678,12 @@ function CheckoutPage() {
                     {item.qty}
                   </span>
                 </div>
-                <div className="ml-4 flex flex-1 flex-col justify-center min-w-0">
-                  <h3 className="text-sm font-medium truncate">{item.product.name}</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">{item.product.condition}</p>
+                <div className="ml-3.5 flex flex-1 flex-col justify-center min-w-0">
+                  <h3 className="text-sm font-semibold truncate">{item.product.name}</h3>
+                  <p className="text-xs text-muted-foreground">{item.product.condition}</p>
                 </div>
-                <div className="ml-4 flex items-center text-sm font-semibold">
-                  {formatPrice(item.product.price * item.qty)}
+                <div className="ml-3 text-right">
+                  <p className="text-sm font-bold">{formatPrice(item.product.price * item.qty)}</p>
                 </div>
               </li>
             ))}
@@ -565,11 +692,11 @@ function CheckoutPage() {
           {/* Promo Code Box */}
           <div className="rounded-2xl border border-border bg-card p-4">
             <Label htmlFor="promo" className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 mb-2">
-              <Tag className="h-3.5 w-3.5" /> Promo or Discount Code
+              <Tag className="h-3.5 w-3.5" /> Coupon / Promo Code
             </Label>
             {appliedPromo ? (
               <div className="flex items-center justify-between rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-2.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
-                <span>Code {appliedPromo} applied ({PROMO_CODES[appliedPromo]?.label})</span>
+                <span>Applied: {appliedPromo} ({PROMO_CODES[appliedPromo]?.label})</span>
                 <button
                   type="button"
                   onClick={handleRemovePromo}
@@ -585,71 +712,57 @@ function CheckoutPage() {
                   placeholder="e.g. WELCOME10"
                   value={promoInput}
                   onChange={(e) => setPromoInput(e.target.value)}
-                  className="h-10 uppercase text-xs font-mono"
+                  className="h-9 uppercase text-xs font-mono"
                 />
-                <Button type="submit" variant="secondary" className="h-10 text-xs px-4">
+                <Button type="submit" variant="secondary" className="h-9 text-xs px-3 font-semibold">
                   Apply
                 </Button>
               </form>
             )}
             <p className="mt-2 text-[11px] text-muted-foreground">
-              Try <code className="font-semibold text-foreground">WELCOME10</code> (10% off) or <code className="font-semibold text-foreground">FREESHIP</code>
+              Available promo codes: <code className="font-semibold text-foreground">WELCOME10</code> or <code className="font-semibold text-foreground">FREESHIP</code>
             </p>
           </div>
 
           <Separator />
 
-          <div className="space-y-3 text-sm">
+          <div className="space-y-2.5 text-sm">
             <div className="flex justify-between text-muted-foreground">
-              <p>Subtotal</p>
-              <p className="font-medium text-foreground">{formatPrice(subtotal)}</p>
+              <span>Subtotal</span>
+              <span className="font-medium text-foreground">{formatPrice(subtotal)}</span>
             </div>
             {discountAmount > 0 && (
               <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-medium">
-                <p>Discount ({appliedPromo})</p>
-                <p>-{formatPrice(discountAmount)}</p>
+                <span>Discount ({appliedPromo})</span>
+                <span>-{formatPrice(discountAmount)}</span>
               </div>
             )}
             <div className="flex justify-between text-muted-foreground">
-              <p>Shipping (Ghana / Nigeria)</p>
-              <p className="font-medium text-foreground">
+              <span>
+                {deliveryMethod === "pickup" ? "In-Store Pickup" : `Delivery (${region})`}
+              </span>
+              <span className="font-medium text-foreground">
                 {shipping > 0 ? formatPrice(shipping) : "Free"}
-              </p>
+              </span>
             </div>
-            
-            {storeCredit > 0 && (
-              <div className="pt-3 border-t border-border mt-3">
-                <label className="flex items-center justify-between cursor-pointer group">
-                  <div className="flex items-center gap-2">
-                    <input 
-                      type="checkbox" 
-                      checked={useStoreCredit}
-                      onChange={(e) => setUseStoreCredit(e.target.checked)}
-                      className="rounded border-border text-primary focus:ring-primary h-4 w-4"
-                    />
-                    <div>
-                      <p className="font-semibold group-hover:text-primary transition-colors">Apply Store Credit</p>
-                      <p className="text-xs text-muted-foreground">Balance: {formatPrice(storeCredit)}</p>
-                    </div>
-                  </div>
-                  {useStoreCredit && (
-                    <span className="font-medium text-emerald-600 dark:text-emerald-400">-{formatPrice(creditApplied)}</span>
-                  )}
-                </label>
-              </div>
-            )}
           </div>
 
           <Separator />
 
           <div className="flex items-center justify-between">
-            <p className="text-base font-medium">Total</p>
-            <div className="flex items-baseline gap-2">
+            <span className="text-base font-semibold">Total Amount</span>
+            <div className="flex items-baseline gap-1.5">
               <span className="text-xs text-muted-foreground">GHS</span>
-              <p className="font-display text-2xl font-extrabold tracking-tight">
+              <span className="font-display text-2xl font-extrabold tracking-tight text-primary">
                 {formatPrice(total)}
-              </p>
+              </span>
             </div>
+          </div>
+
+          <div className="pt-2 text-center">
+            <p className="text-[11px] text-muted-foreground">
+              🛡️ Secure Checkout · Backed by GadgetHaus warranty &amp; authenticity guarantee
+            </p>
           </div>
         </div>
       </div>

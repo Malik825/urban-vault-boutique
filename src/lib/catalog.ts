@@ -34,10 +34,16 @@ export type CatalogProduct = Product & {
 };
 
 const categoryImages: Record<string, string> = {
-  Laptops: laptopImg,
+  Smartphones: phoneImg,
   Phones: phoneImg,
+  Laptops: laptopImg,
   Tablets: tabletImg,
+  Smartwatches: accessoriesImg,
+  Audio: accessoriesImg,
+  Gaming: laptopImg,
   Accessories: accessoriesImg,
+  Networking: laptopImg,
+  "Computer Accessories": accessoriesImg,
 };
 
 export function categoryImage(category: string) {

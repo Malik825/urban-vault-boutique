@@ -1,76 +1,184 @@
 import { Link } from "@tanstack/react-router";
-import { LayoutGrid, MessageCircle, Mail, MapPin } from "lucide-react";
+import { LayoutGrid, MessageCircle, Mail, MapPin, ShieldCheck, Truck, CreditCard, Sparkles } from "lucide-react";
 
 import { STORE, categories, brands, whatsappLink } from "@/lib/store-data";
+import { Badge } from "@/components/ui/badge";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-surface-muted">
-      <div className="mx-auto max-w-7xl container-x py-14">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+    <footer className="border-t border-border bg-surface-muted/80">
+      {/* African Commerce Trust Strip */}
+      <div className="border-b border-border bg-card/60 py-6">
+        <div className="mx-auto max-w-7xl container-x">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+            <div className="flex items-center gap-3">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-500/10 text-emerald-600">
+                <MessageCircle className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="font-bold text-foreground">WhatsApp Commerce</p>
+                <p className="text-muted-foreground">Order or enquire in 1-tap</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-amber-500/10 text-amber-600">
+                <CreditCard className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="font-bold text-foreground">MoMo &amp; Cards</p>
+                <p className="text-muted-foreground">MTN MoMo, Telecel, Paystack</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                <Truck className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="font-bold text-foreground">Local &amp; Regional Delivery</p>
+                <p className="text-muted-foreground">Accra, Kumasi &amp; nationwide</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-blue-500/10 text-blue-600">
+                <ShieldCheck className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="font-bold text-foreground">Verified Hardware</p>
+                <p className="text-muted-foreground">Transparent condition grading</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Footer Content */}
+      <div className="mx-auto max-w-7xl container-x py-12 sm:py-14">
+        <div className="grid gap-10 md:grid-cols-[1.3fr_1fr_1fr_1.1fr]">
+          {/* Brand Info */}
           <div>
             <div className="flex items-center gap-2.5">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-gradient text-primary-foreground">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-gradient text-primary-foreground shadow-glow">
                 <LayoutGrid className="h-4 w-4" />
               </span>
-              <span className="font-display text-lg font-extrabold">{STORE.name}</span>
+              <div className="flex items-center gap-2">
+                <span className="font-display text-lg font-extrabold">{STORE.name}</span>
+              </div>
             </div>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              A premium storefront and inventory dashboard built for African electronics retailers.
-              Real stock, real specs, instant WhatsApp enquiries.
+            <p className="mt-3.5 max-w-sm text-sm leading-relaxed text-muted-foreground">
+              A high-converting ecommerce storefront designed specifically for African electronics retailers moving beyond social media selling.
             </p>
             <div className="mt-5 space-y-2 text-sm text-muted-foreground">
               <p className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 shrink-0" /> {STORE.city}
+                <MapPin className="h-4 w-4 shrink-0 text-primary" /> {STORE.address}
               </p>
               <p className="flex items-center gap-2">
-                <Mail className="h-4 w-4 shrink-0" /> {STORE.email}
+                <Mail className="h-4 w-4 shrink-0 text-primary" /> {STORE.email}
               </p>
               <a
-                href={whatsappLink("Hi Voltix, I have a question about a device.")}
+                href={whatsappLink("Hello GadgetHaus, I'd like to make an enquiry.")}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 font-medium text-accent-foreground hover:underline"
+                className="flex items-center gap-2 font-medium text-emerald-600 hover:underline dark:text-emerald-400"
               >
-                <MessageCircle className="h-4 w-4 shrink-0" /> {STORE.whatsapp}
+                <MessageCircle className="h-4 w-4 shrink-0" /> WhatsApp: {STORE.whatsapp}
               </a>
+            </div>
+
+            {/* Payment Integrations Accepted Preview */}
+            <div className="mt-5 pt-4 border-t border-border">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
+                Ready for local payment gateways
+              </p>
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="rounded-md border border-border bg-card px-2.5 py-1 font-semibold text-foreground">
+                  MTN MoMo
+                </span>
+                <span className="rounded-md border border-border bg-card px-2.5 py-1 font-semibold text-foreground">
+                  Telecel Cash
+                </span>
+                <span className="rounded-md border border-border bg-card px-2.5 py-1 font-semibold text-foreground">
+                  Paystack
+                </span>
+                <span className="rounded-md border border-border bg-card px-2.5 py-1 font-semibold text-foreground">
+                  Visa / Mastercard
+                </span>
+              </div>
             </div>
           </div>
 
+          {/* Shop Categories */}
           <FooterCol
-            title="Shop"
-            items={categories.map((c) => ({ label: c.name, search: { category: c.name } }))}
-          />
-          <FooterCol
-            title="Brands"
-            items={brands.slice(0, 5).map((b) => ({ label: b.name, search: { brand: b.name } }))}
+            title="Shop Catalogue"
+            items={categories.slice(0, 6).map((c) => ({ label: c.name, search: { category: c.name } }))}
           />
 
+          {/* Brands */}
+          <FooterCol
+            title="Popular Brands"
+            items={brands.slice(0, 6).map((b) => ({ label: b.name, search: { brand: b.name } }))}
+          />
+
+          {/* Info & Solution */}
           <div>
-            <h4 className="text-sm font-semibold">Company</h4>
+            <h4 className="text-sm font-semibold text-foreground">Quick Links</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
               <li>
-                <Link to="/about" className="transition-colors hover:text-foreground">About Voltix</Link>
+                <Link to="/about" className="transition-colors hover:text-foreground">
+                  About GadgetHaus
+                </Link>
               </li>
               <li>
-                <Link to="/faqs" className="transition-colors hover:text-foreground">FAQs</Link>
+                <Link to="/faqs" className="transition-colors hover:text-foreground">
+                  Delivery &amp; FAQs
+                </Link>
               </li>
               <li>
-                <span className="cursor-pointer transition-colors hover:text-foreground">Warranty policy</span>
+                <Link to="/products" search={{ deals: true }} className="transition-colors hover:text-foreground">
+                  Flash Deals
+                </Link>
               </li>
               <li>
-                <span className="cursor-pointer transition-colors hover:text-foreground">Delivery &amp; pickup</span>
+                <a
+                  href={whatsappLink("Hello GadgetHaus! I'd like to place an order or get a quote.")}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="transition-colors hover:text-foreground text-primary font-medium"
+                >
+                  Contact Us on WhatsApp →
+                </a>
               </li>
-              <li>
-                <span className="cursor-pointer transition-colors hover:text-foreground">Bulk &amp; corporate</span>
+              <li className="pt-1 border-t border-border/60">
+                <a
+                  href="https://www.webaddict.me/pricing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-emerald-600 hover:underline dark:text-emerald-400 flex items-center gap-1"
+                >
+                  Want a store like this? View Pricing →
+                </a>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="mt-12 flex flex-col gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} Voltix Commerce. All rights reserved.</p>
-          <p>Built for retailers in Lagos, Accra, Nairobi and beyond.</p>
+          <p>
+            © {new Date().getFullYear()} {STORE.name} · Modern electronics retail, Accra Ghana.
+          </p>
+          <p className="flex flex-wrap items-center gap-1.5">
+            <span>Want an online store for your business?</span>
+            <a
+              href="https://www.webaddict.me/pricing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-primary hover:underline inline-flex items-center gap-1"
+            >
+              View Pricing &amp; Packages →
+            </a>
+          </p>
         </div>
       </div>
     </footer>
@@ -86,7 +194,7 @@ function FooterCol({
 }) {
   return (
     <div>
-      <h4 className="text-sm font-semibold">{title}</h4>
+      <h4 className="text-sm font-semibold text-foreground">{title}</h4>
       <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
         {items.map((i) => (
           <li key={i.label}>

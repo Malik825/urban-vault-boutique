@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatPrice, whatsappLink, type Product } from "@/lib/store-data";
+import { formatPrice, whatsappLink, createProductEnquiry, type Product } from "@/lib/store-data";
 import { useCart } from "@/lib/cart";
 import { useWishlist, useCompare } from "@/lib/user-store";
 import type { CatalogProduct } from "@/lib/catalog";
@@ -168,14 +168,16 @@ export function ProductCard({
             variant="outline"
             size="icon-sm"
             aria-label="Enquire on WhatsApp"
+            title="Enquire on WhatsApp"
+            className="hover:border-emerald-500 hover:text-emerald-600"
             asChild
           >
             <a
-              href={whatsappLink(`Hi Voltix, I'm interested in the ${product.name} — is it available?`)}
+              href={whatsappLink(createProductEnquiry(product))}
               target="_blank"
               rel="noreferrer"
             >
-              <MessageCircle className="h-4 w-4" />
+              <MessageCircle className="h-4 w-4 text-emerald-600" />
             </a>
           </Button>
           <Button

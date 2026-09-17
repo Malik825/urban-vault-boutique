@@ -119,37 +119,74 @@ function DashboardHome() {
         </>
       }
     >
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        {stats.map((s) => (
-          <div
-            key={s.label}
-            className="hover-lift rounded-2xl border border-border bg-card p-5 shadow-card"
-          >
-            <div className="flex items-center justify-between">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary-soft text-accent-foreground">
-                <s.icon className="h-4 w-4" />
-              </span>
-              {s.delta != null && (
-                <span
-                  className={`flex items-center gap-0.5 text-xs font-semibold ${
-                    s.delta >= 0 ? "text-accent-foreground" : "text-destructive"
-                  }`}
-                >
-                  {s.delta >= 0 ? (
-                    <ArrowUpRight className="h-3.5 w-3.5" />
-                  ) : (
-                    <ArrowDownRight className="h-3.5 w-3.5" />
-                  )}
-                  {Math.abs(s.delta)}%
+      {/* Stats — two-column hero layout */}
+      <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
+        {/* Left: large primary card (Revenue + Orders) */}
+        {(() => {
+          const primary = stats[0]; // Revenue
+          const secondary = stats[3]; // Orders
+          const PrimaryIcon = primary.icon;
+          const SecondaryIcon = secondary.icon;
+          return (
+            <div className="hover-lift rounded-lg border border-border bg-card p-6 shadow-card flex flex-col gap-6">
+              {/* Primary stat — Revenue */}
+              <div className="flex gap-4 items-start">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
+                  <PrimaryIcon className="h-5 w-5" />
                 </span>
-              )}
+                <div className="min-w-0">
+                  <p className="font-display text-3xl font-extrabold tracking-tight">{primary.value}</p>
+                  <p className="text-sm font-semibold text-foreground mt-0.5">{primary.label}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{primary.sub}</p>
+                </div>
+              </div>
+
+              <div className="w-full h-px bg-border/70" />
+
+              {/* Secondary stat — Orders */}
+              <div className="flex gap-4 items-start">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground">
+                  <SecondaryIcon className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="font-display text-3xl font-extrabold tracking-tight">{secondary.value}</p>
+                  <p className="text-sm font-semibold text-foreground mt-0.5">{secondary.label}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{secondary.sub}</p>
+                </div>
+              </div>
             </div>
-            <p className="mt-4 font-display text-2xl font-extrabold tracking-tight">{s.value}</p>
-            <p className="text-xs font-medium text-muted-foreground">{s.label}</p>
-            <p className="mt-2 truncate text-[11px] text-muted-foreground">{s.sub}</p>
-          </div>
-        ))}
+          );
+        })()}
+
+        {/* Right: 3 stat cards stacked in rows */}
+        <div className="grid grid-rows-3 gap-3">
+          {[stats[1], stats[2], stats[4]].map((s) => {
+            const Icon = s.icon;
+            return (
+              <div
+                key={s.label}
+                className="hover-lift rounded-lg border border-border bg-card px-5 py-4 shadow-card flex items-center gap-4"
+              >
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-primary-soft text-accent-foreground">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-2xl font-extrabold tracking-tight">{s.value}</p>
+                  <p className="text-xs font-medium text-muted-foreground leading-tight">{s.label}</p>
+                  <p className="text-[11px] text-muted-foreground/70 truncate">{s.sub}</p>
+                </div>
+                {s.delta != null && (
+                  <span className={`flex shrink-0 items-center gap-0.5 text-xs font-semibold ${s.delta >= 0 ? "text-accent-foreground" : "text-destructive"}`}>
+                    {s.delta >= 0 ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
+                    {Math.abs(s.delta)}%
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
+
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
         <Panel
@@ -199,14 +236,14 @@ function DashboardHome() {
               <YAxis tickLine={false} axisLine={false} fontSize={12} />
               <Tooltip
                 contentStyle={{
-                  borderRadius: 12,
+                  borderRadius: 6,
                   border: "1px solid var(--color-border)",
                   background: "var(--color-surface)",
                   fontSize: 12,
                 }}
               />
-              <Bar dataKey="visitors" fill="var(--color-chart-1)" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="enquiries" fill="var(--color-chart-3)" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="visitors" fill="var(--color-chart-1)" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="enquiries" fill="var(--color-chart-3)" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </Panel>
@@ -256,13 +293,13 @@ function DashboardHome() {
           ) : (
             <ul className="space-y-3">
               {lowStock.map((p: any) => (
-                <li key={p.id} className="flex items-center gap-3 rounded-xl bg-surface-muted p-3">
+                <li key={p.id} className="flex items-center gap-3 rounded-lg bg-surface-muted p-3">
                   {p.images?.[0] && (
                     <img
                       src={p.images[0]}
                       alt=""
                       loading="lazy"
-                      className="h-10 w-10 shrink-0 rounded-lg object-cover"
+                      className="h-10 w-10 shrink-0 rounded-md object-cover"
                     />
                   )}
                   <div className="min-w-0 flex-1">
@@ -333,7 +370,7 @@ export function Panel({
 }) {
   return (
     <section
-      className={`rounded-2xl border border-border bg-card p-5 shadow-card sm:p-6 ${className ?? ""}`}
+      className={`rounded-lg border border-border bg-card p-5 shadow-card sm:p-6 ${className ?? ""}`}
     >
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="min-w-0">
@@ -346,3 +383,4 @@ export function Panel({
     </section>
   );
 }
+
