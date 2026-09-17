@@ -160,11 +160,11 @@ function Landing() {
       {/* Hero Section */}
       <section className="pt-4 sm:pt-6 sm:pb-12 sm:px-6">
         <div className="mx-auto max-w-7xl sm:container-x sm:px-0">
-          <div className="sm:bg-primary-soft/30 sm:dark:bg-primary-dark/20 sm:rounded-[2.5rem] sm:p-10 lg:p-16 border border-border/40 sm:shadow-card">
+          <div className="sm:bg-primary-soft/30 sm:dark:bg-primary-dark/20 sm:rounded-xl sm:p-10 lg:p-16 border border-border/40 sm:shadow-card">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
 
               {/* Right: Sliding Device Gallery */}
-              <div className="relative h-[55vw] min-h-[260px] max-h-[440px] sm:h-[320px] lg:h-[460px] w-full overflow-hidden rounded-2xl sm:rounded-3xl order-1 lg:order-2 shadow-lg">
+              <div className="relative h-[55vw] min-h-[260px] max-h-[440px] sm:h-[320px] lg:h-[460px] w-full overflow-hidden rounded-xl sm:rounded-xl order-1 lg:order-2 shadow-lg">
                 {HERO_IMAGES.map((img, i) => (
                   <img
                     key={i}
@@ -181,7 +181,7 @@ function Landing() {
 
                 {/* Floating Badge on Carousel */}
                 <div className="absolute top-4 left-4 z-10">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-black/65 backdrop-blur-md px-3 py-1 text-xs font-semibold text-white border border-white/20 shadow-md">
+                  <span className="inline-flex items-center gap-1.5 rounded-md bg-black/65 backdrop-blur-md px-3 py-1 text-xs font-semibold text-white border border-white/20 shadow-md">
                     <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                     Verified Tech · Accra 🇬🇭
                   </span>
@@ -205,7 +205,7 @@ function Landing() {
               {/* Left: Text Content */}
               <div ref={heroRef} className="max-w-xl order-2 lg:order-1 px-4 pt-2 pb-8 sm:px-0 sm:py-0">
                 <div className="hero-element">
-                  <Badge variant="outline" className="w-fit bg-background/80 rounded-full border border-primary/30 px-3.5 py-1 text-xs shadow-sm">
+                  <Badge variant="outline" className="w-fit bg-background/80 rounded border border-primary/30 px-3.5 py-1 text-xs shadow-sm">
                     <Sparkles className="mr-1.5 h-3.5 w-3.5 shrink-0 text-primary" />
                     <span className="uppercase tracking-wider font-bold text-primary">ONLINE TECH STORE · ACCRA 🇬🇭</span>
                   </Badge>
@@ -220,7 +220,7 @@ function Landing() {
                 </p>
 
                 <div className="hero-element mt-6 sm:mt-8 flex flex-wrap items-center gap-3">
-                  <Button asChild variant="default" size="lg" className="rounded-full px-7 shadow-md font-semibold">
+                  <Button asChild variant="default" size="lg" className="px-7 shadow-md font-semibold">
                     <Link to="/products" search={{}}>
                       Shop Products <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
@@ -230,7 +230,7 @@ function Landing() {
                     asChild
                     variant="outline"
                     size="lg"
-                    className="rounded-full px-6 border-emerald-500 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-400 dark:text-emerald-400 dark:hover:bg-emerald-500/10 font-semibold"
+                    className="px-6 border-emerald-500 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-400 dark:text-emerald-400 dark:hover:bg-emerald-500/10 font-semibold"
                   >
                     <a
                       href={whatsappLink("Hello GadgetHaus! I'd like to learn more about your products and services.")}
@@ -337,7 +337,7 @@ function Landing() {
               key={c.name}
               to="/products"
               search={{ category: c.name }}
-              className="group hover-lift relative overflow-hidden rounded-2xl border border-border bg-card shadow-card flex flex-col justify-between"
+              className="group hover-lift relative overflow-hidden rounded-xl border border-border bg-card shadow-card flex flex-col justify-between"
             >
               <div className="aspect-[16/10] overflow-hidden bg-surface-muted">
                 <img
@@ -433,7 +433,7 @@ function Landing() {
               <Reveal
                 key={f.title}
                 delay={i * 70}
-                className="hover-lift rounded-2xl border border-border bg-card p-6 shadow-card flex flex-col justify-between"
+                className="hover-lift rounded-xl border border-border bg-card p-6 shadow-card flex flex-col justify-between"
               >
                 <div>
                   <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -446,7 +446,7 @@ function Landing() {
             ))}
           </div>
 
-          <div className="mt-8 rounded-2xl bg-primary/5 border border-primary/20 p-5 text-center sm:flex sm:items-center sm:justify-between sm:text-left">
+          <div className="mt-8 rounded-xl bg-primary/5 border border-primary/20 p-5 text-center sm:flex sm:items-center sm:justify-between sm:text-left">
             <div>
               <p className="font-bold text-foreground text-sm sm:text-base">
                 Need a corporate order or bulk pricing for your business?
@@ -625,7 +625,7 @@ function Landing() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-border/80 bg-surface-muted/50 p-6 space-y-4">
+            <div className="rounded-xl border border-border/80 bg-surface-muted/50 p-6 space-y-4">
               <h3 className="font-display text-base font-bold tracking-tight">Sample Corporate Packages</h3>
               <div className="space-y-3">
                 <div className="rounded-xl border border-border bg-card p-3.5 flex items-center justify-between">
@@ -725,7 +725,7 @@ function Landing() {
           {reviews.map((r) => (
             <figure
               key={r.name}
-              className="hover-lift flex flex-col rounded-2xl border border-border bg-card p-6 shadow-card"
+              className="hover-lift flex flex-col rounded-xl border border-border bg-card p-6 shadow-card"
             >
               <div className="flex items-center gap-1">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -767,7 +767,7 @@ function Landing() {
                 e.preventDefault();
                 toast.success("You're subscribed! We'll notify you of deals and restocks.");
               }}
-              className="glass flex flex-col gap-2 rounded-2xl border p-2 sm:flex-row"
+              className="glass flex flex-col gap-2 rounded-xl border p-2 sm:flex-row"
             >
               <Input
                 type="email"
