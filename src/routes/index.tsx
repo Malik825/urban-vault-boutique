@@ -212,7 +212,7 @@ function Landing() {
                 </div>
 
                 <h1 className="hero-element mt-4 sm:mt-5 font-display text-3xl font-extrabold leading-[1.12] tracking-tight sm:text-4xl md:text-5xl xl:text-[3.25rem] text-foreground">
-                  Your products deserve a <span className="text-gradient-brand">better storefront</span>.
+                  Your products deserve a <span className="text-primary">better storefront</span>.
                 </h1>
 
                 <p className="hero-element mt-4 sm:mt-5 text-sm sm:text-base lg:text-lg leading-relaxed text-muted-foreground">
