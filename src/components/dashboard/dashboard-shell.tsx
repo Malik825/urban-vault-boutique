@@ -99,18 +99,18 @@ export function DashboardShell({
   children: React.ReactNode;
 }) {
   const [cmdOpen, setCmdOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("gh-sidebar");
+      if (saved !== null) return saved === "1";
+    }
+    return true;
+  });
   const [mobileOpen, setMobileOpen] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
-  // Persist sidebar preference
-  useEffect(() => {
-    const saved = localStorage.getItem("gh-sidebar");
-    if (saved !== null) setSidebarOpen(saved === "1");
-  }, []);
 
   function toggleSidebar() {
     setSidebarOpen((prev) => {
