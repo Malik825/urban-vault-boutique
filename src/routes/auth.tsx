@@ -197,17 +197,17 @@ function AuthPage() {
       <div className="relative overflow-hidden bg-gradient-to-br from-[#021811] via-[#042017] to-[#02130C] text-white p-6 sm:p-10 lg:p-12 xl:p-16 lg:col-span-5 xl:col-span-5 flex flex-col justify-between min-h-[380px] lg:min-h-screen">
           {/* Subtle Ambient Radial Light */}
           <div
-            className="pointer-events-none absolute -top-24 -left-24 w-80 h-80 bg-emerald-500/15 rounded-full blur-3xl"
+            className="pointer-events-none absolute -top-24 -left-24 w-80 h-80 bg-primary/20 rounded-full blur-3xl"
             aria-hidden="true"
           />
 
           <div>
             {/* Brand Header */}
             <Link to="/" className="inline-flex items-center gap-2.5 outline-none group">
-              <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                <Zap className="h-4 w-4 fill-emerald-400" />
+              <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-[0_0_15px_var(--primary)]">
+                <Zap className="h-4 w-4 fill-primary" />
               </div>
-              <span className="font-display text-lg sm:text-xl font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">
+              <span className="font-display text-lg sm:text-xl font-bold tracking-tight text-white group-hover:text-primary transition-colors">
                 {STORE.name}
               </span>
             </Link>
@@ -219,7 +219,7 @@ function AuthPage() {
                   <h1 className="font-display text-2xl sm:text-3xl lg:text-[2.1rem] font-extrabold leading-[1.18] text-white tracking-tight">
                     Better Tech.
                     <br />
-                    Bigger <span className="text-emerald-400">Possibilities.</span>
+                    Bigger <span className="text-primary">Possibilities.</span>
                   </h1>
                   <p className="mt-3 text-xs sm:text-sm text-slate-300/90 leading-relaxed max-w-xs">
                     Your trusted store for the latest devices, gadgets and accessories.
@@ -253,7 +253,7 @@ function AuthPage() {
             {/* 3 Value Propositions */}
             <div className="mt-6 sm:mt-8 space-y-3.5">
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/20 text-primary border border-primary/30">
                   <ShieldCheck className="h-3.5 w-3.5" />
                 </div>
                 <div>
@@ -265,7 +265,7 @@ function AuthPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/20 text-primary border border-primary/30">
                   <Truck className="h-3.5 w-3.5" />
                 </div>
                 <div>
@@ -277,7 +277,7 @@ function AuthPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/20 text-primary border border-primary/30">
                   <Lock className="h-3.5 w-3.5" />
                 </div>
                 <div>
@@ -292,7 +292,7 @@ function AuthPage() {
 
           {/* Bottom Device Graphic Showcase */}
           <div className="hidden lg:block mt-8 pt-4">
-            <div className="relative overflow-hidden rounded-2xl border border-emerald-500/25 shadow-[0_0_30px_rgba(16,185,129,0.15)] bg-[#03150F] group">
+            <div className="relative overflow-hidden rounded-2xl border border-primary/25 shadow-[0_0_30px_var(--primary)] bg-[#03150F] group">
               <img
                 src={authBottomImg}
                 alt="Premium Green Tech Collection"
@@ -301,7 +301,7 @@ function AuthPage() {
               {/* Multidirectional Smooth Gradient Blend Masks */}
               <div className="absolute inset-0 bg-gradient-to-t from-[#02130C] via-[#02130C]/40 to-transparent pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-r from-[#02130C]/60 via-transparent to-[#02130C]/60 pointer-events-none" />
-              <div className="absolute inset-0 bg-emerald-500/10 mix-blend-overlay pointer-events-none" />
+              <div className="absolute inset-0 bg-primary/10 mix-blend-overlay pointer-events-none" />
             </div>
           </div>
         </div>
@@ -380,7 +380,7 @@ function AuthPage() {
                   <button
                     type="button"
                     onClick={() => setMode("forgot")}
-                    className="font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:underline"
+                    className="font-semibold text-primary hover:underline"
                   >
                     Forgot password?
                   </button>
@@ -390,7 +390,7 @@ function AuthPage() {
                 <Button
                   type="submit"
                   disabled={busy}
-                  className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition-all mt-2"
+                  className="w-full h-11 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition-all mt-2"
                 >
                   {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>Log in</span>}
                   {!busy && <ArrowRight className="h-4 w-4" />}
@@ -436,7 +436,7 @@ function AuthPage() {
                 <button
                   type="button"
                   onClick={() => setMode("register")}
-                  className="font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:underline"
+                  className="font-semibold text-primary hover:underline"
                 >
                   Create one
                 </button>
@@ -542,7 +542,7 @@ function AuthPage() {
                 <Button
                   type="submit"
                   disabled={busy}
-                  className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition-all mt-2"
+                  className="w-full h-11 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition-all mt-2"
                 >
                   {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>Create account</span>}
                   {!busy && <ArrowRight className="h-4 w-4" />}
@@ -588,7 +588,7 @@ function AuthPage() {
                 <button
                   type="button"
                   onClick={() => setMode("login")}
-                  className="font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:underline"
+                  className="font-semibold text-primary hover:underline"
                 >
                   Log in
                 </button>
@@ -602,7 +602,7 @@ function AuthPage() {
               <button
                 type="button"
                 onClick={() => setMode("login")}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:underline mb-6"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline mb-6"
               >
                 <ArrowLeft className="h-3.5 w-3.5" /> Back to login
               </button>
@@ -628,7 +628,7 @@ function AuthPage() {
                       placeholder="you@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-emerald-500"
+                      className="pl-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary"
                     />
                   </div>
                 </div>
@@ -636,7 +636,7 @@ function AuthPage() {
                 <Button
                   type="submit"
                   disabled={busy}
-                  className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition-all mt-4"
+                  className="w-full h-11 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition-all mt-4"
                 >
                   {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>Send reset link</span>}
                   {!busy && <ArrowRight className="h-4 w-4" />}
@@ -648,7 +648,7 @@ function AuthPage() {
                 <button
                   type="button"
                   onClick={() => setMode("login")}
-                  className="font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:underline"
+                  className="font-semibold text-primary hover:underline"
                 >
                   Log in
                 </button>

@@ -157,6 +157,25 @@ function RootShell({ children }: { children: ReactNode }) {
                   var isDark = mode === "dark" || (mode !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
                   if (isDark) document.documentElement.classList.add("dark");
                   else document.documentElement.classList.remove("dark");
+
+                  var color = localStorage.getItem("voltix-theme-color") || "#10B981";
+                  var presets = {
+                    "#10B981": {"--primary":"oklch(0.696 0.149 162.48)","--color-primary":"oklch(0.696 0.149 162.48)","--primary-foreground":"oklch(0.99 0 0)","--color-primary-foreground":"oklch(0.99 0 0)","--primary-deep":"oklch(0.596 0.132 163.2)","--primary-soft":"oklch(0.958 0.033 164)","--accent":"oklch(0.958 0.033 164)","--accent-foreground":"oklch(0.44 0.1 163)","--ring":"oklch(0.696 0.149 162.48)"},
+                    "#059669": {"--primary":"oklch(0.6 0.14 165)","--color-primary":"oklch(0.6 0.14 165)","--primary-foreground":"oklch(0.99 0 0)","--primary-deep":"oklch(0.52 0.12 165)","--primary-soft":"oklch(0.94 0.03 165)","--accent":"oklch(0.94 0.03 165)","--accent-foreground":"oklch(0.44 0.11 165)","--ring":"oklch(0.6 0.14 165)"},
+                    "#047857": {"--primary":"oklch(0.51 0.12 170)","--color-primary":"oklch(0.51 0.12 170)","--primary-foreground":"oklch(0.99 0 0)","--primary-deep":"oklch(0.43 0.11 170)","--primary-soft":"oklch(0.93 0.03 170)","--accent":"oklch(0.93 0.03 170)","--accent-foreground":"oklch(0.35 0.08 170)","--ring":"oklch(0.51 0.12 170)"},
+                    "#0EA5E9": {"--primary":"oklch(0.69 0.14 230)","--color-primary":"oklch(0.69 0.14 230)","--primary-foreground":"oklch(0.99 0 0)","--primary-deep":"oklch(0.59 0.13 230)","--primary-soft":"oklch(0.95 0.03 230)","--accent":"oklch(0.95 0.03 230)","--accent-foreground":"oklch(0.44 0.1 230)","--ring":"oklch(0.69 0.14 230)"},
+                    "#111827": {"--primary":"oklch(0.21 0.02 258)","--color-primary":"oklch(0.21 0.02 258)","--primary-foreground":"oklch(0.99 0 0)","--primary-deep":"oklch(0.15 0.02 258)","--primary-soft":"oklch(0.92 0.01 258)","--accent":"oklch(0.92 0.01 258)","--accent-foreground":"oklch(0.21 0.02 258)","--ring":"oklch(0.21 0.02 258)"},
+                    "#8B5CF6": {"--primary":"oklch(0.6 0.2 285)","--color-primary":"oklch(0.6 0.2 285)","--primary-foreground":"oklch(0.99 0 0)","--primary-deep":"oklch(0.5 0.18 285)","--primary-soft":"oklch(0.95 0.03 285)","--accent":"oklch(0.95 0.03 285)","--accent-foreground":"oklch(0.4 0.15 285)","--ring":"oklch(0.6 0.2 285)"},
+                    "#F43F5E": {"--primary":"oklch(0.65 0.23 16)","--color-primary":"oklch(0.65 0.23 16)","--primary-foreground":"oklch(0.99 0 0)","--primary-deep":"oklch(0.55 0.2 16)","--primary-soft":"oklch(0.95 0.03 16)","--accent":"oklch(0.95 0.03 16)","--accent-foreground":"oklch(0.45 0.15 16)","--ring":"oklch(0.65 0.23 16)"},
+                    "#F59E0B": {"--primary":"oklch(0.75 0.18 55)","--color-primary":"oklch(0.75 0.18 55)","--primary-foreground":"oklch(0.2 0.05 55)","--primary-deep":"oklch(0.65 0.16 55)","--primary-soft":"oklch(0.95 0.04 55)","--accent":"oklch(0.95 0.04 55)","--accent-foreground":"oklch(0.55 0.14 55)","--ring":"oklch(0.75 0.18 55)"},
+                    "#09090B": {"--primary":"oklch(0.14 0.01 285)","--color-primary":"oklch(0.14 0.01 285)","--primary-foreground":"oklch(0.99 0 0)","--primary-deep":"oklch(0.2 0.01 285)","--primary-soft":"oklch(0.95 0.01 285)","--accent":"oklch(0.95 0.01 285)","--accent-foreground":"oklch(0.14 0.01 285)","--ring":"oklch(0.14 0.01 285)"}
+                  };
+                  var p = presets[color];
+                  if (p) {
+                    for (var k in p) {
+                      document.documentElement.style.setProperty(k, p[k]);
+                    }
+                  }
                 } catch (e) {}
               })();
             `,

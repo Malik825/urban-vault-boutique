@@ -128,7 +128,7 @@ export function SiteHeader() {
                       </AvatarFallback>
                     </Avatar>
                     {isAdmin && (
-                      <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-background z-10" />
+                      <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-background z-10" />
                     )}
                   </Button>
                 </DropdownMenuTrigger>
@@ -148,7 +148,7 @@ export function SiteHeader() {
                         <p className="text-[11px] text-muted-foreground truncate">{user.email}</p>
                         {isAdmin && (
                           <div className="pt-1">
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/25">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/25">
                               <ShieldCheck className="h-3 w-3" /> Admin User
                             </span>
                           </div>
@@ -164,9 +164,9 @@ export function SiteHeader() {
                     </Link>
                   </DropdownMenuItem>
                   {isAdmin && (
-                    <DropdownMenuItem asChild className="rounded-xl px-2.5 py-2 cursor-pointer bg-emerald-500/10 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-semibold focus:bg-emerald-500/20">
+                    <DropdownMenuItem asChild className="rounded-xl px-2.5 py-2 cursor-pointer bg-primary/10 text-primary font-semibold focus:bg-primary/20">
                       <Link to="/dashboard" className="flex items-center gap-2.5">
-                        <LayoutDashboard className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <LayoutDashboard className="h-4 w-4 text-primary shrink-0" />
                         <span>Admin Dashboard</span>
                       </Link>
                     </DropdownMenuItem>
@@ -218,7 +218,7 @@ export function SiteHeader() {
               >
                 <ShoppingCart className="h-5 w-5 transition-transform group-hover:scale-110" />
                 {count > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-emerald-600 px-1 text-[10px] font-bold text-white shadow-xs">
+                  <span className="absolute -right-1 -top-1 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground shadow-xs">
                     {count}
                   </span>
                 )}

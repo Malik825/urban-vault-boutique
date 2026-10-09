@@ -728,7 +728,7 @@ export function SearchCommand({
                         key={b.name}
                         onClick={() => setSelectedBrand(selectedBrand === b.name ? "All" : b.name)}
                         className={`px-2.5 py-1 rounded-lg text-xs font-medium ${
-                          selectedBrand === b.name ? "bg-emerald-600 text-white" : "bg-muted border border-border text-muted-foreground"
+                          selectedBrand === b.name ? "bg-primary text-primary-foreground" : "bg-muted border border-border text-muted-foreground"
                         }`}
                       >
                         {b.name}
@@ -827,7 +827,7 @@ export function SearchCommand({
                         {/* Badges on Image */}
                         <div className="absolute left-2.5 top-2.5 flex flex-col items-start gap-1 z-10">
                           {p.badge && (
-                            <span className="rounded-md bg-emerald-600 px-2 py-0.5 text-[11px] font-bold text-white shadow-xs">
+                            <span className="rounded-md bg-primary px-2 py-0.5 text-[11px] font-bold text-primary-foreground shadow-xs">
                               {p.badge}
                             </span>
                           )}
@@ -885,8 +885,8 @@ export function SearchCommand({
                                 <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" /> Only {p.stock} left
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> In stock · {p.stock}
+                              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary">
+                                <span className="h-1.5 w-1.5 rounded-full bg-primary" /> In stock · {p.stock}
                               </span>
                             )}
 
@@ -918,7 +918,7 @@ export function SearchCommand({
                                 e.stopPropagation();
                                 window.open(whatsappLink(createProductEnquiry(p)), "_blank");
                               }}
-                              className="h-9 w-9 rounded-xl border-border text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 shrink-0"
+                              className="h-9 w-9 rounded-xl border-border text-primary hover:bg-primary/10 shrink-0"
                               title="Enquire on WhatsApp"
                             >
                               <MessageCircle className="h-4 w-4" />
@@ -929,7 +929,7 @@ export function SearchCommand({
                               size="sm"
                               disabled={p.stock === 0}
                               onClick={(e) => handleAddToCart(e, p)}
-                              className="h-9 flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-xs gap-1.5 transition-all"
+                              className="h-9 flex-1 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground font-semibold text-xs shadow-xs gap-1.5 transition-all"
                             >
                               <ShoppingCart className="h-4 w-4" />
                               <span>{p.stock === 0 ? "Out of Stock" : "Add to Cart"}</span>
@@ -1029,7 +1029,7 @@ export function SearchCommand({
                               size="sm"
                               disabled={p.stock === 0}
                               onClick={(e) => handleAddToCart(e, p)}
-                              className="h-8 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3"
+                              className="h-8 rounded-lg bg-primary hover:bg-primary-deep text-primary-foreground font-semibold text-xs px-3"
                             >
                               Add to Cart
                             </Button>

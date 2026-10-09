@@ -196,7 +196,7 @@ function Landing() {
                 {/* Floating Badge on Carousel */}
                 <div className="absolute top-4 left-4 z-10">
                   <span className="inline-flex items-center gap-1.5 rounded-md bg-black/65 backdrop-blur-md px-3 py-1 text-xs font-semibold text-white border border-white/20 shadow-md">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="h-2 w-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--primary)]" />
                     Verified Tech · Accra 🇬🇭
                   </span>
                 </div>
@@ -237,14 +237,14 @@ function Landing() {
                     asChild
                     variant="outline"
                     size="lg"
-                    className="px-6 border-emerald-500 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-400 dark:text-emerald-400 dark:hover:bg-emerald-500/10 font-semibold"
+                    className="px-6 border-primary/50 text-primary hover:bg-primary/10 font-semibold"
                   >
                     <a
                       href={whatsappLink("Hello GadgetHaus! I'd like to learn more about your products and services.")}
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <MessageCircle className="mr-2 h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                      <MessageCircle className="mr-2 h-4 w-4 text-primary" />
                       Chat on WhatsApp
                     </a>
                   </Button>
@@ -296,7 +296,7 @@ function Landing() {
         <div className="mx-auto max-w-7xl container-x">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              <p className="text-xs font-bold uppercase tracking-wider text-primary">
                 Catalogue Discovery
               </p>
               <h2 className="mt-1 font-display text-2xl font-extrabold sm:text-3xl tracking-tight text-foreground">
@@ -306,7 +306,7 @@ function Landing() {
             <Link
               to="/products"
               search={{}}
-              className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 flex items-center gap-1.5 transition-colors self-start sm:self-auto"
+              className="text-sm font-semibold text-primary hover:text-primary-deep flex items-center gap-1.5 transition-colors self-start sm:self-auto"
             >
               View all products <ArrowRight className="h-4 w-4" />
             </Link>
@@ -320,7 +320,7 @@ function Landing() {
                 onClick={() => setCatalogueTab(tab)}
                 className={`rounded-full px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all shrink-0 ${
                   catalogueTab === tab
-                    ? "bg-emerald-800 text-white shadow-xs"
+                    ? "bg-primary text-primary-foreground shadow-xs"
                     : "bg-card border border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               >

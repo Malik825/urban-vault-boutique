@@ -24,8 +24,8 @@ function StockPill({ stock }: { stock: number }) {
       </span>
     );
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> In stock · {stock}
+    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary">
+      <span className="h-1.5 w-1.5 rounded-full bg-primary" /> In stock · {stock}
     </span>
   );
 }
@@ -103,7 +103,7 @@ export function ProductCard({
       {/* Badges */}
       <div className="absolute left-2.5 top-2.5 z-10 flex flex-col items-start gap-1.5">
         {product.badge && (
-          <Badge className="border-0 bg-emerald-600 text-white font-medium text-xs rounded-md px-2.5 py-0.5 shadow-xs">
+          <Badge className="border-0 bg-primary text-primary-foreground font-medium text-xs rounded-md px-2.5 py-0.5 shadow-xs">
             {product.badge}
           </Badge>
         )}
@@ -153,7 +153,7 @@ export function ProductCard({
             variant === "featured" ? "text-base sm:text-lg" : "text-[0.925rem]"
           }`}
         >
-          <Link to="/product/$slug" params={{ slug: product.slug }} className="hover:text-emerald-600 transition-colors">
+          <Link to="/product/$slug" params={{ slug: product.slug }} className="hover:text-primary transition-colors">
             {product.name}
           </Link>
         </h3>
@@ -190,7 +190,7 @@ export function ProductCard({
             size="icon"
             aria-label="Enquire on WhatsApp"
             title="Enquire on WhatsApp"
-            className="h-9 w-9 rounded-xl border-border text-emerald-600 hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 shrink-0"
+            className="h-9 w-9 rounded-xl border-border text-primary hover:border-primary hover:bg-primary/10 shrink-0"
             asChild
           >
             <a
@@ -198,7 +198,7 @@ export function ProductCard({
               target="_blank"
               rel="noreferrer"
             >
-              <MessageCircle className="h-4 w-4 text-emerald-600" />
+              <MessageCircle className="h-4 w-4" />
             </a>
           </Button>
 
@@ -216,7 +216,7 @@ export function ProductCard({
                 toast.success("Added to compare");
               }
             }}
-            className={`h-9 w-9 rounded-xl border-border shrink-0 ${comparing ? "border-emerald-600 text-emerald-600" : "text-muted-foreground hover:text-foreground"}`}
+            className={`h-9 w-9 rounded-xl border-border shrink-0 ${comparing ? "border-primary text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"}`}
           >
             <Repeat2 className="h-4 w-4" />
           </Button>
@@ -233,7 +233,7 @@ export function ProductCard({
                 toast.success(`${product.name} added to cart`);
               }
             }}
-            className="h-9 flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm rounded-xl gap-1.5 shadow-sm transition-colors"
+            className="h-9 flex-1 bg-primary hover:bg-primary-deep text-primary-foreground font-semibold text-xs sm:text-sm rounded-xl gap-1.5 shadow-sm transition-colors"
           >
             <ShoppingCart className="h-4 w-4" />
             <span>{product.stock === 0 ? "Out of stock" : "Add to cart"}</span>

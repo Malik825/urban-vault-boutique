@@ -255,7 +255,7 @@ function ProductDetail() {
                   <Button
                     size="lg"
                     variant="outline"
-                    className="col-span-2 sm:flex-1 font-semibold"
+                    className="col-span-2 sm:flex-1 font-semibold border-primary/40 text-primary hover:bg-primary/10"
                     disabled={product.stock === 0}
                     onClick={() => {
                       if (items.some((i) => i.product.id === product.id)) {
@@ -270,7 +270,7 @@ function ProductDetail() {
                     Add to Cart
                   </Button>
 
-                  <Button asChild variant="whatsapp" size="lg" className="col-span-2 font-bold bg-emerald-600 hover:bg-emerald-700 text-white">
+                  <Button asChild variant="whatsapp" size="lg" className="col-span-2 font-bold">
                     <a
                       href={whatsappLink(createProductEnquiry(product))}
                       target="_blank"
