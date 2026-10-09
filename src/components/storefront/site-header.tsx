@@ -66,8 +66,8 @@ export function SiteHeader() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 sm:gap-6 container-x w-full">
           {/* Logo & Desktop Nav */}
           <div className="flex min-w-0 items-center gap-6 lg:gap-8">
-            <Link to="/" className="flex shrink-0 items-center gap-2.5 outline-none rounded-xl">
-              <img src="/logo.jpg" alt={`${STORE.name} logo`} className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl object-cover shadow-xs" />
+            <Link to="/" className="flex shrink-0 items-center gap-2.5 outline-none rounded-full">
+              <img src="/logo.jpg" alt={`${STORE.name} logo`} className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover shadow-xs" />
               <span className="font-display text-base sm:text-lg font-bold tracking-tight text-foreground">
                 {STORE.name}
               </span>
@@ -234,7 +234,7 @@ export function SiteHeader() {
               </SheetTrigger>
               <SheetContent side="right" className="flex w-[280px] flex-col p-0">
                 <div className="flex items-center gap-2.5 border-b border-border px-5 py-4">
-                  <img src="/logo.jpg" alt="Logo" className="h-8 w-8 rounded-lg object-cover" />
+                  <img src="/logo.jpg" alt="Logo" className="h-8 w-8 rounded-full object-cover" />
                   <span className="font-display text-sm font-extrabold">{STORE.name}</span>
                 </div>
 

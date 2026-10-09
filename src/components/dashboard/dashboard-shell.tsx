@@ -161,7 +161,7 @@ export function DashboardShell({
             <img
               src="/logo.jpg"
               alt={STORE.name}
-              className="h-9 w-9 shrink-0 rounded-xl object-cover shadow-glow"
+              className="h-9 w-9 shrink-0 rounded-full object-cover shadow-glow"
             />
           </Link>
           {sidebarOpen && (

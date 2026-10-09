@@ -338,7 +338,7 @@ export function SearchCommand({
                 <img
                   src="/logo.jpg"
                   alt={STORE.name}
-                  className="h-9 w-9 rounded-xl object-cover ring-1 ring-emerald-500/30 shadow-xs"
+                  className="h-9 w-9 rounded-full object-cover ring-1 ring-emerald-500/30 shadow-xs"
                 />
                 <span className="font-display text-base font-bold tracking-tight text-foreground dark:text-white">
                   {STORE.name}
