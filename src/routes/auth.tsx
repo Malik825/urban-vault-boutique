@@ -292,13 +292,16 @@ function AuthPage() {
 
           {/* Bottom Device Graphic Showcase */}
           <div className="hidden lg:block mt-8 pt-4">
-            <div className="relative overflow-hidden rounded-2xl border border-emerald-500/20 shadow-2xl bg-[#03150F]">
+            <div className="relative overflow-hidden rounded-2xl border border-emerald-500/25 shadow-[0_0_30px_rgba(16,185,129,0.15)] bg-[#03150F] group">
               <img
                 src={authBottomImg}
                 alt="Premium Green Tech Collection"
-                className="w-full h-36 object-cover opacity-90 hover:opacity-100 transition-opacity"
+                className="w-full h-40 object-cover object-center opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 mix-blend-lighten"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#02130C] via-transparent to-transparent pointer-events-none" />
+              {/* Multidirectional Smooth Gradient Blend Masks */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#02130C] via-[#02130C]/40 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#02130C]/60 via-transparent to-[#02130C]/60 pointer-events-none" />
+              <div className="absolute inset-0 bg-emerald-500/10 mix-blend-overlay pointer-events-none" />
             </div>
           </div>
         </div>

@@ -2,13 +2,22 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Menu, Search, Heart, LayoutGrid, ShoppingCart,
-  Repeat2, Home, User
+  Repeat2, Home, User, LayoutDashboard, LogOut, ShieldCheck
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { STORE } from "@/lib/store-data";
 import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
 import { SearchCommand } from "./search-command";
 import { CartDrawer } from "./cart-drawer";
 import { ThemeToggle } from "./theme-toggle";
@@ -27,6 +36,7 @@ export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled]     = useState(false);
   const { count } = useCart();
+  const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
 
   /* Scroll effects */
@@ -97,18 +107,76 @@ export function SiteHeader() {
 
             <ThemeToggle />
 
-            {/* Account Icon (Desktop) */}
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Account"
-              className="hidden sm:inline-flex rounded-full h-9 w-9 text-muted-foreground hover:text-foreground"
-              asChild
-            >
-              <Link to="/account">
-                <User className="h-5 w-5" />
-              </Link>
-            </Button>
+            {/* Account & Admin Dropdown */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="User Account Menu"
+                    className="hidden sm:inline-flex rounded-full h-9 w-9 text-muted-foreground hover:text-foreground relative"
+                  >
+                    <User className="h-5 w-5" />
+                    {isAdmin && (
+                      <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-background" />
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 rounded-xl p-1.5 shadow-lg border border-border">
+                  <DropdownMenuLabel className="font-normal p-2">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-semibold leading-none text-foreground truncate">
+                        {user.user_metadata?.full_name ?? "User Account"}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground truncate">{user.email}</p>
+                      {isAdmin && (
+                        <div className="pt-1">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                            <ShieldCheck className="h-3 w-3" /> Admin User
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
+                    <Link to="/account" className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                      <span>My Account</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem asChild className="rounded-lg cursor-pointer bg-emerald-500/10 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 font-semibold">
+                      <Link to="/dashboard" className="flex items-center gap-2">
+                        <LayoutDashboard className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        <span>Admin Dashboard</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => signOut()}
+                    className="rounded-lg cursor-pointer text-destructive focus:text-destructive"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sign Out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Sign in"
+                className="hidden sm:inline-flex rounded-full h-9 w-9 text-muted-foreground hover:text-foreground"
+                asChild
+              >
+                <Link to="/auth">
+                  <User className="h-5 w-5" />
+                </Link>
+              </Button>
+            )}
 
             {/* Wishlist Icon (Desktop) */}
             <Button
@@ -170,6 +238,11 @@ export function SiteHeader() {
                     <button onClick={() => { setMobileOpen(false); navigate({ to: "/account" }); }} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">
                       <User className="h-4 w-4 shrink-0 text-muted-foreground" /> My Account
                     </button>
+                    {isAdmin && (
+                      <button onClick={() => { setMobileOpen(false); navigate({ to: "/dashboard" }); }} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20">
+                        <LayoutDashboard className="h-4 w-4 shrink-0" /> Admin Dashboard
+                      </button>
+                    )}
                     <button onClick={() => { setMobileOpen(false); navigate({ to: "/about" }); }} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">
                       <LayoutGrid className="h-4 w-4 shrink-0 text-muted-foreground" /> About Us
                     </button>

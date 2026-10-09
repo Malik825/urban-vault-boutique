@@ -8,6 +8,8 @@ import {
   Repeat2,
   ChevronRight,
   Clock,
+  ShieldCheck,
+  LayoutDashboard,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,7 +28,7 @@ import { useState, useEffect } from "react";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
-    meta: [{ title: "My Account — Voltix" }],
+    meta: [{ title: "My Account — GadgetHaus" }],
   }),
   component: AccountPage,
 });
@@ -58,7 +60,7 @@ const PLACEHOLDER_ORDERS = [
 ];
 
 function AccountPage() {
-  const { user, signOut } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
   const { wishlist } = useWishlist();
   const { compareList } = useCompare();
   const { items: cartItems, count: cartCount } = useCart();
@@ -94,18 +96,55 @@ function AccountPage() {
         {/* Profile header */}
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-primary-soft font-display text-xl font-extrabold text-accent-foreground">
+            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-display text-xl font-extrabold border border-emerald-500/20">
               {initials}
             </div>
             <div>
-              <p className="font-display text-xl font-extrabold">{displayName}</p>
+              <div className="flex items-center gap-2">
+                <p className="font-display text-xl font-extrabold">{displayName}</p>
+                {isAdmin && (
+                  <Badge variant="outline" className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[11px] font-semibold">
+                    <ShieldCheck className="mr-1 h-3 w-3" /> Admin
+                  </Badge>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={handleSignOut}>
-            <LogOut className="mr-2 h-4 w-4" /> Sign out
-          </Button>
+
+          <div className="flex items-center gap-3">
+            {isAdmin && (
+              <Button variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs" asChild>
+                <Link to="/dashboard">
+                  <LayoutDashboard className="mr-2 h-4 w-4" /> Admin Dashboard
+                </Link>
+              </Button>
+            )}
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" /> Sign out
+            </Button>
+          </div>
         </div>
+
+        {/* Admin Quick Banner */}
+        {isAdmin && (
+          <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 dark:bg-emerald-950/40 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-sm text-foreground">Administrator Control Panel</h3>
+                <p className="text-xs text-muted-foreground">Manage store products, stock inventory, customer orders, and sales analytics.</p>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" className="border-emerald-500/40 hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0" asChild>
+              <Link to="/dashboard">
+                Open Admin Console <ChevronRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        )}
 
         <Separator className="my-8" />
 
