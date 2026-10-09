@@ -7,6 +7,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,6 +39,9 @@ export function SiteHeader() {
   const { count } = useCart();
   const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
+
+  const userAvatar = user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture ?? null;
+  const userInitials = user?.email ? user.email.slice(0, 2).toUpperCase() : "GH";
 
   /* Scroll effects */
   useEffect(() => {
@@ -115,28 +119,41 @@ export function SiteHeader() {
                     variant="ghost"
                     size="icon"
                     aria-label="User Account Menu"
-                    className="hidden sm:inline-flex rounded-full h-9 w-9 text-muted-foreground hover:text-foreground relative"
+                    className="hidden sm:inline-flex rounded-full h-9 w-9 p-0 overflow-hidden ring-1 ring-border hover:ring-emerald-500/60 transition-all relative shrink-0"
                   >
-                    <User className="h-5 w-5" />
+                    <Avatar className="h-full w-full">
+                      {userAvatar && <AvatarImage src={userAvatar} alt={user.email ?? "Avatar"} className="object-cover" />}
+                      <AvatarFallback className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs">
+                        {userInitials}
+                      </AvatarFallback>
+                    </Avatar>
                     {isAdmin && (
-                      <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-background" />
+                      <span className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-background z-10" />
                     )}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 rounded-xl p-1.5 shadow-lg border border-border">
+                <DropdownMenuContent align="end" className="w-60 rounded-xl p-1.5 shadow-lg border border-border">
                   <DropdownMenuLabel className="font-normal p-2">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-semibold leading-none text-foreground truncate">
-                        {user.user_metadata?.full_name ?? "User Account"}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground truncate">{user.email}</p>
-                      {isAdmin && (
-                        <div className="pt-1">
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                            <ShieldCheck className="h-3 w-3" /> Admin User
-                          </span>
-                        </div>
-                      )}
+                    <div className="flex items-center gap-2.5">
+                      <Avatar className="h-9 w-9 shrink-0 ring-1 ring-emerald-500/30">
+                        {userAvatar && <AvatarImage src={userAvatar} alt="Avatar" className="object-cover" />}
+                        <AvatarFallback className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold text-xs">
+                          {userInitials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col space-y-0.5 overflow-hidden">
+                        <p className="text-sm font-semibold leading-none text-foreground truncate">
+                          {user.user_metadata?.full_name ?? "User Account"}
+                        </p>
+                        <p className="text-xs leading-none text-muted-foreground truncate">{user.email}</p>
+                        {isAdmin && (
+                          <div className="pt-1">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                              <ShieldCheck className="h-3 w-3" /> Admin User
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
