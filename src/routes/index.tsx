@@ -77,7 +77,9 @@ export const Route = createFileRoute("/")({
     ],
   }),
   loader: async (): Promise<CatalogProduct[]> => listPublishedProducts(),
-  pendingMs: 0,
+  staleTime: 1000 * 60 * 5,
+  gcTime: 1000 * 60 * 30,
+  pendingMs: 150,
   pendingComponent: LandingSkeleton,
   component: Landing,
 });
@@ -112,14 +114,14 @@ function Landing() {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         ".hero-element",
-        { opacity: 0, y: 25 },
+        { opacity: 0, y: 20 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.8,
-          stagger: 0.12,
-          ease: "power3.out",
-          delay: 0.1,
+          duration: 0.5,
+          stagger: 0.08,
+          ease: "power2.out",
+          delay: 0.05,
         }
       );
     }, heroRef);
@@ -224,8 +226,8 @@ function Landing() {
                   Browse phones, laptops, accessories and electronics in one modern shopping experience with transparent specs, Ghana Mobile Money checkout, and instant WhatsApp ordering.
                 </p>
 
-                <div className="hero-element mt-6 sm:mt-8 flex flex-wrap items-center gap-3">
-                  <Button asChild variant="default" size="lg" className="px-7 shadow-md font-semibold">
+                <div className="hero-element mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
+                  <Button asChild variant="default" size="lg" className="w-full sm:w-auto justify-center px-7 shadow-md font-semibold">
                     <Link to="/products" search={{}}>
                       Shop Products <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
@@ -235,7 +237,7 @@ function Landing() {
                     asChild
                     variant="outline"
                     size="lg"
-                    className="px-6 border-primary/50 text-primary hover:bg-primary/10 font-semibold"
+                    className="w-full sm:w-auto justify-center px-6 border-primary/50 text-primary hover:bg-primary/10 font-semibold"
                   >
                     <a
                       href={whatsappLink("Hello GadgetHaus! I'd like to learn more about your products and services.")}

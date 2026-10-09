@@ -88,53 +88,77 @@
     opacity: 0;
     transform: translateY(14px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
 @keyframes fade-in {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
+
 @keyframes scale-in {
   from {
     opacity: 0;
     transform: scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
   }
 }
+
 @keyframes marquee {
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(-50%);
   }
 }
+
 @keyframes shimmer {
+
   0%,
   100% {
     opacity: 0.55;
   }
+
   50% {
     opacity: 1;
   }
 }
+
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 8px 0 oklch(0.696 0.15 162 / 0.25); }
-  50%        { box-shadow: 0 0 22px 4px oklch(0.696 0.15 162 / 0.55); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 8px 0 oklch(0.696 0.15 162 / 0.25);
+  }
+
+  50% {
+    box-shadow: 0 0 22px 4px oklch(0.696 0.15 162 / 0.55);
+  }
 }
+
 @keyframes bg-shift {
-  from { background-position: 0% 50%; }
-  to   { background-position: 100% 50%; }
+  from {
+    background-position: 0% 50%;
+  }
+
+  to {
+    background-position: 100% 50%;
+  }
 }
 
 :root {
@@ -261,16 +285,12 @@
 /* Subtle animated mesh on the dark body */
 .dark body {
   background-image:
-    radial-gradient(
-      ellipse 80% 50% at 85% -10%,
+    radial-gradient(ellipse 80% 50% at 85% -10%,
       oklch(0.74 0.165 162.5 / 0.06) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      ellipse 60% 60% at -10% 110%,
+      transparent 60%),
+    radial-gradient(ellipse 60% 60% at -10% 110%,
       oklch(0.62 0.14 258 / 0.05) 0%,
-      transparent 60%
-    );
+      transparent 60%);
   background-attachment: fixed;
 }
 
@@ -335,11 +355,9 @@
 
   /* Dark mode: vivid emerald→cyan gradient */
   .dark & {
-    background: linear-gradient(
-      135deg,
-      oklch(0.82 0.17 162) 0%,
-      oklch(0.78 0.18 200) 100%
-    );
+    background: linear-gradient(135deg,
+        oklch(0.82 0.17 162) 0%,
+        oklch(0.78 0.18 200) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -356,10 +374,12 @@
   transition:
     opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+
   &[data-shown="true"] {
     opacity: 1;
     transform: none;
   }
+
   @media (prefers-reduced-motion: reduce) {
     opacity: 1;
     transform: none;
@@ -370,16 +390,12 @@
 
 @utility bg-mesh {
   background-image:
-    radial-gradient(
-      60% 55% at 82% 8%,
+    radial-gradient(60% 55% at 82% 8%,
       color-mix(in oklab, var(--primary) 22%, transparent) 0%,
-      transparent 70%
-    ),
-    radial-gradient(
-      50% 50% at 4% 18%,
+      transparent 70%),
+    radial-gradient(50% 50% at 4% 18%,
       color-mix(in oklab, var(--info) 12%, transparent) 0%,
-      transparent 70%
-    );
+      transparent 70%);
 }
 
 @utility hover-lift {
@@ -387,9 +403,11 @@
     transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     border-color 0.35s ease;
+
   &:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-lift);
+
     /* In dark mode, cards also get a faint emerald outline on hover */
     .dark & {
       border-color: oklch(0.74 0.165 162.5 / 22%);
@@ -399,6 +417,7 @@
 
 @utility no-scrollbar {
   scrollbar-width: none;
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -406,6 +425,7 @@
 
 @utility section-pad {
   padding-block: 3.5rem;
+
   @media (min-width: 768px) {
     padding-block: 5.5rem;
   }
@@ -415,18 +435,25 @@
    Gives breathing room on 14-inch laptops (≈1366px) where max-w-7xl
    fills almost the entire viewport leaving no visual margin. */
 @utility container-x {
-  padding-left: 1.25rem;  /* px-5  — mobile */
+  padding-left: 1.25rem;
+  /* px-5  — mobile */
   padding-right: 1.25rem;
+
   @media (min-width: 640px) {
-    padding-left: 2rem;   /* px-8  — sm */
+    padding-left: 2rem;
+    /* px-8  — sm */
     padding-right: 2rem;
   }
+
   @media (min-width: 1024px) {
-    padding-left: 3rem;   /* px-12 — lg */
+    padding-left: 3rem;
+    /* px-12 — lg */
     padding-right: 3rem;
   }
+
   @media (min-width: 1280px) {
-    padding-left: 4rem;   /* px-16 — xl, large monitors */
+    padding-left: 4rem;
+    /* px-16 — xl, large monitors */
     padding-right: 4rem;
   }
 }
@@ -476,7 +503,7 @@
   height: 1.1rem;
   border-radius: 50%;
   background: white;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
 }
 
@@ -643,12 +670,15 @@
   min-width: 0;
   white-space: nowrap;
   overflow-x: auto;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
 }
 
 .announcement-bar__content::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
+  display: none;
+  /* Chrome, Safari and Opera */
 }
 
 .announcement-bar__dot {
@@ -660,7 +690,10 @@
   text-decoration: underline;
   text-underline-offset: 2px;
   transition: opacity 0.15s;
-  &:hover { opacity: 1; }
+
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .announcement-bar__close {
@@ -671,7 +704,11 @@
   padding: 0.2rem;
   opacity: 0.65;
   transition: opacity 0.15s, background 0.15s;
-  &:hover { opacity: 1; background: oklch(1 0 0 / 12%); }
+
+  &:hover {
+    opacity: 1;
+    background: oklch(1 0 0 / 12%);
+  }
 }
 
 /* ── Site search bar (clickable pill) ─────────────────────── */
@@ -679,7 +716,8 @@
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  height: 2.375rem;       /* 38px */
+  height: 2.375rem;
+  /* 38px */
   padding: 0 0.875rem;
   border-radius: 999px;
   border: 1px solid var(--border);
@@ -707,7 +745,10 @@
 .site-search-bar__icon {
   color: var(--muted-foreground);
   transition: color 0.2s;
-  .site-search-bar:hover & { color: var(--primary); }
+
+  .site-search-bar:hover & {
+    color: var(--primary);
+  }
 }
 
 .site-search-bar__kbd {
@@ -726,7 +767,8 @@
 
 /* ── Category nav bar (Row 3) ─────────────────────────────── */
 .category-nav-bar {
-  height: 2.5rem;         /* 40px */
+  height: 2.5rem;
+  /* 40px */
   border-top: 1px solid var(--border);
   overflow: hidden;
 }
@@ -830,7 +872,22 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ── High-Performance Crisp Skeleton Pulse (0.85s instead of default 2.0s) ── */
+@keyframes fast-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.animate-pulse {
+  animation: fast-pulse 0.85s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
+}

@@ -6,14 +6,27 @@ import { mapProduct, type ProductRow } from "@/lib/catalog";
 
 import { products as fallbackProducts } from "@/lib/store-data";
 
+/** In-memory server cache for published catalogue (60s TTL) */
+let cachedPublishedCatalog: CatalogProduct[] | null = null;
+let cacheTimestamp = 0;
+const CACHE_TTL_MS = 60 * 1000;
+
 /** Public catalogue read — anon policy allows published rows only, with fallback. */
 export const listPublishedProducts = createServerFn({ method: "GET" }).handler(async () => {
+  // Return cached products instantly if still fresh
+  if (cachedPublishedCatalog && Date.now() - cacheTimestamp < CACHE_TTL_MS) {
+    return cachedPublishedCatalog;
+  }
+
   try {
     const key = process.env["SUPABASE_PUBLISHABLE_KEY"] || process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] || import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
     const url = process.env["SUPABASE_URL"] || process.env["VITE_SUPABASE_URL"] || import.meta.env["VITE_SUPABASE_URL"];
 
     if (!key || !url) {
-      return fallbackProducts.map((p) => ({ ...p, dbId: p.id, sku: p.id, lowStockThreshold: 3 }));
+      const fallback = fallbackProducts.map((p) => ({ ...p, dbId: p.id, sku: p.id, lowStockThreshold: 3 }));
+      cachedPublishedCatalog = fallback;
+      cacheTimestamp = Date.now();
+      return fallback;
     }
 
     const supabase = createClient<Database>(url, key, {
@@ -25,7 +38,7 @@ export const listPublishedProducts = createServerFn({ method: "GET" }).handler(a
             headers.delete("Authorization");
           }
           headers.set("apikey", key);
-          return fetch(input, { ...init, headers, signal: AbortSignal.timeout(4000) });
+          return fetch(input, { ...init, headers, signal: AbortSignal.timeout(1800) });
         },
       },
     });
@@ -40,13 +53,24 @@ export const listPublishedProducts = createServerFn({ method: "GET" }).handler(a
       .order("name", { ascending: true });
 
     if (error || !data || data.length === 0) {
-      return fallbackProducts.map((p) => ({ ...p, dbId: p.id, sku: p.id, lowStockThreshold: 3 }));
+      if (cachedPublishedCatalog) return cachedPublishedCatalog;
+      const fallback = fallbackProducts.map((p) => ({ ...p, dbId: p.id, sku: p.id, lowStockThreshold: 3 }));
+      cachedPublishedCatalog = fallback;
+      cacheTimestamp = Date.now();
+      return fallback;
     }
     
-    return (data as unknown as ProductRow[]).map(mapProduct);
+    const mapped = (data as unknown as ProductRow[]).map(mapProduct);
+    cachedPublishedCatalog = mapped;
+    cacheTimestamp = Date.now();
+    return mapped;
   } catch (err: any) {
     console.warn("[ServerFn] Using demo fallback catalogue due to fetch issue:", err?.message || err);
-    return fallbackProducts.map((p) => ({ ...p, dbId: p.id, sku: p.id, lowStockThreshold: 3 }));
+    if (cachedPublishedCatalog) return cachedPublishedCatalog;
+    const fallback = fallbackProducts.map((p) => ({ ...p, dbId: p.id, sku: p.id, lowStockThreshold: 3 }));
+    cachedPublishedCatalog = fallback;
+    cacheTimestamp = Date.now();
+    return fallback;
   }
 });
 
