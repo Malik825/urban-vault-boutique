@@ -119,36 +119,36 @@ export function SiteHeader() {
                     variant="ghost"
                     size="icon"
                     aria-label="User Account Menu"
-                    className="hidden sm:inline-flex rounded-full h-9 w-9 p-0 overflow-hidden ring-1 ring-border hover:ring-emerald-500/60 transition-all relative shrink-0"
+                    className="hidden sm:inline-flex rounded-full h-8 w-8 p-0 overflow-hidden ring-1 ring-border/80 hover:ring-emerald-500/60 transition-all relative shrink-0"
                   >
                     <Avatar className="h-full w-full">
                       {userAvatar && <AvatarImage src={userAvatar} alt={user.email ?? "Avatar"} className="object-cover" />}
-                      <AvatarFallback className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs">
+                      <AvatarFallback className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold text-[11px]">
                         {userInitials}
                       </AvatarFallback>
                     </Avatar>
                     {isAdmin && (
-                      <span className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-background z-10" />
+                      <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-background z-10" />
                     )}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-60 rounded-xl p-1.5 shadow-lg border border-border">
-                  <DropdownMenuLabel className="font-normal p-2">
-                    <div className="flex items-center gap-2.5">
-                      <Avatar className="h-9 w-9 shrink-0 ring-1 ring-emerald-500/30">
+                <DropdownMenuContent align="end" className="w-[265px] rounded-2xl p-2 shadow-xl border border-border/80 bg-background/95 backdrop-blur-md">
+                  <DropdownMenuLabel className="font-normal p-2 pb-1.5">
+                    <div className="flex items-start gap-2.5">
+                      <Avatar className="h-8 w-8 shrink-0 ring-1 ring-emerald-500/30">
                         {userAvatar && <AvatarImage src={userAvatar} alt="Avatar" className="object-cover" />}
                         <AvatarFallback className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold text-xs">
                           {userInitials}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex flex-col space-y-0.5 overflow-hidden">
-                        <p className="text-sm font-semibold leading-none text-foreground truncate">
+                      <div className="flex flex-col space-y-0.5 min-w-0 flex-1">
+                        <p className="text-xs font-bold text-foreground truncate">
                           {user.user_metadata?.full_name ?? "User Account"}
                         </p>
-                        <p className="text-xs leading-none text-muted-foreground truncate">{user.email}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">{user.email}</p>
                         {isAdmin && (
                           <div className="pt-1">
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 dark:bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/25">
                               <ShieldCheck className="h-3 w-3" /> Admin User
                             </span>
                           </div>
@@ -156,27 +156,27 @@ export function SiteHeader() {
                       </div>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
-                    <Link to="/account" className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <DropdownMenuSeparator className="my-1.5" />
+                  <DropdownMenuItem asChild className="rounded-xl px-2.5 py-2 cursor-pointer text-xs font-medium focus:bg-muted/80">
+                    <Link to="/account" className="flex items-center gap-2.5">
+                      <User className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                       <span>My Account</span>
                     </Link>
                   </DropdownMenuItem>
                   {isAdmin && (
-                    <DropdownMenuItem asChild className="rounded-lg cursor-pointer bg-emerald-500/10 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 font-semibold">
-                      <Link to="/dashboard" className="flex items-center gap-2">
-                        <LayoutDashboard className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    <DropdownMenuItem asChild className="rounded-xl px-2.5 py-2 cursor-pointer bg-emerald-500/10 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-semibold focus:bg-emerald-500/20">
+                      <Link to="/dashboard" className="flex items-center gap-2.5">
+                        <LayoutDashboard className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                         <span>Admin Dashboard</span>
                       </Link>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuSeparator />
+                  <DropdownMenuSeparator className="my-1.5" />
                   <DropdownMenuItem
                     onClick={() => signOut()}
-                    className="rounded-lg cursor-pointer text-destructive focus:text-destructive"
+                    className="rounded-xl px-2.5 py-2 cursor-pointer text-xs font-medium text-rose-500 hover:text-rose-600 focus:bg-rose-500/10 focus:text-rose-600"
                   >
-                    <LogOut className="mr-2 h-4 w-4" />
+                    <LogOut className="mr-2.5 h-4 w-4 shrink-0" />
                     <span>Sign Out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
