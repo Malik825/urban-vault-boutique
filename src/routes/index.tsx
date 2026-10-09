@@ -20,7 +20,6 @@ import {
   Send,
   ShieldCheck,
   Smartphone,
-  Sparkles,
   Star,
   Timer,
   Truck,
@@ -148,6 +147,21 @@ function Landing() {
     setBulkMessage("");
   };
 
+  const [catalogueTab, setCatalogueTab] = useState<"All" | "Laptops" | "Phones" | "Accessories">("All");
+
+  const macbook = products.find((p) => p.name.toLowerCase().includes("macbook")) || products[0];
+  const iphone = products.find((p) => p.name.toLowerCase().includes("iphone")) || products[1];
+  const dell = products.find((p) => p.name.toLowerCase().includes("dell")) || products[2];
+  const hpSpectre = products.find((p) => p.name.toLowerCase().includes("spectre") || (p.brand === "HP" && p.id !== macbook?.id)) || products[3];
+
+  const filteredCatalogueProducts = products.filter((p) => {
+    if (catalogueTab === "All") return true;
+    if (catalogueTab === "Laptops") return p.category.toLowerCase().includes("laptop");
+    if (catalogueTab === "Phones") return p.category.toLowerCase().includes("phone") || p.category.toLowerCase().includes("smartphones");
+    if (catalogueTab === "Accessories") return p.category.toLowerCase().includes("access") || p.category.toLowerCase().includes("audio") || p.category.toLowerCase().includes("watch");
+    return true;
+  });
+
   const trending = products.filter((p) => p.status === "Published").slice(0, 8);
   const deals = products.filter((p) => p.badge?.toLowerCase() === "flash deal").slice(0, 4);
   const arrivals = products.filter((p) => p.badge === "New" || p.badge === "Best seller").slice(0, 4);
@@ -204,14 +218,7 @@ function Landing() {
 
               {/* Left: Text Content */}
               <div ref={heroRef} className="max-w-xl order-2 lg:order-1 px-4 pt-2 pb-8 sm:px-0 sm:py-0">
-                <div className="hero-element">
-                  <Badge variant="outline" className="w-fit bg-background/80 rounded border border-primary/30 px-3.5 py-1 text-xs shadow-sm">
-                    <Sparkles className="mr-1.5 h-3.5 w-3.5 shrink-0 text-primary" />
-                    <span className="uppercase tracking-wider font-bold text-primary">ONLINE TECH STORE · ACCRA 🇬🇭</span>
-                  </Badge>
-                </div>
-
-                <h1 className="hero-element mt-4 sm:mt-5 font-display text-3xl font-extrabold leading-[1.12] tracking-tight sm:text-4xl md:text-5xl xl:text-[3.25rem] text-foreground">
+                <h1 className="hero-element font-display text-3xl font-extrabold leading-[1.12] tracking-tight sm:text-4xl md:text-5xl xl:text-[3.25rem] text-foreground">
                   Your products deserve a <span className="text-primary">better storefront</span>.
                 </h1>
 
@@ -284,20 +291,84 @@ function Landing() {
         </div>
       </section>
 
-      {/* Trending Now */}
-      <Section
-        eyebrow="Catalogue Discovery"
-        title="Popular electronics in Ghana"
-        action={{ label: "View all products", to: "/products" }}
-      >
-        <div className="flex w-full gap-4 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar">
-          {trending.map((p) => (
-            <div key={p.id} className="min-w-[85%] sm:min-w-[48%] lg:min-w-[32%] xl:min-w-[24%] snap-start">
-              <ProductCard product={p} />
+      {/* Catalogue Discovery Showcase (Matches Reference Design) */}
+      <section className="section-pad">
+        <div className="mx-auto max-w-7xl container-x">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                Catalogue Discovery
+              </p>
+              <h2 className="mt-1 font-display text-2xl font-extrabold sm:text-3xl tracking-tight text-foreground">
+                Popular electronics in Ghana
+              </h2>
             </div>
-          ))}
+            <Link
+              to="/products"
+              search={{}}
+              className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 flex items-center gap-1.5 transition-colors self-start sm:self-auto"
+            >
+              View all products <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          {/* Category Filter Pills (Matches Image 3) */}
+          <div className="mt-5 flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+            {(["All", "Laptops", "Phones", "Accessories"] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setCatalogueTab(tab)}
+                className={`rounded-full px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all shrink-0 ${
+                  catalogueTab === tab
+                    ? "bg-emerald-800 text-white shadow-xs"
+                    : "bg-card border border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Showcase Display */}
+          <div className="mt-6">
+            {catalogueTab === "All" ? (
+              <>
+                {/* Desktop Bento Grid (Matches Image 2) */}
+                <div className="hidden lg:grid lg:grid-cols-12 gap-5 items-stretch">
+                  {/* Left: Large Featured Card */}
+                  <div className="lg:col-span-5 h-full">
+                    {macbook && <ProductCard product={macbook} variant="featured" />}
+                  </div>
+
+                  {/* Right: 2 top cards + 1 wide bottom card */}
+                  <div className="lg:col-span-7 flex flex-col gap-5 justify-between h-full">
+                    <div className="grid grid-cols-2 gap-5">
+                      {iphone && <ProductCard product={iphone} variant="standard" />}
+                      {dell && <ProductCard product={dell} variant="standard" />}
+                    </div>
+                    {hpSpectre && <ProductCard product={hpSpectre} variant="wide" />}
+                  </div>
+                </div>
+
+                {/* Mobile / Tablet Responsive Layout (Matches Image 3) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:hidden">
+                  {macbook && <ProductCard product={macbook} variant="featured" />}
+                  {iphone && <ProductCard product={iphone} variant="standard" />}
+                  {dell && <ProductCard product={dell} variant="standard" />}
+                  {hpSpectre && <ProductCard product={hpSpectre} variant="standard" />}
+                </div>
+              </>
+            ) : (
+              /* Filtered Category Grid */
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                {filteredCatalogueProducts.map((p) => (
+                  <ProductCard key={p.id} product={p} variant="standard" />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </Section>
+      </section>
 
       {/* Flash deals */}
       <section className="bg-surface-muted section-pad">
