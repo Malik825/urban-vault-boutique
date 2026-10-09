@@ -193,21 +193,15 @@ function AuthPage() {
 
   return (
     <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-12 bg-background font-sans overflow-x-hidden">
-      {/* ── LEFT PANEL: DARK EMERALD BRANDING (FULL HEIGHT) ── */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#021811] via-[#042017] to-[#02130C] text-white p-6 sm:p-10 lg:p-12 xl:p-16 lg:col-span-5 xl:col-span-5 flex flex-col justify-between min-h-[380px] lg:min-h-screen">
-          {/* Subtle Ambient Radial Light */}
-          <div
-            className="pointer-events-none absolute -top-24 -left-24 w-80 h-80 bg-primary/20 rounded-full blur-3xl"
-            aria-hidden="true"
-          />
-
+      {/* ── LEFT PANEL: CLEAN NEUTRAL BRANDING (FULL HEIGHT) ── */}
+      <div className="relative overflow-hidden bg-[#0A0E17] text-white p-6 sm:p-10 lg:p-12 xl:p-16 lg:col-span-5 xl:col-span-5 flex flex-col justify-between min-h-[380px] lg:min-h-screen border-r border-border/40">
           <div>
             {/* Brand Header */}
             <Link to="/" className="inline-flex items-center gap-2.5 outline-none group">
-              <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-[0_0_15px_var(--primary)]">
-                <Zap className="h-4 w-4 fill-primary" />
+              <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white shadow-xs">
+                <Zap className="h-4 w-4 fill-white" />
               </div>
-              <span className="font-display text-lg sm:text-xl font-bold tracking-tight text-white group-hover:text-primary transition-colors">
+              <span className="font-display text-lg sm:text-xl font-bold tracking-tight text-white group-hover:text-white/80 transition-colors">
                 {STORE.name}
               </span>
             </Link>
@@ -219,7 +213,7 @@ function AuthPage() {
                   <h1 className="font-display text-2xl sm:text-3xl lg:text-[2.1rem] font-extrabold leading-[1.18] text-white tracking-tight">
                     Better Tech.
                     <br />
-                    Bigger <span className="text-primary">Possibilities.</span>
+                    Bigger Possibilities.
                   </h1>
                   <p className="mt-3 text-xs sm:text-sm text-slate-300/90 leading-relaxed max-w-xs">
                     Your trusted store for the latest devices, gadgets and accessories.
@@ -253,7 +247,7 @@ function AuthPage() {
             {/* 3 Value Propositions */}
             <div className="mt-6 sm:mt-8 space-y-3.5">
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/20 text-primary border border-primary/30">
+                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/10 text-white/90 border border-white/15">
                   <ShieldCheck className="h-3.5 w-3.5" />
                 </div>
                 <div>
@@ -265,7 +259,7 @@ function AuthPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/20 text-primary border border-primary/30">
+                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/10 text-white/90 border border-white/15">
                   <Truck className="h-3.5 w-3.5" />
                 </div>
                 <div>
@@ -277,7 +271,7 @@ function AuthPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/20 text-primary border border-primary/30">
+                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/10 text-white/90 border border-white/15">
                   <Lock className="h-3.5 w-3.5" />
                 </div>
                 <div>
@@ -290,18 +284,17 @@ function AuthPage() {
             </div>
           </div>
 
-          {/* Bottom Device Graphic Showcase */}
+          {/* Bottom Device Graphic Showcase with Clean Subtle Shadow */}
           <div className="hidden lg:block mt-8 pt-4">
-            <div className="relative overflow-hidden rounded-2xl border border-primary/25 shadow-[0_0_30px_var(--primary)] bg-[#03150F] group">
+            <div className="relative overflow-hidden rounded-2xl border border-white/10 shadow-lg bg-black/40 group">
               <img
                 src={authBottomImg}
-                alt="Premium Green Tech Collection"
-                className="w-full h-40 object-cover object-center opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 mix-blend-lighten"
+                alt="Tech Collection"
+                className="w-full h-40 object-cover object-center opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
               />
-              {/* Multidirectional Smooth Gradient Blend Masks */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#02130C] via-[#02130C]/40 to-transparent pointer-events-none" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#02130C]/60 via-transparent to-[#02130C]/60 pointer-events-none" />
-              <div className="absolute inset-0 bg-primary/10 mix-blend-overlay pointer-events-none" />
+              {/* Clean Neutral Gradient Edge Masks */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E17] via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0A0E17]/60 via-transparent to-[#0A0E17]/60 pointer-events-none" />
             </div>
           </div>
         </div>
@@ -334,7 +327,7 @@ function AuthPage() {
                       placeholder="you@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-emerald-500"
+                      className="pl-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary/40"
                     />
                   </div>
                 </div>
@@ -353,7 +346,7 @@ function AuthPage() {
                       placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 pr-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-emerald-500"
+                      className="pl-10 pr-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary/40"
                     />
                     <button
                       type="button"
@@ -469,7 +462,7 @@ function AuthPage() {
                       placeholder="John Doe"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="pl-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-emerald-500"
+                      className="pl-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary/40"
                     />
                   </div>
                 </div>
@@ -488,7 +481,7 @@ function AuthPage() {
                       placeholder="you@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-emerald-500"
+                      className="pl-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary/40"
                     />
                   </div>
                 </div>
@@ -507,7 +500,7 @@ function AuthPage() {
                       placeholder="+233 XX XXX XXXX"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="pl-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-emerald-500"
+                      className="pl-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary/40"
                     />
                   </div>
                 </div>
@@ -526,7 +519,7 @@ function AuthPage() {
                       placeholder="Create a strong password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 pr-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-emerald-500"
+                      className="pl-10 pr-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary/40"
                     />
                     <button
                       type="button"

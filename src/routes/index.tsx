@@ -184,9 +184,8 @@ function Landing() {
                     key={i}
                     src={img}
                     alt="Modern tech electronics catalogue"
-                    className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-in-out ${
-                      i === heroIndex ? "opacity-100 scale-100" : "opacity-0 scale-105"
-                    }`}
+                    className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ease-in-out ${i === heroIndex ? "opacity-100 scale-100" : "opacity-0 scale-105"
+                      }`}
                   />
                 ))}
 
@@ -197,7 +196,7 @@ function Landing() {
                 <div className="absolute top-4 left-4 z-10">
                   <span className="inline-flex items-center gap-1.5 rounded-md bg-black/65 backdrop-blur-md px-3 py-1 text-xs font-semibold text-white border border-white/20 shadow-md">
                     <span className="h-2 w-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--primary)]" />
-                    Verified Tech · Accra 🇬🇭
+                    Verified Tech · Experts.
                   </span>
                 </div>
 
@@ -208,9 +207,8 @@ function Landing() {
                       key={i}
                       onClick={() => setHeroIndex(i)}
                       aria-label={`Go to slide ${i + 1}`}
-                      className={`h-1.5 rounded-full transition-all duration-300 ${
-                        i === heroIndex ? "w-6 bg-white" : "w-1.5 bg-white/50 hover:bg-white/80"
-                      }`}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${i === heroIndex ? "w-6 bg-white" : "w-1.5 bg-white/50 hover:bg-white/80"
+                        }`}
                     />
                   ))}
                 </div>
@@ -318,11 +316,10 @@ function Landing() {
               <button
                 key={tab}
                 onClick={() => setCatalogueTab(tab)}
-                className={`rounded-full px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all shrink-0 ${
-                  catalogueTab === tab
-                    ? "bg-primary text-primary-foreground shadow-xs"
-                    : "bg-card border border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
+                className={`rounded-full px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all shrink-0 ${catalogueTab === tab
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "bg-card border border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  }`}
               >
                 {tab}
               </button>
