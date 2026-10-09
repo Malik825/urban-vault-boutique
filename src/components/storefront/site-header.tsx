@@ -159,7 +159,7 @@ export function SiteHeader() {
                   <DropdownMenuSeparator className="my-1.5" />
                   <DropdownMenuItem asChild className="rounded-xl px-2.5 py-2 cursor-pointer text-xs font-medium focus:bg-muted/80">
                     <Link to="/account" className="flex items-center gap-2.5">
-                      <User className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <User className="h-4 w-4 text-primary shrink-0" />
                       <span>My Account</span>
                     </Link>
                   </DropdownMenuItem>
@@ -240,11 +240,11 @@ export function SiteHeader() {
 
                 <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-4">
                   <button onClick={() => { setMobileOpen(false); navigate({ to: "/" }); }} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">
-                    <Home className="h-4 w-4 shrink-0 text-emerald-600" /> Home
+                    <Home className="h-4 w-4 shrink-0 text-primary" /> Home
                   </button>
 
                   <button onClick={() => { setMobileOpen(false); navigate({ to: "/products", search: {} }); }} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">
-                    <LayoutGrid className="h-4 w-4 shrink-0 text-emerald-600" /> All Products
+                    <LayoutGrid className="h-4 w-4 shrink-0 text-primary" /> All Products
                   </button>
 
                   <div className="mt-3 border-t border-border pt-3">
@@ -256,7 +256,7 @@ export function SiteHeader() {
                       <User className="h-4 w-4 shrink-0 text-muted-foreground" /> My Account
                     </button>
                     {isAdmin && (
-                      <button onClick={() => { setMobileOpen(false); navigate({ to: "/dashboard" }); }} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20">
+                      <button onClick={() => { setMobileOpen(false); navigate({ to: "/dashboard" }); }} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20">
                         <LayoutDashboard className="h-4 w-4 shrink-0" /> Admin Dashboard
                       </button>
                     )}

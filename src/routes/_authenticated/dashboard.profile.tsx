@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
   Camera,
@@ -117,6 +117,13 @@ function ProfilePage() {
     <DashboardShell
       title="My Profile"
       subtitle="Manage your admin account details and photo"
+      actions={
+        <Button variant="outline" size="sm" asChild className="gap-1.5 font-medium border-border">
+          <Link to="/account">
+            <User className="h-4 w-4 text-primary" /> Go to Customer Account
+          </Link>
+        </Button>
+      }
     >
       <form
         onSubmit={(e) => void handleSaveProfile(e)}

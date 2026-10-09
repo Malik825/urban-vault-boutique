@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -95,6 +95,26 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
 
+  // Auto-redirect if already signed in: admins to /dashboard, customers to /account
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", session.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+
+        if (roleData) {
+          navigate({ to: "/dashboard", replace: true });
+        } else {
+          navigate({ to: "/account", replace: true });
+        }
+      }
+    });
+  }, [navigate]);
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     const parsed = loginSchema.safeParse({ email, password });
@@ -105,13 +125,33 @@ function AuthPage() {
 
     setBusy(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: parsed.data.email,
         password: parsed.data.password,
       });
       if (error) throw error;
       toast.success("Welcome back to GadgetHaus!");
-      navigate({ to: "/account" });
+
+      // If user is admin, navigate directly to dashboard; otherwise go to customer account
+      let isAdminUser = false;
+      if (authData?.user) {
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", authData.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+
+        if (roleData) {
+          isAdminUser = true;
+        }
+      }
+
+      if (isAdminUser) {
+        navigate({ to: "/dashboard" });
+      } else {
+        navigate({ to: "/account" });
+      }
     } catch (err: any) {
       toast.error(err?.message || "Invalid email or password");
     } finally {
@@ -182,7 +222,7 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/account`,
+          redirectTo: `${window.location.origin}/auth`,
         },
       });
       if (error) throw error;

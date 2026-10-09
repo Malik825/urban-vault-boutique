@@ -15,6 +15,7 @@ import {
   Search,
   Settings,
   Store,
+  User,
   UserCircle2,
   Users,
   Warehouse,
@@ -182,8 +183,14 @@ export function DashboardShell({
           {sidebarOpen ? (
             <>
               <Link
+                to="/account"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              >
+                <User className="h-4 w-4 shrink-0 text-primary" /> My Customer Account
+              </Link>
+              <Link
                 to="/"
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               >
                 <Store className="h-4 w-4 shrink-0" /> View storefront
               </Link>
@@ -213,8 +220,11 @@ export function DashboardShell({
               </div>
             </>
           ) : (
-            /* Collapsed footer — just the avatar + sign-out stacked */
+            /* Collapsed footer — just the account + avatar + storefront + sign-out stacked */
             <div className="flex flex-col items-center gap-2">
+              <Link to="/account" title="My Customer Account">
+                <User className="h-5 w-5 text-muted-foreground transition-colors hover:text-primary" />
+              </Link>
               <Link to="/" title="View storefront">
                 <Store className="h-5 w-5 text-muted-foreground transition-colors hover:text-foreground" />
               </Link>
@@ -244,7 +254,7 @@ export function DashboardShell({
       {/* ── Main content ── */}
       <div className={`transition-[padding] duration-300 ease-in-out ${mainPl}`}>
         {/* Topbar */}
-        <header className="glass sticky top-0 z-30 border-b">
+        <header className="sticky top-0 z-30 border-b border-border bg-background">
           <div className="flex h-16 items-center gap-2 px-4 sm:px-6">
 
             {/* Desktop sidebar toggle */}
@@ -318,6 +328,18 @@ export function DashboardShell({
               {/* Theme toggle */}
               <ThemeToggle />
 
+              {/* My Customer Account button */}
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+                className="hidden sm:inline-flex h-8 gap-1.5 text-xs font-semibold rounded-lg border-border hover:bg-surface-muted"
+              >
+                <Link to="/account">
+                  <User className="h-3.5 w-3.5 text-primary" /> My Account
+                </Link>
+              </Button>
+
               {/* Notifications */}
               <Button variant="ghost" size="icon" aria-label="Notifications" className="relative">
                 <Bell className="h-5 w-5" />
@@ -376,7 +398,13 @@ export function DashboardShell({
               </CommandItem>
             ))}
           </CommandGroup>
-          <CommandGroup heading="Storefront">
+          <CommandGroup heading="Storefront & Account">
+            <CommandItem value="customer account my account orders" asChild>
+              <Link to="/account" onClick={() => setCmdOpen(false)}>
+                <User className="text-muted-foreground" />
+                Go to customer account &amp; orders
+              </Link>
+            </CommandItem>
             <CommandItem value="view store" asChild>
               <Link to="/" onClick={() => setCmdOpen(false)}>
                 <Store className="text-muted-foreground" />

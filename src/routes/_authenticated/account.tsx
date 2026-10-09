@@ -34,11 +34,11 @@ export const Route = createFileRoute("/_authenticated/account")({
 });
 
 const STATUS_COLORS: Record<string, string> = {
-  pending: "bg-warning/20 text-warning-foreground border-warning/30",
-  processing: "bg-info/20 text-info border-info/30",
-  shipped: "bg-primary-soft text-accent-foreground border-primary/30",
-  delivered: "bg-success/20 text-success-foreground border-success/30",
-  cancelled: "bg-destructive/10 text-destructive border-destructive/20",
+  pending: "bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-200 dark:border-amber-800",
+  processing: "bg-sky-100 text-sky-900 border-sky-300 dark:bg-sky-950 dark:text-sky-200 dark:border-sky-800",
+  shipped: "bg-blue-100 text-blue-900 border-blue-300 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-800",
+  delivered: "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200 dark:border-emerald-800",
+  cancelled: "bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-200 dark:border-rose-800",
 };
 
 // Placeholder orders — swap with real Supabase fetch once migration is run
@@ -96,14 +96,14 @@ function AccountPage() {
         {/* Profile header */}
         <div className="flex flex-wrap items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-display text-xl font-extrabold border border-emerald-500/20">
+            <div className="grid h-16 w-16 place-items-center rounded-xl bg-card text-foreground font-display text-xl font-bold border border-border shadow-xs">
               {initials}
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <p className="font-display text-xl font-extrabold">{displayName}</p>
                 {isAdmin && (
-                  <Badge variant="outline" className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 text-[11px] font-semibold">
+                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/25 text-[11px] font-semibold">
                     <ShieldCheck className="mr-1 h-3 w-3" /> Admin
                   </Badge>
                 )}
@@ -114,7 +114,7 @@ function AccountPage() {
 
           <div className="flex items-center gap-3">
             {isAdmin && (
-              <Button variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs" asChild>
+              <Button variant="default" className="shadow-xs font-semibold" asChild>
                 <Link to="/dashboard">
                   <LayoutDashboard className="mr-2 h-4 w-4" /> Admin Dashboard
                 </Link>
@@ -126,11 +126,11 @@ function AccountPage() {
           </div>
         </div>
 
-        {/* Admin Quick Banner */}
+        {/* Admin Quick Banner - Clean Solid Card (No Glassmorphism) */}
         {isAdmin && (
-          <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 dark:bg-emerald-950/40 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="mt-6 rounded-xl border border-border bg-card p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-surface-muted text-primary border border-border">
                 <ShieldCheck className="h-5 w-5" />
               </div>
               <div>
@@ -138,7 +138,7 @@ function AccountPage() {
                 <p className="text-xs text-muted-foreground">Manage store products, stock inventory, customer orders, and sales analytics.</p>
               </div>
             </div>
-            <Button variant="outline" size="sm" className="border-emerald-500/40 hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0" asChild>
+            <Button variant="outline" size="sm" className="border-border hover:bg-muted text-foreground shrink-0 font-medium" asChild>
               <Link to="/dashboard">
                 Open Admin Console <ChevronRight className="ml-1 h-4 w-4" />
               </Link>
@@ -184,9 +184,9 @@ function AccountPage() {
               key={stat.label}
               to={stat.to}
               search={stat.search}
-              className="hover-lift flex flex-col gap-2 rounded-2xl border border-border bg-card p-5 shadow-card"
+              className="hover-lift flex flex-col gap-2 rounded-xl border border-border bg-card p-5 shadow-xs"
             >
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary-soft text-accent-foreground">
+              <div className="grid h-10 w-10 place-items-center rounded-lg bg-surface-muted text-primary border border-border">
                 <stat.icon className="h-5 w-5" />
               </div>
               <p className="font-display text-2xl font-extrabold">{stat.value}</p>
@@ -204,7 +204,7 @@ function AccountPage() {
           </div>
 
           {PLACEHOLDER_ORDERS.length === 0 ? (
-            <div className="mt-8 flex flex-col items-center gap-4 rounded-2xl border border-dashed border-border py-16 text-center">
+            <div className="mt-8 flex flex-col items-center gap-4 rounded-xl border border-dashed border-border py-16 text-center">
               <Clock className="h-10 w-10 text-muted-foreground" />
               <p className="font-medium">No orders yet</p>
               <p className="text-sm text-muted-foreground">
@@ -221,7 +221,7 @@ function AccountPage() {
               {PLACEHOLDER_ORDERS.map((order) => (
                 <div
                   key={order.id}
-                  className="overflow-hidden rounded-2xl border border-border bg-card shadow-card"
+                  className="overflow-hidden rounded-xl border border-border bg-card shadow-xs"
                 >
                   {/* Order header */}
                   <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-surface-muted px-5 py-3">
@@ -282,7 +282,7 @@ function AccountPage() {
         {/* Quick links */}
         <div>
           <h2 className="font-display text-xl font-extrabold">Quick links</h2>
-          <div className="mt-4 flex flex-col divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+          <div className="mt-4 flex flex-col divide-y divide-border overflow-hidden rounded-xl border border-border bg-card shadow-xs">
             {[
               { icon: Heart, label: "My wishlist", description: `${wishlist.length} saved items`, to: "/wishlist" },
               { icon: Repeat2, label: "Compare products", description: `${compareList.length} in compare`, to: "/compare" },
@@ -295,7 +295,7 @@ function AccountPage() {
                 className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-surface-muted"
               >
                 <div className="flex items-center gap-4">
-                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary-soft text-accent-foreground">
+                  <div className="grid h-9 w-9 place-items-center rounded-lg bg-surface-muted text-primary border border-border">
                     <link.icon className="h-4 w-4" />
                   </div>
                   <div>
@@ -322,7 +322,7 @@ function AccountPage() {
           
           <div className="grid gap-6 md:grid-cols-2">
             {/* Wallet Card */}
-            <div className="rounded-2xl border border-border bg-card shadow-card p-6 flex flex-col items-center text-center justify-center">
+            <div className="rounded-xl border border-border bg-card shadow-xs p-6 flex flex-col items-center text-center justify-center">
               <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">Available Store Credit</p>
               {profile ? (
                 <p className="font-display text-4xl font-extrabold text-primary">
@@ -337,7 +337,7 @@ function AccountPage() {
             </div>
 
             {/* Share Link Card */}
-            <div className="rounded-2xl border border-border bg-card shadow-card p-6 flex flex-col justify-center">
+            <div className="rounded-xl border border-border bg-card shadow-xs p-6 flex flex-col justify-center">
               <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Your Referral Link</p>
               
               {profile?.referral_code ? (
