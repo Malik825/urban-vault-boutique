@@ -108,7 +108,10 @@ function Landing() {
 
   const filteredProducts = products.filter((p) => {
     if (activeCategoryTab === "All") return true;
-    return p.category.toLowerCase() === activeCategoryTab.toLowerCase();
+    const cat = p.category.toLowerCase();
+    const tab = activeCategoryTab.toLowerCase();
+    const gender = (p.specs["Gender"] || "").toLowerCase();
+    return cat.includes(tab) || gender.includes(tab) || p.name.toLowerCase().includes(tab);
   });
 
   const featuredBoutiqueProducts = filteredProducts.slice(0, 8);
@@ -293,7 +296,7 @@ function Landing() {
 
             {/* Category Filter Pills */}
             <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-1">
-              {["All", "Shirts", "Footwear", "Men", "Women", "Kids"].map((tab) => (
+              {["All", "Shirts", "Footwear", "Men", "Women", "African Wear"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveCategoryTab(tab)}
