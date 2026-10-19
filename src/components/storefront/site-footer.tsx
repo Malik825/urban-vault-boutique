@@ -46,8 +46,8 @@ export function SiteFooter() {
                 <ShieldCheck className="h-4 w-4" />
               </span>
               <div>
-                <p className="font-bold text-foreground">Verified Hardware</p>
-                <p className="text-muted-foreground">Transparent condition grading</p>
+                <p className="font-bold text-foreground">Verified Authentic</p>
+                <p className="text-muted-foreground">100% genuine boutique quality</p>
               </div>
             </div>
           </div>

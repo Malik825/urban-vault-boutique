@@ -133,7 +133,7 @@ export function ProductCard({
   const body = (
     <div
       className={`flex flex-1 flex-col justify-between gap-3 ${
-        variant === "wide" ? "p-4 sm:p-5" : variant === "featured" ? "p-4 sm:p-5" : view === "list" ? "p-4 sm:p-5" : "p-4"
+        variant === "wide" ? "p-4 sm:p-5" : variant === "featured" ? "p-4 sm:p-5" : view === "list" ? "p-4 sm:p-5" : "p-3 sm:p-4"
       }`}
     >
       <div>
@@ -184,13 +184,13 @@ export function ProductCard({
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <Button
             variant="outline"
             size="icon"
             aria-label="Enquire on WhatsApp"
             title="Enquire on WhatsApp"
-            className="h-9 w-9 rounded-xl border-border text-primary hover:border-primary hover:bg-primary/10 shrink-0"
+            className="h-8.5 w-8.5 sm:h-9 sm:w-9 rounded-xl border-border text-primary hover:border-primary hover:bg-primary/10 shrink-0"
             asChild
           >
             <a
@@ -202,6 +202,7 @@ export function ProductCard({
             </a>
           </Button>
 
+          {/* Hide compare on compact mobile view so Add to cart has plenty of room */}
           <Button
             variant="outline"
             size="icon"
@@ -216,7 +217,7 @@ export function ProductCard({
                 toast.success("Added to compare");
               }
             }}
-            className={`h-9 w-9 rounded-xl border-border shrink-0 ${comparing ? "border-primary text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"}`}
+            className={`hidden sm:inline-flex h-9 w-9 rounded-xl border-border shrink-0 ${comparing ? "border-primary text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"}`}
           >
             <Repeat2 className="h-4 w-4" />
           </Button>
@@ -233,10 +234,10 @@ export function ProductCard({
                 toast.success(`${product.name} added to cart`);
               }
             }}
-            className="h-9 flex-1 bg-primary hover:bg-primary-deep text-primary-foreground font-semibold text-xs sm:text-sm rounded-xl gap-1.5 shadow-sm transition-colors"
+            className="h-8.5 sm:h-9 flex-1 min-w-0 px-2 sm:px-3 bg-primary hover:bg-primary-deep text-primary-foreground font-semibold text-xs sm:text-sm rounded-xl gap-1 sm:gap-1.5 shadow-sm transition-colors whitespace-nowrap"
           >
-            <ShoppingCart className="h-4 w-4" />
-            <span>{product.stock === 0 ? "Out of stock" : "Add to cart"}</span>
+            <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+            <span className="truncate">{product.stock === 0 ? "Out of stock" : "Add to cart"}</span>
           </Button>
         </div>
       </div>
