@@ -47,6 +47,7 @@ type ProductSearch = {
   q?: string | undefined;
   brand?: string | undefined;
   category?: string | undefined;
+  department?: string | undefined;
   deals?: boolean | undefined;
   sort?: string | undefined;
   page?: number | undefined;
@@ -57,6 +58,7 @@ export const Route = createFileRoute("/products")({
     q: typeof search["q"] === "string" ? (search["q"] as string) : undefined,
     brand: typeof search["brand"] === "string" ? (search["brand"] as string) : undefined,
     category: typeof search["category"] === "string" ? (search["category"] as string) : undefined,
+    department: typeof search["department"] === "string" ? (search["department"] as string) : undefined,
     deals: search["deals"] === true || search["deals"] === "true" ? true : undefined,
     sort: typeof search["sort"] === "string" ? (search["sort"] as string) : undefined,
     page: search["page"] ? Number(search["page"]) : undefined,
@@ -80,7 +82,7 @@ export const Route = createFileRoute("/products")({
   component: Listing,
 });
 
-const MAX_PRICE = 28000;
+const MAX_PRICE = 5000;
 
 function Listing() {
   const products: CatalogProduct[] = Route.useLoaderData();
@@ -92,13 +94,11 @@ function Listing() {
   const [sort, setSort] = useState(search.sort ?? "relevance");
   const [price, setPrice] = useState<number[]>([0, MAX_PRICE]);
   const [sel, setSel] = useState<Record<string, string[]>>({
+    department: search.department ? [search.department] : [],
     brand: search.brand ? [search.brand] : [],
     category: search.category ? [search.category] : [],
     condition: [],
-    ram: [],
-    storage: [],
-    processor: [],
-    screen: [],
+    size: [],
     availability: [],
   });
 
@@ -146,27 +146,48 @@ function Listing() {
           .includes(q),
       );
     const has = (g: string, v: string) => (sel[g]?.length ? sel[g]!.includes(v) : true);
-    list = list.filter(
-      (p) =>
-        has("brand", p.brand) &&
-        has("category", p.category) &&
-        has("condition", p.condition) &&
-        (sel["ram"]?.length ? sel["ram"].includes(p.specs["RAM"] ?? "") : true) &&
-        (sel["storage"]?.length ? sel["storage"].includes(p.specs["Storage"] ?? "") : true) &&
-        (sel["processor"]?.length
-          ? sel["processor"].some((v) => (p.specs["Processor"] ?? "").includes(v))
-          : true) &&
-        (sel["screen"]?.length ? sel["screen"].includes(p.specs["Screen Size"] ?? "") : true) &&
-        (sel["availability"]?.includes("In stock") ? p.stock > 0 : true) &&
-        p.price >= price[0]! &&
-        p.price <= price[1]!,
-    );
+    list = list.filter((p) => {
+      // Department filter
+      const deptFilter = sel["department"]?.[0] || search.department;
+      if (deptFilter && deptFilter !== "All") {
+        const pGender = (p.specs["Gender"] || "").toLowerCase();
+        const pCat = (p.category || "").toLowerCase();
+        const pName = (p.name || "").toLowerCase();
+        const target = deptFilter.toLowerCase();
+        const matches = pGender.includes(target) || pGender === "unisex" || pCat.includes(target) || pName.includes(target);
+        if (!matches) return false;
+      }
+
+      // Category filter
+      if (!has("category", p.category)) return false;
+
+      // Brand filter
+      if (!has("brand", p.brand)) return false;
+
+      // Condition filter
+      if (!has("condition", p.condition)) return false;
+
+      // Size filter
+      if (sel["size"]?.length) {
+        const pSizes = (p.specs["Sizes"] || p.specs["Size"] || p.specs["Fit"] || "");
+        const hasSize = sel["size"].some((s) => pSizes.includes(s));
+        if (!hasSize) return false;
+      }
+
+      // Availability filter
+      if (sel["availability"]?.includes("In stock") && p.stock <= 0) return false;
+
+      // Price filter
+      if (p.price < price[0]! || p.price > price[1]!) return false;
+
+      return true;
+    });
     if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
     if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
     if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
     if (sort === "newest") list = [...list].reverse();
     return list;
-  }, [query, sel, price, sort, search.deals]);
+  }, [query, sel, price, sort, search.deals, search.department]);
 
   const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
   const safePage = Math.min(Math.max(1, currentPage), totalPages);
@@ -188,13 +209,13 @@ function Listing() {
 
   const filters = (
     <div className="space-y-6">
-      <FilterGroup title="Price">
+      <FilterGroup title="Price Range">
         <Slider
           value={price}
           onValueChange={setPrice}
           min={0}
           max={MAX_PRICE}
-          step={50000}
+          step={50}
           className="mt-2"
         />
         <div className="mt-3 flex items-center justify-between text-xs font-medium text-muted-foreground">
@@ -203,7 +224,13 @@ function Listing() {
         </div>
       </FilterGroup>
 
-      <CheckGroup title="Brand" group="brand" options={filterOptions.brand} sel={sel} toggle={toggle} />
+      <CheckGroup
+        title="Department"
+        group="department"
+        options={filterOptions.department.filter((d) => d !== "All")}
+        sel={sel}
+        toggle={toggle}
+      />
       <CheckGroup
         title="Category"
         group="category"
@@ -212,45 +239,17 @@ function Listing() {
         toggle={toggle}
       />
       <CheckGroup
+        title="Size / Fit"
+        group="size"
+        options={filterOptions.size}
+        sel={sel}
+        toggle={toggle}
+      />
+      <CheckGroup title="Brand" group="brand" options={filterOptions.brand} sel={sel} toggle={toggle} />
+      <CheckGroup
         title="Condition"
         group="condition"
         options={filterOptions.condition}
-        sel={sel}
-        toggle={toggle}
-      />
-      <CheckGroup
-        title="Size"
-        group="size"
-        options={(filterOptions as any).size}
-        sel={sel}
-        toggle={toggle}
-      />
-      <CheckGroup
-        title="Gender"
-        group="gender"
-        options={(filterOptions as any).gender}
-        sel={sel}
-        toggle={toggle}
-      />
-      <CheckGroup title="RAM" group="ram" options={filterOptions.ram} sel={sel} toggle={toggle} />
-      <CheckGroup
-        title="Storage"
-        group="storage"
-        options={filterOptions.storage}
-        sel={sel}
-        toggle={toggle}
-      />
-      <CheckGroup
-        title="Processor"
-        group="processor"
-        options={filterOptions.processor}
-        sel={sel}
-        toggle={toggle}
-      />
-      <CheckGroup
-        title="Screen size"
-        group="screen"
-        options={filterOptions.screen}
         sel={sel}
         toggle={toggle}
       />
@@ -308,7 +307,41 @@ function Listing() {
           </div>
         </header>
 
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+        {/* Department & Quick Filter Pills */}
+        <div className="mt-5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          {filterOptions.department.map((dept) => {
+            const currentDept = sel["department"]?.[0] || search.department || "All";
+            const isSelected = currentDept === dept || (dept === "All" && (!sel["department"]?.length && !search.department));
+            return (
+              <button
+                key={dept}
+                type="button"
+                onClick={() => {
+                  setSel((prev) => ({
+                    ...prev,
+                    department: dept === "All" ? [] : [dept],
+                  }));
+                  navigate({
+                    search: ((prev: any) => ({
+                      ...prev,
+                      department: dept === "All" ? undefined : dept,
+                      page: undefined,
+                    })) as never,
+                  });
+                }}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-all ${
+                  isSelected
+                    ? "bg-foreground text-background shadow-xs"
+                    : "bg-surface-muted text-muted-foreground hover:text-foreground hover:bg-muted border border-border/60"
+                }`}
+              >
+                {dept === "All" ? "All Collections" : `${dept}'s Wear`}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative min-w-0 flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input

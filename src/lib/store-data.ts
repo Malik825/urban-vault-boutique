@@ -95,44 +95,181 @@ export const brands = [
   { name: "Zara Exclusive", products: 16, share: 11 },
 ];
 
-export const categories = [
+export const DEPARTMENTS = ["All", "Men", "Women", "Unisex"] as const;
+export type Department = (typeof DEPARTMENTS)[number];
+
+export interface CategoryTaxonomy {
+  id: string;
+  name: string;
+  department: "Men" | "Women" | "Unisex" | "All";
+  image: string;
+  blurb: string;
+  count: number;
+  subcategories: string[];
+}
+
+export const CATEGORIES_TAXONOMY: CategoryTaxonomy[] = [
   {
-    name: "Shirts",
-    count: 64,
+    id: "tops-shirts",
+    name: "Tops & Shirts",
+    department: "All",
     image: "/boutique/category_shirts_1792394774964.jpg",
-    blurb: "Oversized graphic tees, Cuban collar linen, luxury button-downs",
+    blurb: "Heavyweight boxy tees, polo shirts, Cuban linen & long-sleeve luxury button-downs",
+    count: 64,
+    subcategories: [
+      "T-shirts",
+      "Polo shirts",
+      "Shirts (long sleeve)",
+      "Shirts (short sleeve)",
+      "Hoodies & Sweatshirts",
+      "Basic tops & Singlets",
+    ],
   },
   {
-    name: "Footwear",
-    count: 42,
-    image: "/boutique/category_footwear_1792394799875.jpg",
-    blurb: "Chunky platform sneakers, retro runners, leather mules & slides",
+    id: "african-traditional",
+    name: "African & Traditional Wear",
+    department: "All",
+    image: "https://images.unsplash.com/photo-1590736969955-71cc94801759?auto=format&fit=crop&w=800&q=80",
+    blurb: "Handcrafted Asante-made clothing, luxury men's kaftan sets, Ankara fashion & two-piece sets",
+    count: 38,
+    subcategories: [
+      "Men's kaftan sets",
+      "Kaftans",
+      "Asante-made clothing",
+      "Traditional wear",
+      "African wear",
+      "Ankara clothings",
+      "Top and down wear (two-piece sets)",
+    ],
   },
   {
-    name: "Men",
-    count: 85,
-    image: "https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?auto=format&fit=crop&w=800&q=80",
-    blurb: "Tailored cargo trousers, relaxed heavyweight hoodies & jackets",
+    id: "bottoms-trousers",
+    name: "Bottoms & Trousers",
+    department: "All",
+    image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=80",
+    blurb: "Vintage wash denim jeans, heavyweight fleece joggers, cargo pants & loungewear",
+    count: 45,
+    subcategories: ["Jeans", "Joggers", "Skirts", "Boxers", "Underwear"],
   },
   {
-    name: "Women",
-    count: 78,
+    id: "dresses-skirts",
+    name: "Dresses & Skirts",
+    department: "Women",
     image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80",
-    blurb: "Chic co-ord sets, parachute pants, ribbed knit tops & outerwear",
+    blurb: "Straight dresses, mini dresses, high-waist skirts & chic statement pieces",
+    count: 29,
+    subcategories: ["Straight dresses", "Mini dresses", "Skirts", "Shein / unbranded", "Official wears"],
   },
   {
-    name: "Kids",
-    count: 32,
-    image: "https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?auto=format&fit=crop&w=800&q=80",
-    blurb: "Mini streetwear tracksuits, graphic tees & everyday sneakers",
+    id: "suits-tailoring",
+    name: "Suits & Tailoring",
+    department: "All",
+    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80",
+    blurb: "Bespoke wedding suits, executive official wear, blazers & premium leather jackets",
+    count: 22,
+    subcategories: [
+      "Wedding suits",
+      "Official wears",
+      "Jackets",
+      "Leather jackets",
+      "Top and down wear (two-piece sets)",
+    ],
   },
   {
-    name: "Accessories",
-    count: 51,
+    id: "footwear",
+    name: "Footwear",
+    department: "All",
+    image: "/boutique/category_footwear_1792394799875.jpg",
+    blurb: "Designer sneakers, classic leather dress shoes, heels, slippers & traditional sandals",
+    count: 56,
+    subcategories: [
+      "Sneakers",
+      "Heels",
+      "Leather shoes",
+      "Sandals",
+      "Men's traditional sandals",
+      "Slippers",
+      "Sports shoes",
+      "Socks",
+    ],
+  },
+  {
+    id: "bags-luggage",
+    name: "Bags & Luggage",
+    department: "All",
+    image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80",
+    blurb: "Structured crossbody bags, luxury tote bags, clutches, purses & weekend travel bags",
+    count: 34,
+    subcategories: [
+      "Tote bags",
+      "Crossbody bags",
+      "Corporate bags",
+      "Clutch bags",
+      "Mini bags",
+      "Purse",
+      "Travel bags",
+      "Shoe bags",
+    ],
+  },
+  {
+    id: "jewelry-timepieces",
+    name: "Jewelry & Timepieces",
+    department: "All",
+    image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80",
+    blurb: "Luxury stainless & gold timepieces, cuban chain necklaces, bracelets, bangles & rings",
+    count: 48,
+    subcategories: [
+      "Watches",
+      "Necklaces",
+      "Bracelets",
+      "Bangles",
+      "Mini bangles",
+      "Rings",
+      "Earrings",
+    ],
+  },
+  {
+    id: "accessories-headwear",
+    name: "Accessories & Headwear",
+    department: "All",
     image: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80",
-    blurb: "Crossbody utility bags, vintage caps, eyewear & jewelry",
+    blurb: "UV-protected shades, leather belts, slim wallets, vintage caps, hats, ties & bow ties",
+    count: 40,
+    subcategories: [
+      "Sunglasses / Shades",
+      "Belts",
+      "Wallets",
+      "Caps",
+      "Hats",
+      "Ties",
+      "Bow ties",
+      "Handkerchiefs",
+    ],
+  },
+  {
+    id: "fragrance-grooming",
+    name: "Fragrance & Grooming",
+    department: "All",
+    image: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80",
+    blurb: "Signature Arabian perfumes, long-lasting body sprays, roll-ons & hair styling essentials",
+    count: 26,
+    subcategories: [
+      "Perfumes",
+      "Body sprays",
+      "Deodorants",
+      "Roll-on",
+      "Hair styling products",
+    ],
   },
 ];
+
+export const categories = CATEGORIES_TAXONOMY.map((c) => ({
+  name: c.name,
+  count: c.count,
+  image: c.image,
+  blurb: c.blurb,
+}));
+
 
 function makeBoutiqueProduct(
   i: number,
@@ -350,15 +487,28 @@ export const products: Product[] = [
 ];
 
 export const filterOptions = {
-  brand: brands.map((b) => b.name),
+  department: ["All", "Men", "Women", "Unisex"],
   category: categories.map((c) => c.name),
+  brand: brands.map((b) => b.name),
   condition: ["New", "Limited Edition", "Deadstock"],
-  size: ["S", "M", "L", "XL", "XXL", "EU 39", "EU 40", "EU 41", "EU 42", "EU 43", "EU 44", "EU 45"],
-  gender: ["Unisex", "Men", "Women", "Kids"],
-  ram: [] as string[],
-  storage: [] as string[],
-  processor: [] as string[],
-  screen: [] as string[],
+  size: [
+    "XS",
+    "S",
+    "M",
+    "L",
+    "XL",
+    "XXL",
+    "3XL",
+    "EU 38",
+    "EU 39",
+    "EU 40",
+    "EU 41",
+    "EU 42",
+    "EU 43",
+    "EU 44",
+    "EU 45",
+  ],
+  gender: ["Unisex", "Men", "Women"],
 };
 
 export const popularSearches = [

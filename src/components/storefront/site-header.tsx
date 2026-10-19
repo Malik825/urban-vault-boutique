@@ -24,10 +24,11 @@ import { CartDrawer } from "./cart-drawer";
 import { ThemeToggle } from "./theme-toggle";
 
 const NAV_LINKS = [
-  { label: "Home", to: "/" as const },
-  { label: "Shop", to: "/products" as const, search: {} },
-  { label: "Categories", to: "/products" as const, search: {} },
-  { label: "About", to: "/about" as const },
+  { label: "All Collections", to: "/products" as const, search: {} },
+  { label: "Men's Wear", to: "/products" as const, search: { department: "Men" } },
+  { label: "Women's Wear", to: "/products" as const, search: { department: "Women" } },
+  { label: "African & Traditional", to: "/products" as const, search: { category: "African & Traditional Wear" } },
+  { label: "About", to: "/about" as const, search: {} },
 ];
 
 /* ── Main header ─────────────────────────────────────────── */
@@ -244,7 +245,19 @@ export function SiteHeader() {
                   </button>
 
                   <button onClick={() => { setMobileOpen(false); navigate({ to: "/products", search: {} }); }} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">
-                    <LayoutGrid className="h-4 w-4 shrink-0 text-primary" /> All Products
+                    <LayoutGrid className="h-4 w-4 shrink-0 text-primary" /> All Collections
+                  </button>
+
+                  <button onClick={() => { setMobileOpen(false); navigate({ to: "/products", search: { department: "Men" } }); }} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">
+                    <span className="text-sm">👔</span> Men's Wear
+                  </button>
+
+                  <button onClick={() => { setMobileOpen(false); navigate({ to: "/products", search: { department: "Women" } }); }} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">
+                    <span className="text-sm">👗</span> Women's Wear
+                  </button>
+
+                  <button onClick={() => { setMobileOpen(false); navigate({ to: "/products", search: { category: "African & Traditional Wear" } }); }} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted">
+                    <span className="text-sm">✨</span> African & Traditional Wear
                   </button>
 
                   <div className="mt-3 border-t border-border pt-3">

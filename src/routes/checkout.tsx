@@ -35,6 +35,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
+import { createCustomerOrder } from "@/lib/order.functions";
 import { formatPrice, STORE, GHANA_REGIONS, whatsappLink } from "@/lib/store-data";
 
 export const Route = createFileRoute("/checkout")({
@@ -85,6 +87,7 @@ const PROMO_CODES: Record<string, { discountPercent?: number; freeShipping?: boo
 };
 
 function CheckoutPage() {
+  const { user } = useAuth();
   const { items, subtotal, clearCart } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderConfirmation, setOrderConfirmation] = useState<OrderConfirmationData | null>(null);
@@ -102,6 +105,21 @@ function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("momo");
   const [momoProvider, setMomoProvider] = useState("MTN Mobile Money");
   const [momoNumber, setMomoNumber] = useState("");
+
+  // Pre-fill user data if authenticated
+  useEffect(() => {
+    if (user) {
+      if (user.email && !email) setEmail(user.email);
+      const fullName = (user.user_metadata?.full_name as string) || "";
+      if (fullName) {
+        const parts = fullName.split(" ");
+        if (!firstName) setFirstName(parts[0] || "");
+        if (!lastName) setLastName(parts.slice(1).join(" ") || "");
+      }
+      const userPhone = (user.user_metadata?.phone as string) || "";
+      if (userPhone && !phone) setPhone(userPhone);
+    }
+  }, [user]);
 
   // Promo Code State
   const [promoInput, setPromoInput] = useState("");
@@ -136,61 +154,91 @@ function CheckoutPage() {
     toast.info("Coupon removed");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) {
       toast.error("Your cart is empty");
       return;
     }
 
-    setIsSubmitting(true);
-    const generatedId = `UV-${Math.floor(100000 + Math.random() * 900000)}`;
+    if (!phone.trim()) {
+      toast.error("Please enter a valid Ghana phone or WhatsApp number");
+      return;
+    }
 
-    setTimeout(() => {
+    if (deliveryMethod === "delivery" && !address.trim()) {
+      toast.error("Please provide a delivery street address");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
       let paymentLabel = "Cash on Delivery";
       if (paymentMethod === "cod") paymentLabel = "Cash on Delivery (Pay on Arrival)";
       else if (paymentMethod === "card") paymentLabel = "Debit/Credit Card (Paystack)";
       else if (paymentMethod === "momo") paymentLabel = `Mobile Money (${momoProvider})`;
       else if (paymentMethod === "whatsapp") paymentLabel = "WhatsApp Direct Order";
 
+      const res = await createCustomerOrder({
+        data: {
+          userId: user?.id,
+          firstName: firstName.trim() || "Customer",
+          lastName: lastName.trim(),
+          email: email.trim() || (user?.email ?? "orders@urbanvaultgh.com"),
+          phone: phone.trim(),
+          deliveryMethod,
+          address: deliveryMethod === "pickup" ? STORE.pickupLocation : address,
+          city: deliveryMethod === "pickup" ? "Accra" : city,
+          region: deliveryMethod === "pickup" ? "Greater Accra" : region,
+          paymentMethod: paymentLabel,
+          momoProvider,
+          promoCode: appliedPromo || undefined,
+          items: items.map((i) => ({
+            id: (i.product as any).dbId || i.product.id || (i.product as any).sku,
+            qty: i.qty,
+            name: i.product.name,
+            price: i.product.price,
+            image: i.product.images[0] || "/placeholder.jpg",
+          })),
+        },
+      });
+
       const confirmation: OrderConfirmationData = {
-        orderId: generatedId,
-        customerName: `${firstName} ${lastName}`.trim() || "Customer",
-        email: email || "customer@example.com",
-        phone: phone || "+233 24 000 0000",
-        deliveryMethod,
-        address: deliveryMethod === "pickup" ? STORE.pickupLocation : address,
-        city: deliveryMethod === "pickup" ? "Accra" : city,
-        region: deliveryMethod === "pickup" ? "Greater Accra" : region,
-        items: items.map((i) => ({
-          id: i.product.id,
-          name: i.product.name,
-          price: i.product.price,
-          qty: i.qty,
-          image: i.product.images[0] || "/placeholder.jpg",
-          condition: i.product.condition,
+        orderId: res.orderNumber,
+        customerName: res.customerName,
+        email: res.email,
+        phone: res.phone,
+        deliveryMethod: res.deliveryMethod,
+        address: res.address,
+        city: res.city,
+        region: res.region,
+        items: res.items.map((i: any) => ({
+          id: i.product_id,
+          name: i.product_name,
+          price: i.unit_price,
+          qty: i.quantity,
+          image: i.image || "/placeholder.jpg",
+          condition: "New",
         })),
-        subtotal,
-        discount: discountAmount,
-        promoCode: appliedPromo,
-        shipping,
-        total,
-        paymentMethod: paymentLabel,
-        momoProvider,
-        createdAt: new Date().toLocaleDateString("en-GH", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
+        subtotal: res.subtotal,
+        discount: res.discount,
+        promoCode: res.promoCode,
+        shipping: res.shipping,
+        total: res.total,
+        paymentMethod: res.paymentMethod,
+        momoProvider: res.momoProvider,
+        createdAt: res.createdAt,
       };
 
       setOrderConfirmation(confirmation);
-      setIsSubmitting(false);
       clearCart();
-      toast.success("Order placed! We'll confirm via WhatsApp shortly.");
-    }, 1200);
+      toast.success(`Order ${res.orderNumber} successfully registered!`);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to process order. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const copyOrderId = () => {
@@ -367,6 +415,35 @@ function CheckoutPage() {
             <ChevronRight className="h-3.5 w-3.5" />
             <span className="font-semibold text-foreground">Checkout</span>
           </nav>
+
+          {/* Account & Guest Status Banner */}
+          {user ? (
+            <div className="mb-6 rounded-2xl border border-primary/20 bg-primary-soft/30 p-4 flex items-center justify-between gap-3 text-sm">
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
+                <span className="text-xs sm:text-sm text-foreground">
+                  Signed in as <strong>{user.email}</strong>. This purchase will be securely linked to your account.
+                </span>
+              </div>
+              <Button asChild variant="ghost" size="sm" className="text-xs text-primary font-semibold shrink-0">
+                <Link to="/account">My Account</Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="mb-6 rounded-2xl border border-border bg-surface-muted/60 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
+              <div className="flex items-center gap-2.5 text-muted-foreground">
+                <Info className="h-4 w-4 text-muted-foreground shrink-0" />
+                <span className="text-xs sm:text-sm">
+                  Have an account? Sign in for saved delivery addresses & express checkout, or continue as guest.
+                </span>
+              </div>
+              <Button asChild variant="outline" size="sm" className="text-xs shrink-0 font-medium">
+                <Link to="/auth" search={{ redirect: "/checkout" }}>
+                  Sign In / Register
+                </Link>
+              </Button>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* 1. Contact Information */}

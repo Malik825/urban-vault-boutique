@@ -33,6 +33,8 @@ export const Route = createFileRoute("/_authenticated/account")({
   component: AccountPage,
 });
 
+import { listCustomerOrders } from "@/lib/order.functions";
+
 const STATUS_COLORS: Record<string, string> = {
   pending: "bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-200 dark:border-amber-800",
   processing: "bg-sky-100 text-sky-900 border-sky-300 dark:bg-sky-950 dark:text-sky-200 dark:border-sky-800",
@@ -41,30 +43,14 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: "bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-200 dark:border-rose-800",
 };
 
-// Placeholder orders — swap with real Supabase fetch once migration is run
-const PLACEHOLDER_ORDERS = [
-  {
-    id: "ORD-001",
-    status: "delivered",
-    total: 2450000,
-    created_at: "2026-08-10T09:30:00Z",
-    items: [{ name: "MacBook Pro 14 M3 Pro", qty: 1, price: 2450000 }],
-  },
-  {
-    id: "ORD-002",
-    status: "shipped",
-    total: 1590000,
-    created_at: "2026-08-15T14:10:00Z",
-    items: [{ name: "iPhone 15 Pro Max 256GB", qty: 1, price: 1590000 }],
-  },
-];
-
 function AccountPage() {
   const { user, isAdmin, signOut } = useAuth();
   const { wishlist } = useWishlist();
   const { compareList } = useCompare();
   const { items: cartItems, count: cartCount } = useCart();
   const [profile, setProfile] = useState<any>(null);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -75,6 +61,17 @@ function AccountPage() {
         .single()
         .then(({ data }) => {
           if (data) setProfile(data);
+        });
+
+      listCustomerOrders({ data: { userId: user.id } })
+        .then((data) => {
+          setOrders(data || []);
+        })
+        .catch((err) => {
+          console.error("Failed to load customer orders:", err);
+        })
+        .finally(() => {
+          setLoadingOrders(false);
         });
     }
   }, [user]);
@@ -161,7 +158,7 @@ function AccountPage() {
             {
               icon: Package,
               label: "Orders",
-              value: PLACEHOLDER_ORDERS.length,
+              value: orders.length,
               to: "/account" as any,
               search: {},
             },
@@ -203,12 +200,18 @@ function AccountPage() {
             <h2 className="font-display text-xl font-extrabold">Order History</h2>
           </div>
 
-          {PLACEHOLDER_ORDERS.length === 0 ? (
+          {loadingOrders ? (
+            <div className="mt-6 flex flex-col gap-4">
+              {[1, 2].map((i) => (
+                <div key={i} className="h-28 rounded-xl border border-border bg-surface-muted/40 animate-pulse" />
+              ))}
+            </div>
+          ) : orders.length === 0 ? (
             <div className="mt-8 flex flex-col items-center gap-4 rounded-xl border border-dashed border-border py-16 text-center">
               <Clock className="h-10 w-10 text-muted-foreground" />
               <p className="font-medium">No orders yet</p>
               <p className="text-sm text-muted-foreground">
-                Orders you place will appear here.
+                Orders you place will appear here in real time.
               </p>
               <Button asChild size="sm">
                 <Link to="/products" search={{}}>
@@ -218,61 +221,83 @@ function AccountPage() {
             </div>
           ) : (
             <div className="mt-6 flex flex-col gap-4">
-              {PLACEHOLDER_ORDERS.map((order) => (
-                <div
-                  key={order.id}
-                  className="overflow-hidden rounded-xl border border-border bg-card shadow-xs"
-                >
-                  {/* Order header */}
-                  <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-surface-muted px-5 py-3">
-                    <div className="flex items-center gap-4">
-                      <p className="font-mono text-xs font-semibold text-muted-foreground">
-                        {order.id}
-                      </p>
-                      <span
-                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold capitalize ${
-                          STATUS_COLORS[order.status] ?? ""
-                        }`}
-                      >
-                        {order.status}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(order.created_at).toLocaleDateString("en-GH", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </p>
-                  </div>
+              {orders.map((order) => {
+                const orderNumber =
+                  order.shipping_address?.orderNumber ||
+                  `UV-${order.id.slice(0, 8).toUpperCase()}`;
 
-                  {/* Order items */}
-                  <div className="divide-y divide-border">
-                    {order.items.map((item, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between gap-4 px-5 py-3"
-                      >
-                        <div>
-                          <p className="text-sm font-semibold">{item.name}</p>
-                          <p className="text-xs text-muted-foreground">Qty: {item.qty}</p>
+                const orderItems =
+                  order.order_items && order.order_items.length > 0
+                    ? order.order_items
+                    : order.shipping_address?.items || [];
+
+                return (
+                  <div
+                    key={order.id}
+                    className="overflow-hidden rounded-xl border border-border bg-card shadow-xs"
+                  >
+                    {/* Order header */}
+                    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-surface-muted px-5 py-3">
+                      <div className="flex items-center gap-4">
+                        <p className="font-mono text-xs font-semibold text-muted-foreground">
+                          {orderNumber}
+                        </p>
+                        <span
+                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold capitalize ${
+                            STATUS_COLORS[order.status] ?? "bg-surface-muted text-muted-foreground"
+                          }`}
+                        >
+                          {order.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(order.created_at).toLocaleDateString("en-GH", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+
+                    {/* Order items */}
+                    <div className="divide-y divide-border">
+                      {orderItems.map((item: any, i: number) => (
+                        <div
+                          key={i}
+                          className="flex items-center justify-between gap-4 px-5 py-3"
+                        >
+                          <div>
+                            <p className="text-sm font-semibold">{item.product_name || item.name}</p>
+                            <p className="text-xs text-muted-foreground">Qty: {item.quantity || item.qty}</p>
+                          </div>
+                          <p className="font-display text-sm font-bold">
+                            {formatPrice(item.unit_price || item.price || 0)}
+                          </p>
                         </div>
-                        <p className="font-display text-sm font-bold">
-                          {formatPrice(item.price)}
+                      ))}
+                    </div>
+
+                    {/* Order footer */}
+                    <div className="flex items-center justify-between gap-4 border-t border-border px-5 py-3 bg-surface-muted/30">
+                      <div>
+                        {order.shipping_address?.deliveryMethod && (
+                          <p className="text-xs text-muted-foreground">
+                            {order.shipping_address.deliveryMethod === "pickup"
+                              ? "Showroom Pickup"
+                              : `Delivery: ${order.shipping_address.city || "Ghana"}`}
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">Order total</p>
+                        <p className="font-display text-base font-extrabold">
+                          {formatPrice(order.total)}
                         </p>
                       </div>
-                    ))}
+                    </div>
                   </div>
-
-                  {/* Order footer */}
-                  <div className="flex items-center justify-between gap-4 border-t border-border px-5 py-3">
-                    <p className="text-sm text-muted-foreground">Order total</p>
-                    <p className="font-display text-base font-extrabold">
-                      {formatPrice(order.total)}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
