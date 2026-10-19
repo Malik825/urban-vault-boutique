@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /** Read theme from the actual <html> class – matches the anti-flicker script */
 function getActiveTheme(): "light" | "dark" {
@@ -19,10 +20,8 @@ function applyTheme(theme: "light" | "dark") {
 }
 
 export function ThemeToggle({ className = "" }: { className?: string }) {
-  // Initialise from the *actual* DOM so it matches the anti-flicker script
   const [theme, setTheme] = useState<"light" | "dark">(getActiveTheme);
 
-  // Sync across tabs
   useEffect(() => {
     function onStorage(e: StorageEvent) {
       if (e.key === "voltix-theme-mode" && (e.newValue === "light" || e.newValue === "dark")) {
@@ -41,42 +40,20 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
   };
 
   return (
-    <>
-      {/* Mobile compact icon button (h-8 w-8) */}
-      <button
-        type="button"
-        onClick={toggleTheme}
-        aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-        className={`sm:hidden h-8 w-8 rounded-full border border-border/70 bg-muted/40 hover:bg-muted grid place-items-center text-muted-foreground hover:text-foreground active:scale-95 transition-all shrink-0 ${className}`}
-      >
-        {theme === "light" ? (
-          <Sun className="h-4 w-4 text-amber-500" />
-        ) : (
-          <Moon className="h-4 w-4 text-primary" />
-        )}
-      </button>
-
-      {/* Desktop pill switch */}
-      <button
-        type="button"
-        onClick={toggleTheme}
-        aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-        className={`hidden sm:inline-flex theme-toggle ${className}`}
-        data-theme={theme}
-      >
-        <span className="theme-toggle__track">
-          <span className="theme-toggle__thumb">
-            {theme === "light" ? (
-              <Sun className="theme-toggle__icon" />
-            ) : (
-              <Moon className="theme-toggle__icon" />
-            )}
-          </span>
-        </span>
-        <span className="theme-toggle__label">
-          {theme === "light" ? "Light" : "Dark"}
-        </span>
-      </button>
-    </>
+    <Button
+      variant="ghost"
+      size="icon"
+      type="button"
+      onClick={toggleTheme}
+      aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+      title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+      className={`rounded-full h-8 w-8 sm:h-9 sm:w-9 text-muted-foreground hover:text-foreground active:scale-95 transition-transform shrink-0 ${className}`}
+    >
+      {theme === "light" ? (
+        <Sun className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
+      ) : (
+        <Moon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+      )}
+    </Button>
   );
 }

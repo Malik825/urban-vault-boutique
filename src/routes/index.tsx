@@ -111,7 +111,51 @@ function Landing() {
     const cat = p.category.toLowerCase();
     const tab = activeCategoryTab.toLowerCase();
     const gender = (p.specs["Gender"] || "").toLowerCase();
-    return cat.includes(tab) || gender.includes(tab) || p.name.toLowerCase().includes(tab);
+    const name = p.name.toLowerCase();
+
+    if (tab === "clothing") {
+      return (
+        cat.includes("shirt") ||
+        cat.includes("top") ||
+        cat.includes("bottom") ||
+        cat.includes("suit") ||
+        cat.includes("dress") ||
+        cat.includes("hoodie") ||
+        cat.includes("jacket") ||
+        cat.includes("jean") ||
+        cat.includes("jogger")
+      );
+    }
+    if (tab === "shoes") {
+      return (
+        cat.includes("footwear") ||
+        cat.includes("shoe") ||
+        name.includes("sneaker") ||
+        name.includes("shoe") ||
+        name.includes("sandal") ||
+        name.includes("slipper")
+      );
+    }
+    if (tab === "accessories") {
+      return (
+        cat.includes("accessories") ||
+        cat.includes("jewelry") ||
+        cat.includes("bag") ||
+        cat.includes("fragrance") ||
+        cat.includes("watch") ||
+        cat.includes("belt") ||
+        cat.includes("wallet")
+      );
+    }
+    if (tab === "african wear") {
+      return (
+        cat.includes("african") ||
+        cat.includes("traditional") ||
+        name.includes("kaftan") ||
+        name.includes("asante")
+      );
+    }
+    return cat.includes(tab) || gender.includes(tab) || name.includes(tab);
   });
 
   const featuredBoutiqueProducts = filteredProducts.slice(0, 8);
@@ -294,16 +338,17 @@ function Landing() {
               </h2>
             </div>
 
-            {/* Category Filter Pills */}
-            <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-1">
-              {["All", "Shirts", "Footwear", "Men", "Women", "African Wear"].map((tab) => (
+            {/* Category Filter Pills (Matching Design Inspiration) */}
+            <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+              {["All", "Clothing", "Accessories", "Shoes", "African Wear"].map((tab) => (
                 <button
                   key={tab}
+                  type="button"
                   onClick={() => setActiveCategoryTab(tab)}
-                  className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
+                  className={`rounded-full px-5 py-2 text-sm font-semibold transition-all ${
                     activeCategoryTab === tab
-                      ? "bg-primary text-primary-foreground shadow-xs"
-                      : "bg-card text-muted-foreground border border-border hover:text-foreground"
+                      ? "bg-emerald-600 text-white shadow-xs"
+                      : "bg-slate-100 dark:bg-muted/70 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-muted"
                   }`}
                 >
                   {tab}
