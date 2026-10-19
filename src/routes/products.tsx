@@ -275,17 +275,17 @@ function Listing() {
           </Link>
           <ChevronRight className="h-3.5 w-3.5" />
           <span className="font-medium text-foreground">
-            {search.deals ? "Flash deals" : (search.category ?? "All devices")}
+            {search.deals ? "Flash deals" : (search.category ?? "All products")}
           </span>
         </nav>
 
         <header className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:justify-between">
           <div className="min-w-0">
             <h1 className="truncate text-2xl font-extrabold sm:text-4xl">
-              {search.deals ? "Flash deals" : (search.category ?? "All devices")}
+              {search.deals ? "Flash deals" : (search.category ?? "All products")}
             </h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              {results.length} products · live stock from verified retailers
+              {results.length} products · curated boutique collection
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-1 rounded-xl border border-border bg-surface p-1">

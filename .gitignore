@@ -37,3 +37,4 @@ dist-ssr
 .vercel
 vercel_out.txt
 github.json
+supabase/.temp/

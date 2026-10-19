@@ -98,13 +98,13 @@ const faqs = [
     category: "Business",
     question: "Do you offer bulk or corporate pricing?",
     answer:
-      "Yes. We have dedicated pricing for bulk orders of 5+ units and corporate procurement. Please contact our business team via WhatsApp or email and include your device requirements and quantity.",
+      "Yes. We have dedicated pricing for bulk orders of 5+ items and corporate uniforms/merchandise. Please contact our team via WhatsApp or email and include your product requirements and quantity.",
   },
   {
     category: "Business",
-    question: "Can I list my devices on Voltix?",
+    question: "Can I stock my brand with Urban Vault?",
     answer:
-      "We work with verified retailers and businesses. If you'd like to list devices on our platform, reach out to us. All partner retailers must pass our verification process to maintain the quality our buyers trust.",
+      "We work with selected designers and independent brands. If you'd like to stock your pieces with us, reach out via WhatsApp or email with your lookbook. All partner brands must align with our quality and style standards.",
   },
 ];
 
