@@ -61,17 +61,17 @@ export const Route = createFileRoute("/product/$slug")({
   head: ({ loaderData }) => {
     if (!loaderData)
       return {
-        meta: [{ title: "Product unavailable — Voltix" }, { name: "robots", content: "noindex" }],
+        meta: [{ title: `Product unavailable — ${STORE.name}` }, { name: "robots", content: "noindex" }],
       };
     const p = loaderData.product;
     return {
       meta: [
-        { title: `${p.name} — ${formatPrice(p.price)} | Voltix` },
+        { title: `${p.name} — ${formatPrice(p.price)} | ${STORE.name}` },
         {
           name: "description",
-          content: `${p.name} (${p.condition}) — ${Object.values(p.specs).slice(0, 3).join(", ")}. Verified stock with instant WhatsApp enquiry.`,
+          content: `${p.name} (${p.condition}) — ${Object.values(p.specs).slice(0, 3).join(", ")}. In stock at ${STORE.name} with instant WhatsApp enquiry & Cash on Delivery.`,
         },
-        { property: "og:title", content: `${p.name} | Voltix` },
+        { property: "og:title", content: `${p.name} | ${STORE.name}` },
         { property: "og:description", content: p.blurb },
       ],
     };
@@ -315,13 +315,13 @@ function ProductDetail() {
 
                 <div className="mt-4 grid gap-2 border-t border-border pt-4 text-xs text-muted-foreground sm:grid-cols-3">
                   <p className="flex items-center gap-1.5">
-                    <ShieldCheck className="h-4 w-4 shrink-0 text-primary" /> Verified hardware
+                    <ShieldCheck className="h-4 w-4 shrink-0 text-primary" /> 100% Authentic Apparel
                   </p>
                   <p className="flex items-center gap-1.5">
                     <Truck className="h-4 w-4 shrink-0 text-primary" /> Same-day Accra dispatch
                   </p>
                   <p className="flex items-center gap-1.5">
-                    <RotateCcw className="h-4 w-4 shrink-0 text-primary" /> 7-day return policy
+                    <RotateCcw className="h-4 w-4 shrink-0 text-primary" /> Hassle-free size exchange
                   </p>
                 </div>
 
@@ -332,9 +332,9 @@ function ProductDetail() {
                       <Truck className="h-3.5 w-3.5 text-primary" /> Ghana Delivery Information
                     </p>
                     <p className="text-muted-foreground mt-0.5 leading-relaxed">
-                      • Greater Accra: Same-day delivery (GH₵ 40)<br/>
-                      • Ashanti (Kumasi) &amp; Regional: 24–48 hours tracked courier (GH₵ 65)<br/>
-                      • Store Pickup: Free collection at Osu Hub, Accra
+                      • Greater Accra: Same-day delivery (GH₵ 35–45)<br/>
+                      • Ashanti (Kumasi) &amp; Regional: 24–48 hours tracked courier<br/>
+                      • Store Pickup: Free collection at {STORE.pickupLocation}
                     </p>
                   </div>
 
@@ -343,7 +343,7 @@ function ProductDetail() {
                       <CreditCard className="h-3.5 w-3.5 text-amber-500" /> Payment Methods Supported
                     </p>
                     <p className="text-muted-foreground mt-0.5 leading-relaxed">
-                      MTN MoMo, Telecel Cash, Paystack cards (Visa/Mastercard), or WhatsApp manual confirmation.
+                      Cash on Delivery (Pay on Arrival in Accra), Paystack cards, MTN MoMo, Telecel Cash, or direct WhatsApp ordering ({STORE.whatsapp}).
                     </p>
                   </div>
                 </div>

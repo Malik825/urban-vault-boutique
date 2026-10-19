@@ -19,6 +19,7 @@ import { AuthProvider } from "@/lib/auth";
 import { WishlistProvider, CompareProvider } from "@/lib/user-store";
 import { MobileNav } from "@/components/storefront/mobile-nav";
 import { useReferralTracking } from "@/lib/referral";
+import { STORE } from "@/lib/store-data";
 
 function NotFoundComponent() {
   return (
@@ -109,11 +110,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Voltix — Electronics retail, beautifully online" },
+      { title: `${STORE.name} — Modern Fashion Boutique, Accra Ghana` },
       {
         name: "description",
         content:
-          "Voltix helps electronics retailers showcase laptops, phones and gadgets online and manage inventory from a modern dashboard.",
+          `${STORE.name} — Curated streetwear, designer footwear, and contemporary unisex essentials in Accra, Ghana. Paystack, Cash on Delivery, WhatsApp orders (0597489841).`,
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -133,7 +134,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&display=swap",
       },
-      { rel: "icon", href: "/logo.jpg", type: "image/jpeg" },
+      { rel: "icon", href: STORE.logoUrl || "/logo.jpg", type: "image/jpeg" },
     ],
   }),
   shellComponent: RootShell,
@@ -158,7 +159,7 @@ function RootShell({ children }: { children: ReactNode }) {
                   if (isDark) document.documentElement.classList.add("dark");
                   else document.documentElement.classList.remove("dark");
 
-                  var color = localStorage.getItem("voltix-theme-color") || "#10B981";
+                  var color = localStorage.getItem("voltix-theme-color") || "#111827";
                   var presets = {
                     "#10B981": {"--primary":"oklch(0.696 0.149 162.48)","--color-primary":"oklch(0.696 0.149 162.48)","--primary-foreground":"oklch(0.99 0 0)","--color-primary-foreground":"oklch(0.99 0 0)","--primary-deep":"oklch(0.596 0.132 163.2)","--primary-soft":"oklch(0.958 0.033 164)","--accent":"oklch(0.958 0.033 164)","--accent-foreground":"oklch(0.44 0.1 163)","--ring":"oklch(0.696 0.149 162.48)"},
                     "#059669": {"--primary":"oklch(0.6 0.14 165)","--color-primary":"oklch(0.6 0.14 165)","--primary-foreground":"oklch(0.99 0 0)","--primary-deep":"oklch(0.52 0.12 165)","--primary-soft":"oklch(0.94 0.03 165)","--accent":"oklch(0.94 0.03 165)","--accent-foreground":"oklch(0.44 0.11 165)","--ring":"oklch(0.6 0.14 165)"},

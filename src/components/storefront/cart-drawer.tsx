@@ -135,11 +135,11 @@ export function CartDrawer({
               </div>
               <div className="flex justify-between text-muted-foreground text-xs">
                 <span>Estimated Delivery</span>
-                <span>From GH₵ 40 (Accra) · Free Pickup</span>
+                <span>From GH₵ 35 (Accra) · Free Pickup</span>
               </div>
               <div className="flex justify-between text-base font-bold text-foreground pt-1 border-t border-border/60">
                 <span>Estimated Total</span>
-                <span className="text-primary font-display">{formatPrice(subtotal + 40)}</span>
+                <span className="text-primary font-display">{formatPrice(subtotal + 35)}</span>
               </div>
             </div>
 

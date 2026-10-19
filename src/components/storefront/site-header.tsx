@@ -67,7 +67,7 @@ export function SiteHeader() {
           {/* Logo & Desktop Nav */}
           <div className="flex min-w-0 items-center gap-6 lg:gap-8">
             <Link to="/" className="flex shrink-0 items-center gap-2.5 outline-none rounded-full">
-              <img src="/logo.jpg" alt={`${STORE.name} logo`} className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover shadow-xs" />
+              <img src={STORE.logoUrl || "/logo.jpg"} alt={`${STORE.name} logo`} className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover shadow-xs border border-border/40" />
               <span className="font-display text-base sm:text-lg font-bold tracking-tight text-foreground">
                 {STORE.name}
               </span>

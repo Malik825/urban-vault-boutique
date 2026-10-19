@@ -32,10 +32,10 @@ import { STORE, whatsappLink } from "@/lib/store-data";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: `About GadgetHaus — Electronics & Tech Store, Accra Ghana` },
+      { title: `About ${STORE.name} — Modern Fashion Boutique, Accra Ghana` },
       {
         name: "description",
-        content: `GadgetHaus is a modern electronics and gadget store in Accra, Ghana. We sell verified smartphones, laptops, tablets and accessories with honest pricing, Mobile Money checkout, and WhatsApp ordering.`,
+        content: `${STORE.name} is a premier fashion boutique in Accra, Ghana offering curated unisex apparel, streetwear, and footwear with Paystack, Cash on Delivery, and instant WhatsApp ordering.`,
       },
     ],
   }),
@@ -122,11 +122,11 @@ function AboutPage() {
             </Badge>
 
             <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl text-foreground leading-[1.15]">
-              Your trusted tech store in Ghana.
+              Curated fashion &amp; streetwear in Ghana.
             </h1>
 
             <p className="mt-5 text-base sm:text-lg text-muted-foreground leading-relaxed">
-              GadgetHaus is a modern electronics retailer based in Accra. We provide verified devices with transparent pricing, honest condition grading, and the seamless shopping experience Ghanaian customers deserve.
+              {STORE.name} is a contemporary boutique based in Accra. We provide curated unisex streetwear, designer shirts, premium footwear, and everyday luxury essentials with transparent pricing and same-day doorstep delivery.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -135,7 +135,7 @@ function AboutPage() {
               </Button>
               <Button asChild variant="outline" size="lg" className="rounded-full px-6 bg-background">
                 <a
-                  href={whatsappLink("Hello GadgetHaus! I'd like to enquire about your products.")}
+                  href={whatsappLink(`Hello ${STORE.name}! I'd like to enquire about your products.`)}
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -213,12 +213,12 @@ function AboutPage() {
               Shop the full catalogue or send us a direct enquiry
             </h2>
             <p className="text-sm sm:text-base opacity-90 max-w-xl mx-auto leading-relaxed">
-              Browse phones, laptops, tablets and accessories with transparent GH₵ pricing. Order online or chat with us directly on WhatsApp for instant confirmation and bulk quotes.
+              Explore curated unisex streetwear, contemporary shirts, and luxury footwear with transparent GH₵ pricing. Order online with Paystack, Cash on Delivery, or chat with us on WhatsApp.
             </p>
             <div className="pt-2 flex flex-wrap justify-center gap-3">
               <Button asChild size="lg" variant="secondary" className="rounded-full px-8 font-bold">
                 <a
-                  href={whatsappLink("Hello GadgetHaus! I'd like to place an order or get more information.")}
+                  href={whatsappLink(`Hello ${STORE.name}! I'd like to place an order or get more information.`)}
                   target="_blank"
                   rel="noreferrer"
                 >

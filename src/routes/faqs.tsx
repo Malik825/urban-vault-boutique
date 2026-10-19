@@ -28,10 +28,9 @@ export const Route = createFileRoute("/faqs")({
 const categories = [
   "All",
   "Orders & Shipping",
-  "Device Condition",
+  "Sizing & Quality",
   "Payments",
-  "Returns & Warranty",
-  "Business",
+  "Exchanges & Returns",
 ];
 
 const faqs = [
@@ -39,85 +38,61 @@ const faqs = [
     category: "Orders & Shipping",
     question: "How long does delivery take?",
     answer:
-      "Orders placed before 12pm on weekdays are eligible for same-day delivery within Accra. For orders outside Accra, standard shipping takes 2–4 business days. We'll send you a tracking link as soon as your order is dispatched.",
+      "Orders within Accra are delivered same-day (within 2 to 6 hours) via our fast dispatch riders. For deliveries to Kumasi, Takoradi, and other regions across Ghana, parcels take 24–48 hours via trusted couriers.",
   },
   {
     category: "Orders & Shipping",
     question: "Do you deliver outside Accra?",
     answer:
-      "Yes! We ship nationwide across Ghana. Delivery to regional capitals typically takes 2–3 business days. Remote areas may take up to 5 business days. Shipping costs are calculated at checkout.",
+      "Yes! We deliver nationwide across all regions in Ghana. Regional orders are dispatched daily and arrive within 1–2 business days. Delivery fees are calculated transparently at checkout.",
   },
   {
     category: "Orders & Shipping",
     question: "Can I pick up my order in person?",
     answer:
-      "Absolutely. We have a pickup point in central Accra. Select 'Pickup' at checkout and we'll send you the exact address and available pickup times. Pickups are usually ready within 2–4 hours of ordering.",
+      `Yes. You can select 'Store Pickup' at checkout to pick up your order directly from our showroom in Accra (${STORE.pickupLocation}).`,
   },
   {
     category: "Orders & Shipping",
     question: "How do I track my order?",
     answer:
-      "Once your order is confirmed and dispatched, you'll receive a WhatsApp message with your tracking link. You can also contact us anytime on WhatsApp to get a status update.",
+      `Once your order is confirmed and dispatched, you will receive real-time dispatch updates directly on WhatsApp (${STORE.whatsapp}) with your rider/courier details.`,
   },
   {
-    category: "Device Condition",
-    question: "What does 'New' mean?",
+    category: "Sizing & Quality",
+    question: "How do I know what size to choose?",
     answer:
-      "A 'New' device is sealed, unused, and in its original manufacturer's packaging. It comes with a full manufacturer warranty and all original accessories.",
+      `Most of our streetwear tees and hoodies feature a relaxed, modern boxy silhouette. You can check the sizing chart on the product page or message our stylists on WhatsApp (${STORE.whatsapp}) for personalized fit advice before ordering.`,
   },
   {
-    category: "Device Condition",
-    question: "What does 'Open Box' mean?",
+    category: "Sizing & Quality",
+    question: "Are your boutique items authentic?",
     answer:
-      "An 'Open Box' device has been opened — usually a customer return or display unit — but shows no signs of use. All original accessories are included. It may carry a partial or full warranty depending on the item.",
-  },
-  {
-    category: "Device Condition",
-    question: "What does 'Refurbished' mean?",
-    answer:
-      "A 'Refurbished' device has been professionally inspected, repaired where needed, cleaned, and tested to full functionality. Our lead technician — an Apple-certified professional — personally oversees this process. Refurbished devices come with a 90-day Voltix warranty.",
-  },
-  {
-    category: "Device Condition",
-    question: "Who verifies the devices?",
-    answer:
-      "Our in-house technical team inspects every device before it's listed. Refurbished devices go through a 47-point inspection checklist. No device is listed without passing our quality gate.",
+      "100% authentic. All clothing, sneakers, and accessories in Urban Vault Unisex Boutique are inspected for premium fabrics, heavyweight GSM cotton, clean stitching, and authentic designer details.",
   },
   {
     category: "Payments",
     question: "What payment methods do you accept?",
     answer:
-      "We currently accept Mobile Money (MTN MoMo, Vodafone Cash, AirtelTigo Money) and cash on delivery for local pickup. Card payments are coming soon. For large orders, bank transfer is available — contact us.",
+      "We accept: 1) Cash on Delivery upon physical arrival in Accra, 2) Paystack online payment with debit/credit cards (Visa, Mastercard), 3) Mobile Money (MTN MoMo, Telecel Cash), and 4) Direct WhatsApp order confirmation.",
   },
   {
     category: "Payments",
-    question: "Is it safe to pay on your website?",
+    question: "How does Cash on Delivery (COD) work?",
     answer:
-      "Yes. All transactions on Voltix are processed over secure, encrypted connections. We do not store your payment credentials. For extra peace of mind, you can also pay at pickup.",
+      "Select 'Cash on Delivery' at checkout. When our rider delivers your package to your doorstep in Accra, you inspect the package and pay cash or MoMo directly to the courier.",
   },
   {
     category: "Payments",
-    question: "Do you offer instalment plans?",
+    question: "Is it safe to pay online via Paystack?",
     answer:
-      "We are currently piloting an instalment plan in partnership with a local fintech. Drop us a message on WhatsApp to find out if your chosen device is eligible.",
+      "Yes. Online payments are secured by Paystack with 256-bit bank-level encryption. Your card or MoMo details are processed through official banking channels.",
   },
   {
-    category: "Returns & Warranty",
-    question: "What is your returns policy?",
+    category: "Exchanges & Returns",
+    question: "Can I exchange for a different size if it doesn't fit?",
     answer:
-      "If your device arrives damaged or different from what was listed, we'll arrange a full refund or replacement at no cost to you. Contact us within 48 hours of delivery. Change-of-mind returns are accepted within 7 days for unused, sealed items.",
-  },
-  {
-    category: "Returns & Warranty",
-    question: "What warranty do devices come with?",
-    answer:
-      "New devices carry the full manufacturer warranty. Open Box devices carry the remaining manufacturer warranty. Refurbished devices come with our 90-day Voltix warranty which covers defects and hardware failures.",
-  },
-  {
-    category: "Returns & Warranty",
-    question: "How do I make a warranty claim?",
-    answer:
-      "Simply reach out to us on WhatsApp with your order number and a description or video of the issue. Our technical team will assess and respond within 24 hours with next steps.",
+      `Absolutely. If the fit isn't right, notify us on WhatsApp (${STORE.whatsapp}) within 48 hours of delivery. As long as tags remain attached and the item is unworn, we will exchange your size.`,
   },
   {
     category: "Business",

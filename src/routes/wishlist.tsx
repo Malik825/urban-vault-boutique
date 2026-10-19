@@ -7,12 +7,13 @@ import { SiteFooter } from "@/components/storefront/site-footer";
 import { ProductCard } from "@/components/storefront/product-card";
 import { Button } from "@/components/ui/button";
 import { useWishlist } from "@/lib/user-store";
+import { STORE } from "@/lib/store-data";
 
 export const Route = createFileRoute("/wishlist")({
   head: () => ({
     meta: [
-      { title: "Wishlist — Voltix" },
-      { name: "description", content: "Your saved products on Voltix." },
+      { title: `My Wishlist — ${STORE.name}` },
+      { name: "description", content: `Your saved items on ${STORE.name}.` },
     ],
   }),
   component: WishlistPage,

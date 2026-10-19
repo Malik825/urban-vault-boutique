@@ -22,13 +22,13 @@ import { useAuth } from "@/lib/auth";
 import { useWishlist } from "@/lib/user-store";
 import { useCompare } from "@/lib/user-store";
 import { useCart } from "@/lib/cart";
-import { formatPrice } from "@/lib/store-data";
+import { formatPrice, STORE } from "@/lib/store-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
-    meta: [{ title: "My Account — GadgetHaus" }],
+    meta: [{ title: `My Account — ${STORE.name}` }],
   }),
   component: AccountPage,
 });

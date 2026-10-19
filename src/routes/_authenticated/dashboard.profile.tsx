@@ -15,10 +15,11 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { STORE } from "@/lib/store-data";
 
 export const Route = createFileRoute("/_authenticated/dashboard/profile")({
   head: () => ({
-    meta: [{ title: "Profile — GadgetHaus Admin" }],
+    meta: [{ title: `Profile — ${STORE.name} Admin` }],
   }),
   component: ProfilePage,
 });

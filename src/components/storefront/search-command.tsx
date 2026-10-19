@@ -39,24 +39,24 @@ import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/user-store";
 import type { CatalogProduct } from "@/lib/catalog";
 
-const RECENT_KEY = "gadgethaus-recent-searches";
+const RECENT_KEY = "urban-vault-recent-searches";
 const DEFAULT_RECENT = [
-  "MacBook Pro M3",
-  "iPhone 15 Pro Max",
-  "16GB RAM laptop",
-  "Dell XPS Core i7",
+  "Boxy Tee",
+  "Chunky Platform Sneakers",
+  "Cuban Collar Linen Shirt",
+  "Utility Cargo Pants",
 ];
 
 const TRENDING_TAGS = [
-  "MacBook Pro M3",
-  "iPhone 15 Pro Max",
-  "Dell XPS 15",
-  "16GB RAM",
-  "RTX 4060 Gaming",
-  "Noise Cancelling",
-  "Anker Power Bank",
-  "Apple Watch",
-  "Flash Deals",
+  "Boxy Tee",
+  "Chunky Sneakers",
+  "Linen Shirt",
+  "Cargo Pants",
+  "Oversized Hoodie",
+  "Platform Loafers",
+  "Crossbody Bag",
+  "Unisex Streetwear",
+  "New Arrivals",
 ];
 
 export function SearchCommand({

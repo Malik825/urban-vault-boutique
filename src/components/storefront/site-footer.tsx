@@ -68,7 +68,7 @@ export function SiteFooter() {
               </div>
             </div>
             <p className="mt-3.5 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              A high-converting ecommerce storefront designed specifically for African electronics retailers moving beyond social media selling.
+              {STORE.tagline}. Curated streetwear, footwear and unisex fashion with doorstep delivery across Ghana.
             </p>
             <div className="mt-5 space-y-2 text-sm text-muted-foreground">
               <p className="flex items-center gap-2">
@@ -78,7 +78,7 @@ export function SiteFooter() {
                 <Mail className="h-4 w-4 shrink-0 text-primary" /> {STORE.email}
               </p>
               <a
-                href={whatsappLink("Hello GadgetHaus, I'd like to make an enquiry.")}
+                href={whatsappLink(`Hello ${STORE.name}, I'd like to make an enquiry.`)}
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-2 font-medium text-emerald-600 hover:underline dark:text-emerald-400"
@@ -90,17 +90,20 @@ export function SiteFooter() {
             {/* Payment Integrations Accepted Preview */}
             <div className="mt-5 pt-4 border-t border-border">
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">
-                Ready for local payment gateways
+                Payment methods accepted
               </p>
               <div className="flex flex-wrap items-center gap-2 text-xs">
+                <span className="rounded-md border border-border bg-card px-2.5 py-1 font-semibold text-foreground">
+                  Cash on Delivery
+                </span>
+                <span className="rounded-md border border-border bg-card px-2.5 py-1 font-semibold text-foreground">
+                  Paystack
+                </span>
                 <span className="rounded-md border border-border bg-card px-2.5 py-1 font-semibold text-foreground">
                   MTN MoMo
                 </span>
                 <span className="rounded-md border border-border bg-card px-2.5 py-1 font-semibold text-foreground">
                   Telecel Cash
-                </span>
-                <span className="rounded-md border border-border bg-card px-2.5 py-1 font-semibold text-foreground">
-                  Paystack
                 </span>
                 <span className="rounded-md border border-border bg-card px-2.5 py-1 font-semibold text-foreground">
                   Visa / Mastercard
@@ -127,7 +130,7 @@ export function SiteFooter() {
             <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
               <li>
                 <Link to="/about" className="transition-colors hover:text-foreground">
-                  About GadgetHaus
+                  About {STORE.secondaryName || STORE.name}
                 </Link>
               </li>
               <li>
@@ -142,7 +145,7 @@ export function SiteFooter() {
               </li>
               <li>
                 <a
-                  href={whatsappLink("Hello GadgetHaus! I'd like to place an order or get a quote.")}
+                  href={whatsappLink(`Hello ${STORE.name}! I'd like to place an order or get assistance.`)}
                   target="_blank"
                   rel="noreferrer"
                   className="transition-colors hover:text-foreground text-primary font-medium"

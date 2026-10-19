@@ -28,11 +28,11 @@ import authBottomImg from "@/assets/Premium Green Tech Collection.png";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Account Sign In & Register — GadgetHaus" },
+      { title: `Account Sign In & Register — ${STORE.name}` },
       {
         name: "description",
         content:
-          "Sign in or register your GadgetHaus account to track orders, manage wishlist, and access exclusive electronics deals.",
+          `Sign in or register your ${STORE.name} account to track orders, manage wishlist, and access exclusive boutique drops.`,
       },
     ],
   }),
@@ -130,7 +130,7 @@ function AuthPage() {
         password: parsed.data.password,
       });
       if (error) throw error;
-      toast.success("Welcome back to GadgetHaus!");
+      toast.success(`Welcome back to ${STORE.name}!`);
 
       // If user is admin, navigate directly to dashboard; otherwise go to customer account
       let isAdminUser = false;
@@ -264,7 +264,7 @@ function AuthPage() {
               {mode === "register" && (
                 <>
                   <h1 className="font-display text-2xl sm:text-3xl lg:text-[2.1rem] font-extrabold leading-[1.18] text-white tracking-tight">
-                    Join GadgetHaus
+                    Join {STORE.name}
                   </h1>
                   <p className="mt-3 text-xs sm:text-sm text-slate-300/90 leading-relaxed max-w-xs">
                     Create your account and get access to exclusive deals, faster checkout and personalized recommendations.

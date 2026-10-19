@@ -39,7 +39,7 @@ import {
 import { ProductCard } from "@/components/storefront/product-card";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { SiteHeader } from "@/components/storefront/site-header";
-import { filterOptions, formatPrice } from "@/lib/store-data";
+import { filterOptions, formatPrice, STORE } from "@/lib/store-data";
 import { listPublishedProducts } from "@/lib/catalog.functions";
 import type { CatalogProduct } from "@/lib/catalog";
 
@@ -63,16 +63,16 @@ export const Route = createFileRoute("/products")({
   }),
   head: () => ({
     meta: [
-      { title: "Shop all devices — Voltix electronics catalogue" },
+      { title: `Shop Collection — ${STORE.name}` },
       {
         name: "description",
         content:
-          "Filter laptops, phones, tablets and accessories by brand, price, RAM, storage, processor and condition. Live stock and instant WhatsApp enquiry.",
+          `Browse the latest unisex streetwear, footwear, shirts and accessories at ${STORE.name}. Fast delivery across Accra and nationwide Ghana.`,
       },
-      { property: "og:title", content: "Shop all devices — Voltix" },
+      { property: "og:title", content: `Shop Collection — ${STORE.name}` },
       {
         property: "og:description",
-        content: "Rich filters, live stock levels and instant WhatsApp enquiries on every listing.",
+        content: `Explore curated streetwear, footwear and unisex apparel at ${STORE.name}.`,
       },
     ],
   }),
@@ -117,7 +117,7 @@ function Listing() {
     setCurrentPage(1);
     if (search.page && search.page > 1) {
       navigate({
-        search: (prev) => ({ ...prev, page: undefined }),
+        search: ((prev: any) => ({ ...prev, page: undefined })) as never,
         replace: true,
       });
     }
@@ -180,7 +180,7 @@ function Listing() {
     const targetPage = Math.min(Math.max(1, newPage), totalPages);
     setCurrentPage(targetPage);
     navigate({
-      search: (prev) => ({ ...prev, page: targetPage > 1 ? targetPage : undefined }),
+      search: ((prev: any) => ({ ...prev, page: targetPage > 1 ? targetPage : undefined })) as never,
       replace: true,
     });
     window.scrollTo({ top: 120, behavior: "smooth" });
@@ -215,6 +215,20 @@ function Listing() {
         title="Condition"
         group="condition"
         options={filterOptions.condition}
+        sel={sel}
+        toggle={toggle}
+      />
+      <CheckGroup
+        title="Size"
+        group="size"
+        options={(filterOptions as any).size}
+        sel={sel}
+        toggle={toggle}
+      />
+      <CheckGroup
+        title="Gender"
+        group="gender"
+        options={(filterOptions as any).gender}
         sel={sel}
         toggle={toggle}
       />
@@ -507,16 +521,18 @@ function FilterGroup({ title, children }: { title: string; children: React.React
 function CheckGroup({
   title,
   group,
-  options,
+  options = [],
   sel,
   toggle,
 }: {
   title: string;
   group: string;
-  options: string[];
+  options?: string[];
   sel: Record<string, string[]>;
   toggle: (g: string, v: string) => void;
 }) {
+  if (!options || options.length === 0) return null;
+
   return (
     <FilterGroup title={title}>
       <div className="space-y-2.5">

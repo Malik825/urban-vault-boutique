@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/storefront/site-header";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatPrice } from "@/lib/store-data";
+import { formatPrice, STORE } from "@/lib/store-data";
 import { useCompare } from "@/lib/user-store";
 import { useCart } from "@/lib/cart";
 import { SPEC_GROUPS } from "@/lib/catalog";
@@ -14,8 +14,8 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/compare")({
   head: () => ({
     meta: [
-      { title: "Compare Products — Voltix" },
-      { name: "description", content: "Compare specs and prices side by side." },
+      { title: `Compare Products — ${STORE.name}` },
+      { name: "description", content: `Compare items and details side by side on ${STORE.name}.` },
     ],
   }),
   component: ComparePage,

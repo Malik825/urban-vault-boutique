@@ -144,12 +144,13 @@ function CheckoutPage() {
     }
 
     setIsSubmitting(true);
-    const generatedId = `GH-${Math.floor(100000 + Math.random() * 900000)}`;
+    const generatedId = `UV-${Math.floor(100000 + Math.random() * 900000)}`;
 
     setTimeout(() => {
-      let paymentLabel = "Mobile Money";
-      if (paymentMethod === "momo") paymentLabel = `Mobile Money (${momoProvider})`;
+      let paymentLabel = "Cash on Delivery";
+      if (paymentMethod === "cod") paymentLabel = "Cash on Delivery (Pay on Arrival)";
       else if (paymentMethod === "card") paymentLabel = "Debit/Credit Card (Paystack)";
+      else if (paymentMethod === "momo") paymentLabel = `Mobile Money (${momoProvider})`;
       else if (paymentMethod === "whatsapp") paymentLabel = "WhatsApp Direct Order";
 
       const confirmation: OrderConfirmationData = {
@@ -602,11 +603,33 @@ function CheckoutPage() {
                           Debit / Credit Card (Paystack)
                         </Label>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          Visa, Mastercard, GH-Link &amp; Bank Transfer
+                          Instant card payment via Paystack (Visa, Mastercard, MoMo)
                         </p>
                       </div>
                     </div>
                     <CreditCard className="h-5 w-5 text-blue-500 shrink-0" />
+                  </div>
+                </div>
+
+                {/* Cash on Delivery */}
+                <div
+                  className={`rounded-2xl border p-4 transition-all ${
+                    paymentMethod === "cod" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border bg-card"
+                  }`}
+                >
+                  <div className="flex items-start justify-between cursor-pointer" onClick={() => setPaymentMethod("cod")}>
+                    <div className="flex items-start gap-3">
+                      <RadioGroupItem value="cod" id="cod" className="mt-1" />
+                      <div>
+                        <Label htmlFor="cod" className="font-bold text-sm cursor-pointer block">
+                          Cash on Delivery (Pay upon Arrival)
+                        </Label>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Inspect your boutique items in person and pay cash or MoMo directly to the courier rider.
+                        </p>
+                      </div>
+                    </div>
+                    <Truck className="h-5 w-5 text-emerald-500 shrink-0" />
                   </div>
                 </div>
 
@@ -761,7 +784,7 @@ function CheckoutPage() {
 
           <div className="pt-2 text-center">
             <p className="text-[11px] text-muted-foreground">
-              🛡️ Secure Checkout · Backed by GadgetHaus warranty &amp; authenticity guarantee
+              🛡️ Secure Checkout · Backed by {STORE.name} quality &amp; authenticity guarantee
             </p>
           </div>
         </div>
