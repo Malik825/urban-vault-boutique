@@ -109,6 +109,15 @@ function ProductDetail() {
   const [newReviewName, setNewReviewName] = useState("");
   const [newReviewRole, setNewReviewRole] = useState("");
   const [newReviewText, setNewReviewText] = useState("");
+  const [showSticky, setShowSticky] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setShowSticky(window.scrollY > 420);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     if (product?.slug) {
@@ -613,40 +622,83 @@ function ProductDetail() {
         <Rail title="Recently viewed" items={recent} />
       </div>
 
-      {/* Sticky Mobile Bottom CTA Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-t border-border px-4 py-3 sm:hidden shadow-xl flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Price</p>
-          <p className="font-display text-base font-extrabold text-primary truncate">
-            {formatPrice(product.price)}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            className="border-primary/50 bg-primary/10 text-primary font-semibold px-2.5 h-9"
-            asChild
-          >
-            <a href={whatsappLink(createProductEnquiry(product))} target="_blank" rel="noreferrer">
-              <MessageCircle className="h-4 w-4" />
-            </a>
-          </Button>
+      {/* Sticky Bottom CTA Bar (Appears when scrolling down) */}
+      <div
+        className={`fixed left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-t border-border px-4 py-2.5 sm:py-3 shadow-2xl transition-all duration-300 ${
+          showSticky ? "translate-y-0 opacity-100" : "translate-y-full opacity-0 pointer-events-none"
+        } bottom-16 sm:bottom-0`}
+      >
+        <div className="mx-auto max-w-7xl flex items-center justify-between gap-3 sm:gap-6">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="h-10 w-10 sm:h-12 sm:w-12 shrink-0 overflow-hidden rounded-lg border border-border bg-surface-muted">
+              <img
+                src={product.images[0]}
+                alt={product.name}
+                className="h-full w-full object-cover object-center"
+              />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-xs sm:text-sm font-semibold truncate text-foreground">{product.name}</h3>
+              <div className="flex items-center gap-2">
+                <span className="font-display text-sm sm:text-base font-extrabold text-primary">
+                  {formatPrice(product.price)}
+                </span>
+                {product.compareAt && (
+                  <span className="text-[11px] text-muted-foreground line-through hidden sm:inline">
+                    {formatPrice(product.compareAt)}
+                  </span>
+                )}
+                <span className="text-[10px] text-muted-foreground hidden sm:inline">· {product.condition}</span>
+              </div>
+            </div>
+          </div>
 
-          <Button
-            size="sm"
-            disabled={product.stock === 0}
-            onClick={() => {
-              if (!items.some((i) => i.product.id === product.id)) {
-                addItem(product);
-              }
-              navigate({ to: "/checkout" });
-            }}
-            className="h-9 px-4 font-bold text-xs"
-          >
-            <Zap className="h-3.5 w-3.5 mr-1" />
-            Buy Now
-          </Button>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-primary/40 text-primary hover:bg-primary/10 font-semibold h-9 px-3 text-xs"
+              disabled={product.stock === 0}
+              onClick={() => {
+                if (items.some((i) => i.product.id === product.id)) {
+                  toast.error("Item is already in your cart");
+                } else {
+                  addItem(product);
+                  toast.success(`${product.name} added to cart`);
+                }
+              }}
+            >
+              <ShoppingCart className="h-4 w-4 sm:mr-1.5" />
+              <span className="hidden sm:inline">Add to Cart</span>
+            </Button>
+
+            <Button
+              size="sm"
+              disabled={product.stock === 0}
+              onClick={() => {
+                if (!items.some((i) => i.product.id === product.id)) {
+                  addItem(product);
+                }
+                navigate({ to: "/checkout" });
+              }}
+              className="h-9 px-4 font-bold text-xs"
+            >
+              <Zap className="h-3.5 w-3.5 mr-1" />
+              Buy Now
+            </Button>
+
+            <Button
+              size="sm"
+              variant="whatsapp"
+              className="h-9 px-2.5 sm:px-3 text-xs font-semibold hidden md:inline-flex"
+              asChild
+            >
+              <a href={whatsappLink(createProductEnquiry(product))} target="_blank" rel="noreferrer">
+                <MessageCircle className="h-4 w-4 mr-1.5" />
+                WhatsApp
+              </a>
+            </Button>
+          </div>
         </div>
       </div>
 

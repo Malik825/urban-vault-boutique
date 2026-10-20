@@ -12,9 +12,6 @@ import {
   LayoutDashboard,
   SlidersHorizontal,
   Check,
-  Copy,
-  Gift,
-  Crown,
   Save,
   Loader2,
 } from "lucide-react";
@@ -30,10 +27,10 @@ import { useWishlist } from "@/lib/user-store";
 import { useCompare } from "@/lib/user-store";
 import { useCart } from "@/lib/cart";
 import { formatPrice, STORE } from "@/lib/store-data";
-import { supabase } from "@/integrations/supabase/client";
+
 import { useState, useEffect } from "react";
 import { serverSaveOnboardingPreferences } from "@/lib/auth.functions";
-import { PROMO_WELCOME_CODE, BoutiqueOnboardingModal } from "@/components/auth/onboarding-modal";
+import { BoutiqueOnboardingModal } from "@/components/auth/onboarding-modal";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
@@ -51,6 +48,63 @@ const STATUS_COLORS: Record<string, string> = {
   delivered: "bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200 dark:border-emerald-800",
   cancelled: "bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-200 dark:border-rose-800",
 };
+
+function OrderStatusStepper({ status, deliveryMethod }: { status: string; deliveryMethod?: string }) {
+  if (status === "cancelled") {
+    return (
+      <div className="px-5 py-2.5 bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-1.5 border-b border-border">
+        <span>Order was cancelled.</span>
+      </div>
+    );
+  }
+
+  const steps = [
+    { key: "pending", label: "Confirmed" },
+    { key: "processing", label: "Packed" },
+    { key: "shipped", label: deliveryMethod === "pickup" ? "Ready for Pickup" : "In Transit" },
+    { key: "delivered", label: deliveryMethod === "pickup" ? "Collected" : "Delivered" },
+  ];
+
+  const orderStatusIndex = steps.findIndex((s) => s.key === status);
+  const currentIndex = orderStatusIndex >= 0 ? orderStatusIndex : 0;
+
+  return (
+    <div className="px-5 py-3 bg-surface-muted/30 border-b border-border">
+      <div className="flex items-center justify-between relative">
+        <div className="absolute top-3 left-4 right-4 h-0.5 bg-border z-0" />
+        <div
+          className="absolute top-3 left-4 h-0.5 bg-primary z-0 transition-all duration-300"
+          style={{ width: `${(currentIndex / (steps.length - 1)) * 92}%` }}
+        />
+
+        {steps.map((step, idx) => {
+          const isDone = idx <= currentIndex;
+          const isCurrent = idx === currentIndex;
+          return (
+            <div key={step.key} className="relative z-10 flex flex-col items-center gap-1">
+              <div
+                className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold transition-all ${
+                  isDone
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "bg-surface border border-border text-muted-foreground"
+                } ${isCurrent ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}
+              >
+                {isDone ? "✓" : idx + 1}
+              </div>
+              <span
+                className={`text-[10px] whitespace-nowrap hidden sm:inline ${
+                  isDone ? "text-foreground font-semibold" : "text-muted-foreground"
+                }`}
+              >
+                {step.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 const STYLE_AESTHETICS = [
   { id: "streetwear", label: "Streetwear & Oversized Fits", emoji: "🕶️" },
@@ -70,7 +124,6 @@ function AccountPage() {
   const { wishlist } = useWishlist();
   const { compareList } = useCompare();
   const { items: cartItems, count: cartCount } = useCart();
-  const [profile, setProfile] = useState<any>(null);
   const [orders, setOrders] = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
 
@@ -80,7 +133,6 @@ function AccountPage() {
   const [selectedShoeSize, setSelectedShoeSize] = useState<string>("EU 42");
   const [selectedDept, setSelectedDept] = useState<string>("Unisex / All");
   const [savingPrefs, setSavingPrefs] = useState(false);
-  const [copiedVoucher, setCopiedVoucher] = useState(false);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
 
   useEffect(() => {
@@ -100,14 +152,7 @@ function AccountPage() {
 
   useEffect(() => {
     if (user && !isAdmin) {
-      supabase
-        .from("profiles")
-        .select("referral_code, store_credit")
-        .eq("id", user.id)
-        .single()
-        .then(({ data }) => {
-          if (data) setProfile(data);
-        });
+
 
       listCustomerOrders({ data: { userId: user.id } })
         .then((data) => {
@@ -150,13 +195,6 @@ function AccountPage() {
     setSelectedStyles((prev) =>
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
     );
-  };
-
-  const handleCopyVoucher = () => {
-    navigator.clipboard.writeText(PROMO_WELCOME_CODE);
-    setCopiedVoucher(true);
-    toast.success(`Promo code ${PROMO_WELCOME_CODE} copied!`);
-    setTimeout(() => setCopiedVoucher(false), 2000);
   };
 
   const handleSavePreferences = async () => {
@@ -291,8 +329,8 @@ function AccountPage() {
           ].map((stat) => (
             <Link
               key={stat.label}
-              to={stat.to}
-              search={stat.search}
+              to={stat.to as any}
+              search={stat.search as any}
               className="hover-lift flex flex-col gap-2 rounded-xl border border-border bg-card p-5 shadow-xs"
             >
               <div className="grid h-10 w-10 place-items-center rounded-lg bg-surface-muted text-primary border border-border">
@@ -306,71 +344,9 @@ function AccountPage() {
 
         <Separator className="my-8" />
 
-        {/* Style & Fit Customization & VIP Voucher Strip */}
-        <div className="grid gap-6 md:grid-cols-12 mb-8">
-          {/* VIP Welcome Pass / Voucher */}
-          <div className="md:col-span-5 rounded-2xl border border-primary/30 bg-primary/5 p-6 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <Badge className="bg-primary text-primary-foreground font-semibold text-xs px-2.5 py-0.5">
-                  <Crown className="h-3.5 w-3.5 mr-1" /> VIP Member
-                </Badge>
-                <button
-                  type="button"
-                  onClick={() => setShowOnboardingModal(true)}
-                  className="text-xs text-primary font-semibold hover:underline"
-                >
-                  Preview Welcome Modal
-                </button>
-              </div>
 
-              <h3 className="font-display text-lg font-bold text-foreground">
-                VIP Welcome Voucher
-              </h3>
-              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                Enjoy 10% discount on all streetwear, footwear, and accessories.
-              </p>
-
-              <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-border bg-background p-3">
-                <div>
-                  <span className="text-[10px] uppercase font-mono text-muted-foreground block">Voucher Code</span>
-                  <span className="font-mono text-base font-bold text-foreground tracking-wider">
-                    {PROMO_WELCOME_CODE}
-                  </span>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCopyVoucher}
-                  className="rounded-lg text-xs"
-                >
-                  {copiedVoucher ? (
-                    <>
-                      <Check className="h-3.5 w-3.5 mr-1" /> Copied
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-3.5 w-3.5 mr-1" /> Copy
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            <div className="mt-6 pt-4 border-t border-border/50 text-[11px] text-muted-foreground flex items-center justify-between">
-              <span>Code active across all categories</span>
-              <button
-                type="button"
-                onClick={() => setShowOnboardingModal(true)}
-                className="text-primary font-semibold hover:underline"
-              >
-                Launch Welcome Walkthrough &rarr;
-              </button>
-            </div>
-          </div>
-
-          {/* Style & Fit Preferences Card */}
-          <div className="md:col-span-7 rounded-2xl border border-border bg-card p-6 shadow-xs space-y-5">
+        {/* Style & Fit Preferences Card */}
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-5 mb-8">
             <div className="flex items-center justify-between border-b border-border pb-4">
               <div className="flex items-center gap-2.5">
                 <span className="h-8 w-8 rounded-lg bg-surface-muted text-primary border border-border flex items-center justify-center">
@@ -502,7 +478,6 @@ function AccountPage() {
               </div>
             </div>
           </div>
-        </div>
 
         <Separator className="my-8" />
 
@@ -571,6 +546,12 @@ function AccountPage() {
                       </p>
                     </div>
 
+                    {/* Visual Status Stepper */}
+                    <OrderStatusStepper
+                      status={order.status}
+                      deliveryMethod={order.shipping_address?.deliveryMethod}
+                    />
+
                     {/* Order items */}
                     <div className="divide-y divide-border">
                       {orderItems.map((item: any, i: number) => (
@@ -638,7 +619,7 @@ function AccountPage() {
               <Link
                 key={link.label}
                 to={link.to as any}
-                search={{}}
+                search={{} as any}
                 className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-surface-muted"
               >
                 <div className="flex items-center gap-4">
@@ -656,60 +637,7 @@ function AccountPage() {
           </div>
         </div>
 
-        <Separator className="my-8" />
 
-        {/* Refer & Earn Section */}
-        <div>
-          <h2 className="font-display text-xl font-extrabold flex items-center gap-2">
-            <span className="text-xl">🎁</span> Refer & Earn
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1 mb-4">
-            Share your link with friends. They get a discount, and you earn store credit when they order!
-          </p>
-          
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Wallet Card */}
-            <div className="rounded-xl border border-border bg-card shadow-xs p-6 flex flex-col items-center text-center justify-center">
-              <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">Available Store Credit</p>
-              {profile ? (
-                <p className="font-display text-4xl font-extrabold text-primary">
-                  {formatPrice(profile.store_credit || 0)}
-                </p>
-              ) : (
-                <div className="h-10 w-24 bg-muted animate-pulse rounded-full mt-1"></div>
-              )}
-              <p className="text-xs text-muted-foreground mt-3">
-                Credit automatically applies at checkout.
-              </p>
-            </div>
-
-            {/* Share Link Card */}
-            <div className="rounded-xl border border-border bg-card shadow-xs p-6 flex flex-col justify-center">
-              <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">Your Referral Link</p>
-              
-              {profile?.referral_code ? (
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 truncate rounded-lg bg-surface-muted px-4 py-3 text-sm font-mono border border-border">
-                    {typeof window !== 'undefined' ? `${window.location.origin}/?ref=${profile.referral_code}` : ''}
-                  </div>
-                  <Button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(`${window.location.origin}/?ref=${profile.referral_code}`);
-                      toast.success("Referral link copied!");
-                    }}
-                  >
-                    Copy
-                  </Button>
-                </div>
-              ) : (
-                <div className="h-11 w-full bg-muted animate-pulse rounded-lg"></div>
-              )}
-              <p className="text-xs text-muted-foreground mt-4">
-                Code: <strong className="font-mono text-foreground">{profile?.referral_code || '...'}</strong>
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {showOnboardingModal && (

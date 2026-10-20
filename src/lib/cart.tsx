@@ -15,6 +15,10 @@ type CartContextType = {
   clearCart: () => void;
   count: number;
   subtotal: number;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+  openCart: () => void;
+  closeCart: () => void;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -41,8 +45,12 @@ function saveCart(items: CartItem[]) {
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const userRef = useRef<string | null>(null);
+
+  const openCart = () => setIsOpen(true);
+  const closeCart = () => setIsOpen(false);
 
   useEffect(() => {
     const local = loadCart();
@@ -132,7 +140,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQty, clearCart, count, subtotal }}
+      value={{
+        items,
+        addItem,
+        removeItem,
+        updateQty,
+        clearCart,
+        count,
+        subtotal,
+        isOpen,
+        setIsOpen,
+        openCart,
+        closeCart,
+      }}
     >
       {children}
     </CartContext.Provider>
