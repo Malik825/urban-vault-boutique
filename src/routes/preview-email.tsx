@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Mail, Check, Send, Smartphone, Monitor } from "lucide-react";
+import { Mail, Check, Send, Smartphone, Monitor, Database } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -10,6 +10,7 @@ import {
   type OrderEmailPayload,
 } from "@/lib/email";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/preview-email")({
   head: () => ({
@@ -62,17 +63,76 @@ function EmailPreviewPage() {
   const [template, setTemplate] = useState<"customer" | "admin" | "status">("customer");
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [statusType, setStatusType] = useState<"shipped" | "ready_for_pickup" | "delivered">("shipped");
+  const [liveOrders, setLiveOrders] = useState<any[]>([]);
+  const [selectedOrderId, setSelectedOrderId] = useState<string>("sample");
+
+  useEffect(() => {
+    supabase
+      .from("orders")
+      .select("id, total, status, shipping_address, created_at, order_items(*)")
+      .order("created_at", { ascending: false })
+      .limit(10)
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setLiveOrders(data);
+        }
+      });
+  }, []);
+
+  const getActivePayload = (): OrderEmailPayload => {
+    if (selectedOrderId === "sample" || !liveOrders.length) {
+      return SAMPLE_ORDER;
+    }
+    const matched = liveOrders.find((o) => o.id === selectedOrderId);
+    if (!matched) return SAMPLE_ORDER;
+
+    const ship = (matched.shipping_address as any) || {};
+    const items = (ship.items || matched.order_items || []).map((it: any) => ({
+      name: it.product_name || it.name || "Boutique Product",
+      quantity: it.quantity || it.qty || 1,
+      unitPrice: it.unit_price || it.price || 0,
+      size: it.size || undefined,
+      image: it.image || undefined,
+    }));
+
+    return {
+      orderNumber: ship.orderNumber || `UV-${matched.id.slice(0, 8).toUpperCase()}`,
+      orderId: matched.id,
+      customerName: ship.customerName || "Customer",
+      email: ship.email || "customer@urbanvault.store",
+      phone: ship.phone || "",
+      deliveryMethod: ship.deliveryMethod || "delivery",
+      address: ship.address || "Accra, Ghana",
+      city: ship.city || "Accra",
+      region: ship.region || "Greater Accra",
+      paymentMethod: ship.paymentMethod || "Paystack / COD",
+      paymentStatus: ship.paymentStatus || matched.status,
+      paymentReference: ship.paymentReference || null,
+      subtotal: ship.subtotal || matched.total,
+      discount: ship.discount || 0,
+      shippingFee: ship.shippingFee || 0,
+      total: matched.total,
+      createdAt: new Date(matched.created_at).toLocaleDateString("en-GH", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
+      items: items.length > 0 ? items : SAMPLE_ORDER.items,
+      notes: ship.notes || null,
+    };
+  };
 
   const getHtml = () => {
+    const currentOrder = getActivePayload();
     if (template === "customer") {
-      return generateOrderConfirmationHtml(SAMPLE_ORDER);
+      return generateOrderConfirmationHtml(currentOrder);
     }
     if (template === "admin") {
-      return generateAdminOrderAlertHtml(SAMPLE_ORDER);
+      return generateAdminOrderAlertHtml(currentOrder);
     }
     return generateOrderStatusUpdateHtml({
-      orderNumber: SAMPLE_ORDER.orderNumber,
-      customerName: SAMPLE_ORDER.customerName,
+      orderNumber: currentOrder.orderNumber,
+      customerName: currentOrder.customerName,
       status: statusType,
       trackingNote: "Package handed over to Speedaf Express Courier. Tracking ID: SPGH-92819",
     });
@@ -132,6 +192,26 @@ function EmailPreviewPage() {
 
         {/* Sub-toggles for status and device */}
         <div className="flex items-center gap-3">
+          {/* Order Data Source Selector */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-mono text-neutral-400 hidden sm:inline">Data:</span>
+            <select
+              value={selectedOrderId}
+              onChange={(e) => setSelectedOrderId(e.target.value)}
+              className="bg-neutral-900 border border-neutral-800 text-xs rounded-lg px-2.5 py-1.5 text-neutral-200 font-mono"
+            >
+              <option value="sample">Sample Order Demo (GH₵ 917)</option>
+              {liveOrders.map((o) => {
+                const num = o.shipping_address?.orderNumber || `UV-${o.id.slice(0, 6).toUpperCase()}`;
+                return (
+                  <option key={o.id} value={o.id}>
+                    Live: {num} (GH₵ {o.total})
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+
           {template === "status" && (
             <select
               value={statusType}
