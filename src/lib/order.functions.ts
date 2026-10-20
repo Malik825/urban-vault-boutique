@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { GHANA_REGIONS, STORE } from "@/lib/store-data";
+import { sendOrderEmails } from "@/lib/email";
 
 function getAdminClient() {
   const url =
@@ -125,6 +126,10 @@ export const createCustomerOrder = createServerFn({ method: "POST" })
       if (data.deliveryMethod === "delivery") {
         const matchedRegion = GHANA_REGIONS.find((r) => r.name === data.region);
         shippingFee = matchedRegion ? matchedRegion.deliveryFee : 35;
+        // Automatic Accra free delivery over GH₵ 500
+        if (data.region === "Greater Accra" && subtotal >= 500) {
+          shippingFee = 0;
+        }
       }
 
       // Calculate Discounts
@@ -258,6 +263,37 @@ export const createCustomerOrder = createServerFn({ method: "POST" })
           note: `Boutique order ${orderNumber}`,
           created_by: assignedUserId,
         });
+      }
+
+      // 7. Dispatch Transactional Order Confirmation & Admin Notification Emails
+      try {
+        await sendOrderEmails({
+          orderNumber,
+          orderId: orderRow.id,
+          customerName: `${data.firstName} ${data.lastName}`.trim(),
+          email: data.email,
+          phone: data.phone,
+          deliveryMethod: data.deliveryMethod,
+          address: shippingAddressSnapshot.address,
+          city: shippingAddressSnapshot.city,
+          region: shippingAddressSnapshot.region,
+          paymentMethod: data.paymentMethod,
+          paymentStatus: shippingAddressSnapshot.paymentStatus,
+          paymentReference: data.paymentReference || null,
+          subtotal,
+          discount: discountAmount,
+          shippingFee,
+          total: finalTotal,
+          items: verifiedItems.map((item) => ({
+            name: item.product_name,
+            quantity: item.quantity,
+            unitPrice: item.unit_price,
+            image: item.image,
+          })),
+          notes: data.notes || null,
+        });
+      } catch (emailErr) {
+        console.warn("[createCustomerOrder] Email notification error:", emailErr);
       }
 
       return {

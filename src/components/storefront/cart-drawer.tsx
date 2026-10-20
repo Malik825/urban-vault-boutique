@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { MessageCircle, Minus, Plus, ShoppingCart, Trash2, X } from "lucide-react";
+import { Check, MessageCircle, Minus, Plus, ShoppingCart, Trash2, Truck, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,8 @@ import {
 import { useCart } from "@/lib/cart";
 import { createCartWhatsAppMessage, formatPrice, whatsappLink } from "@/lib/store-data";
 
+const FREE_DELIVERY_THRESHOLD = 500;
+
 export function CartDrawer({
   open,
   onOpenChange,
@@ -23,6 +25,10 @@ export function CartDrawer({
 }) {
   const { items, removeItem, updateQty, count, subtotal } = useCart();
 
+  const isFreeDelivery = subtotal >= FREE_DELIVERY_THRESHOLD;
+  const remainingForFree = Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal);
+  const deliveryProgress = Math.min(100, (subtotal / FREE_DELIVERY_THRESHOLD) * 100);
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       {children && <SheetTrigger asChild>{children}</SheetTrigger>}
@@ -33,6 +39,38 @@ export function CartDrawer({
             Your Cart {count > 0 && `(${count})`}
           </SheetTitle>
         </SheetHeader>
+
+        {/* Free Delivery Goal Tracker */}
+        {items.length > 0 && (
+          <div className="mt-3 rounded-xl border border-border/80 bg-surface-muted/60 p-3 text-xs">
+            <div className="flex items-center gap-2 font-medium text-foreground">
+              {isFreeDelivery ? (
+                <>
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                    <Check className="h-3.5 w-3.5" />
+                  </span>
+                  <span><strong>Free Accra Delivery Unlocked!</strong> You qualify for 100% free delivery.</span>
+                </>
+              ) : (
+                <>
+                  <Truck className="h-4 w-4 text-primary shrink-0" />
+                  <span>
+                    Add <strong>GH₵ {remainingForFree.toFixed(0)}</strong> more to get <strong>FREE Accra Delivery</strong>!
+                  </span>
+                </>
+              )}
+            </div>
+            {/* Progress Track */}
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-border/60">
+              <div
+                className={`h-full transition-all duration-500 ${
+                  isFreeDelivery ? "bg-emerald-500" : "bg-primary"
+                }`}
+                style={{ width: `${deliveryProgress}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         <div className="flex-1 overflow-y-auto px-1 py-6">
           {items.length === 0 ? (
@@ -135,11 +173,15 @@ export function CartDrawer({
               </div>
               <div className="flex justify-between text-muted-foreground text-xs">
                 <span>Estimated Delivery</span>
-                <span>From GH₵ 35 (Accra) · Free Pickup</span>
+                <span className={isFreeDelivery ? "font-semibold text-emerald-600 dark:text-emerald-400" : ""}>
+                  {isFreeDelivery ? "FREE (Accra)" : "From GH₵ 35 (Accra) · Free Pickup"}
+                </span>
               </div>
               <div className="flex justify-between text-base font-bold text-foreground pt-1 border-t border-border/60">
                 <span>Estimated Total</span>
-                <span className="text-primary font-display">{formatPrice(subtotal + 35)}</span>
+                <span className="text-primary font-display">
+                  {formatPrice(isFreeDelivery ? subtotal : subtotal + 35)}
+                </span>
               </div>
             </div>
 

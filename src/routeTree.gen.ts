@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as FaqsRouteImport } from './routes/faqs'
+import { Route as PreviewEmailRouteImport } from './routes/preview-email'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
@@ -63,6 +64,11 @@ const CompareRoute = CompareRouteImport.update({
 const FaqsRoute = FaqsRouteImport.update({
   id: '/faqs',
   path: '/faqs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreviewEmailRoute = PreviewEmailRouteImport.update({
+  id: '/preview-email',
+  path: '/preview-email',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsRoute = ProductsRouteImport.update({
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/compare': typeof CompareRoute
   '/faqs': typeof FaqsRoute
+  '/preview-email': typeof PreviewEmailRoute
   '/products': typeof ProductsRoute
   '/wishlist': typeof WishlistRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -175,6 +182,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/compare': typeof CompareRoute
   '/faqs': typeof FaqsRoute
+  '/preview-email': typeof PreviewEmailRoute
   '/products': typeof ProductsRoute
   '/wishlist': typeof WishlistRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/compare': typeof CompareRoute
   '/faqs': typeof FaqsRoute
+  '/preview-email': typeof PreviewEmailRoute
   '/products': typeof ProductsRoute
   '/wishlist': typeof WishlistRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
@@ -223,6 +232,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/compare'
     | '/faqs'
+    | '/preview-email'
     | '/products'
     | '/wishlist'
     | '/account'
@@ -245,6 +255,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/compare'
     | '/faqs'
+    | '/preview-email'
     | '/products'
     | '/wishlist'
     | '/account'
@@ -268,6 +279,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/compare'
     | '/faqs'
+    | '/preview-email'
     | '/products'
     | '/wishlist'
     | '/_authenticated/account'
@@ -292,6 +304,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   CompareRoute: typeof CompareRoute
   FaqsRoute: typeof FaqsRoute
+  PreviewEmailRoute: typeof PreviewEmailRoute
   ProductsRoute: typeof ProductsRoute
   WishlistRoute: typeof WishlistRoute
   ProductSlugRoute: typeof ProductSlugRoute
@@ -346,6 +359,13 @@ declare module '@tanstack/react-router' {
       path: '/faqs'
       fullPath: '/faqs'
       preLoaderRoute: typeof FaqsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preview-email': {
+      id: '/preview-email'
+      path: '/preview-email'
+      fullPath: '/preview-email'
+      preLoaderRoute: typeof PreviewEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products': {
@@ -489,6 +509,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   CompareRoute: CompareRoute,
   FaqsRoute: FaqsRoute,
+  PreviewEmailRoute: PreviewEmailRoute,
   ProductsRoute: ProductsRoute,
   WishlistRoute: WishlistRoute,
   ProductSlugRoute: ProductSlugRoute,
