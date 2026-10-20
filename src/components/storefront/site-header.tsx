@@ -34,10 +34,9 @@ const NAV_LINKS = [
 /* ── Main header ─────────────────────────────────────────── */
 export function SiteHeader() {
   const [searchOpen, setSearchOpen] = useState(false);
-  const [cartOpen, setCartOpen]     = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled]     = useState(false);
-  const { count } = useCart();
+  const { count, isOpen: cartOpen, setIsOpen: setCartOpen } = useCart();
   const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();

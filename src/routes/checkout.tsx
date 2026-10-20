@@ -107,7 +107,7 @@ function CheckoutPage() {
   const [deliveryMethod, setDeliveryMethod] = useState<"delivery" | "pickup">("delivery");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("Accra");
-  const [region, setRegion] = useState(GHANA_REGIONS[0].name);
+  const [region, setRegion] = useState(GHANA_REGIONS[0]?.name || "Greater Accra");
   const [paymentMethod, setPaymentMethod] = useState("momo");
   const [momoProvider, setMomoProvider] = useState("MTN Mobile Money");
   const [momoNumber, setMomoNumber] = useState("");
@@ -134,7 +134,8 @@ function CheckoutPage() {
   // Shipping Calculation
   const selectedRegionData = GHANA_REGIONS.find((r) => r.name === region) || GHANA_REGIONS[0];
   const baseShipping = deliveryMethod === "pickup" ? 0 : (selectedRegionData?.deliveryFee ?? 40);
-  const isFreeShipping = appliedPromo === "FREESHIP";
+  const isAccraFreeShipping = deliveryMethod === "delivery" && region === "Greater Accra" && subtotal >= 500;
+  const isFreeShipping = appliedPromo === "FREESHIP" || isAccraFreeShipping;
   const shipping = isFreeShipping ? 0 : baseShipping;
 
   const discountPercent = appliedPromo && PROMO_CODES[appliedPromo]?.discountPercent ? PROMO_CODES[appliedPromo].discountPercent! : 0;
@@ -974,8 +975,12 @@ function CheckoutPage() {
               <span>
                 {deliveryMethod === "pickup" ? "In-Store Pickup" : `Delivery (${region})`}
               </span>
-              <span className="font-medium text-foreground">
-                {shipping > 0 ? formatPrice(shipping) : "Free"}
+              <span className={`font-medium ${isFreeShipping || shipping === 0 ? "text-emerald-600 dark:text-emerald-400 font-semibold" : "text-foreground"}`}>
+                {shipping > 0
+                  ? formatPrice(shipping)
+                  : isAccraFreeShipping
+                  ? "FREE (Accra GH₵ 500+ promo)"
+                  : "Free"}
               </span>
             </div>
           </div>

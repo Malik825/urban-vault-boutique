@@ -126,6 +126,10 @@ export const createCustomerOrder = createServerFn({ method: "POST" })
       if (data.deliveryMethod === "delivery") {
         const matchedRegion = GHANA_REGIONS.find((r) => r.name === data.region);
         shippingFee = matchedRegion ? matchedRegion.deliveryFee : 35;
+        // Automatic Accra free delivery over GH₵ 500
+        if (data.region === "Greater Accra" && subtotal >= 500) {
+          shippingFee = 0;
+        }
       }
 
       // Calculate Discounts
