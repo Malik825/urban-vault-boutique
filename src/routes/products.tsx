@@ -76,7 +76,9 @@ export const Route = createFileRoute("/products")({
         property: "og:description",
         content: `Explore curated streetwear, footwear and unisex apparel at ${STORE.name}.`,
       },
+      { property: "og:url", content: `${STORE.siteUrl}/products` },
     ],
+    links: [{ rel: "canonical", href: `${STORE.siteUrl}/products` }],
   }),
   loader: async (): Promise<CatalogProduct[]> => listPublishedProducts(),
   component: Listing,
@@ -101,6 +103,18 @@ function Listing() {
     size: [],
     availability: [],
   });
+
+  // Compute live counts from the loaded products data
+  const liveCounts = useMemo(() => {
+    const published = products.filter((p) => p.status === "Published");
+    const category: Record<string, number> = {};
+    const brand: Record<string, number> = {};
+    for (const p of published) {
+      category[p.category] = (category[p.category] ?? 0) + 1;
+      brand[p.brand] = (brand[p.brand] ?? 0) + 1;
+    }
+    return { category, brand };
+  }, [products]);
 
   const PAGE_SIZE = 12;
   const [currentPage, setCurrentPage] = useState(search.page ? Math.max(1, Number(search.page)) : 1);
@@ -235,6 +249,7 @@ function Listing() {
         title="Category"
         group="category"
         options={filterOptions.category}
+        counts={liveCounts.category}
         sel={sel}
         toggle={toggle}
       />
@@ -245,7 +260,7 @@ function Listing() {
         sel={sel}
         toggle={toggle}
       />
-      <CheckGroup title="Brand" group="brand" options={filterOptions.brand} sel={sel} toggle={toggle} />
+      <CheckGroup title="Brand" group="brand" options={filterOptions.brand} counts={liveCounts.brand} sel={sel} toggle={toggle} />
       <CheckGroup
         title="Condition"
         group="condition"
@@ -407,13 +422,11 @@ function Listing() {
                 <button
                   onClick={() => {
                     setSel({
+                      department: [],
                       brand: [],
                       category: [],
                       condition: [],
-                      ram: [],
-                      storage: [],
-                      processor: [],
-                      screen: [],
+                      size: [],
                       availability: [],
                     });
                     setPrice([0, MAX_PRICE]);
@@ -453,7 +466,7 @@ function Listing() {
                       <span className="font-semibold text-foreground">
                         {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, results.length)}
                       </span>{" "}
-                      of <span className="font-semibold text-foreground">{results.length}</span> devices
+                      of <span className="font-semibold text-foreground">{results.length}</span> items
                     </p>
 
                     <div className="order-1 sm:order-2">
@@ -555,30 +568,44 @@ function CheckGroup({
   title,
   group,
   options = [],
+  counts,
   sel,
   toggle,
 }: {
   title: string;
   group: string;
   options?: string[];
+  counts?: Record<string, number>;
   sel: Record<string, string[]>;
   toggle: (g: string, v: string) => void;
 }) {
-  if (!options || options.length === 0) return null;
+  // Only show options that have at least 1 product (when counts provided)
+  const visibleOptions = counts
+    ? options.filter((o) => (counts[o] ?? 0) > 0)
+    : options;
+
+  if (!visibleOptions || visibleOptions.length === 0) return null;
 
   return (
     <FilterGroup title={title}>
       <div className="space-y-2.5">
-        {options.map((o) => (
-          <div key={o} className="flex items-center gap-2.5">
-            <Checkbox
-              id={`${group}-${o}`}
-              checked={sel[group]?.includes(o) ?? false}
-              onCheckedChange={() => toggle(group, o)}
-            />
-            <Label htmlFor={`${group}-${o}`} className="cursor-pointer text-sm font-normal">
-              {o}
-            </Label>
+        {visibleOptions.map((o) => (
+          <div key={o} className="flex items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5">
+              <Checkbox
+                id={`${group}-${o}`}
+                checked={sel[group]?.includes(o) ?? false}
+                onCheckedChange={() => toggle(group, o)}
+              />
+              <Label htmlFor={`${group}-${o}`} className="cursor-pointer text-sm font-normal leading-none">
+                {o}
+              </Label>
+            </div>
+            {counts && counts[o] !== undefined && (
+              <span className="text-[11px] font-medium text-muted-foreground tabular-nums">
+                {counts[o]}
+              </span>
+            )}
           </div>
         ))}
       </div>
@@ -592,9 +619,9 @@ function EmptyState() {
       <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-primary-soft text-accent-foreground">
         <Search className="h-5 w-5" />
       </span>
-      <h2 className="mt-5 font-display text-lg font-bold">No devices match those filters</h2>
+      <h2 className="mt-5 font-display text-lg font-bold">No items match those filters</h2>
       <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-        Loosen a filter or two — or send us a WhatsApp message and we&apos;ll source it for you.
+        Try adjusting your filters — or message us on WhatsApp and we&apos;ll source it for you.
       </p>
       <div className="mt-6 flex justify-center gap-2">
         <Button asChild variant="outline">

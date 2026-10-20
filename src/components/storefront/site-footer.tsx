@@ -12,7 +12,7 @@ export function SiteFooter() {
         <div className="mx-auto max-w-7xl container-x">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
             <div className="flex items-center gap-3">
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-500/10 text-emerald-600">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
                 <MessageCircle className="h-4 w-4" />
               </span>
               <div>
@@ -81,7 +81,7 @@ export function SiteFooter() {
                 href={whatsappLink(`Hello ${STORE.name}, I'd like to make an enquiry.`)}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 font-medium text-emerald-600 hover:underline dark:text-emerald-400"
+                className="flex items-center gap-2 font-medium text-primary hover:underline"
               >
                 <MessageCircle className="h-4 w-4 shrink-0" /> WhatsApp: {STORE.whatsapp}
               </a>
@@ -158,7 +158,7 @@ export function SiteFooter() {
                   href="https://www.webaddict.me/pricing"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-medium text-emerald-600 hover:underline dark:text-emerald-400 flex items-center gap-1"
+                  className="font-medium text-primary hover:underline flex items-center gap-1"
                 >
                   Want a store like this? View Pricing →
                 </a>

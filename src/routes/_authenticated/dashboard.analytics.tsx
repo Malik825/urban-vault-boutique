@@ -21,13 +21,13 @@ import { adminGetAnalytics } from "@/lib/admin.functions";
 export const Route = createFileRoute("/_authenticated/dashboard/analytics")({
   head: () => ({
     meta: [
-      { title: "Analytics — Voltix sales, traffic & conversion" },
+      { title: "Analytics — Urban Vault sales, traffic & conversion" },
       {
         name: "description",
         content:
           "Sales and traffic trends, popular searches, most viewed products and conversion rate for your electronics store.",
       },
-      { property: "og:title", content: "Analytics — Voltix seller dashboard" },
+      { property: "og:title", content: "Analytics — Urban Vault Admin" },
       { property: "og:description", content: "Sales, traffic, searches and conversion rate." },
     ],
   }),
@@ -182,3 +182,4 @@ function Analytics() {
     </DashboardShell>
   );
 }
+

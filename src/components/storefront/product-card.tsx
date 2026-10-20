@@ -75,14 +75,14 @@ export function ProductCard({
         />
       )}
 
-      {/* Badges (New, -15%, Best seller) - Solid green pill matching inspiration */}
+      {/* Badges (New, -15%, Best seller) - Uses active theme primary */}
       <div className="absolute left-2.5 top-2.5 z-10 flex flex-col items-start gap-1">
         {discount > 0 ? (
-          <span className="rounded-lg bg-emerald-600 px-2 py-0.5 text-[11px] font-semibold text-white shadow-xs">
+          <span className="rounded-lg bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground shadow-xs">
             −{discount}%
           </span>
         ) : product.badge ? (
-          <span className="rounded-lg bg-emerald-600 px-2.5 py-0.5 text-[11px] font-semibold text-white shadow-xs">
+          <span className="rounded-lg bg-primary px-2.5 py-0.5 text-[11px] font-semibold text-primary-foreground shadow-xs">
             {product.badge}
           </span>
         ) : null}
@@ -131,7 +131,7 @@ export function ProductCard({
           <Link
             to="/product/$slug"
             params={{ slug: product.slug }}
-            className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+            className="hover:text-primary transition-colors"
           >
             {product.name}
           </Link>
@@ -141,9 +141,9 @@ export function ProductCard({
           <p className="mt-1 line-clamp-2 text-xs sm:text-sm text-muted-foreground">{product.blurb}</p>
         )}
 
-        {/* Row 3: Price in Vibrant Emerald + Compare At */}
+        {/* Row 3: Price in Active Theme Primary + Compare At */}
         <div className="mt-1 flex items-baseline gap-2">
-          <span className="font-extrabold text-base sm:text-lg text-emerald-600 dark:text-emerald-400 tracking-tight">
+          <span className="font-extrabold text-base sm:text-lg text-primary tracking-tight">
             {formatPrice(product.price)}
           </span>
           {product.compareAt && (
@@ -153,15 +153,15 @@ export function ProductCard({
           )}
         </div>
 
-        {/* Row 4: Stock Status (Emerald dot + In stock) */}
-        <div className="mt-1 mb-2.5 flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+        {/* Row 4: Stock Status (Theme primary dot + In stock) */}
+        <div className="mt-1 mb-2.5 flex items-center gap-1.5 text-xs font-medium text-primary">
           <span
             className={`h-1.5 w-1.5 rounded-full shrink-0 ${
               product.stock === 0
                 ? "bg-muted-foreground"
                 : product.stock <= 4
                 ? "bg-amber-500"
-                : "bg-emerald-500"
+                : "bg-primary"
             }`}
           />
           <span>
@@ -181,7 +181,7 @@ export function ProductCard({
           size="icon"
           aria-label="Enquire on WhatsApp"
           title="Enquire on WhatsApp"
-          className="h-9 w-9 rounded-xl border border-emerald-500/35 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500 shrink-0"
+          className="h-9 w-9 rounded-xl border border-primary/35 bg-primary/5 text-primary hover:bg-primary/10 hover:border-primary shrink-0"
           asChild
         >
           <a
@@ -205,7 +205,7 @@ export function ProductCard({
               toast.success(`${product.name} added to cart`);
             }
           }}
-          className="h-9 flex-1 min-w-0 px-2.5 sm:px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm rounded-xl gap-1.5 shadow-xs active:scale-95 transition-all whitespace-nowrap"
+          className="h-9 flex-1 min-w-0 px-2.5 sm:px-3 bg-primary hover:bg-primary-deep text-primary-foreground font-semibold text-xs sm:text-sm rounded-xl gap-1.5 shadow-xs active:scale-95 transition-all whitespace-nowrap"
         >
           <ShoppingCart className="h-3.5 w-3.5 shrink-0" />
           <span className="truncate">{product.stock === 0 ? "Out of stock" : "Add to cart"}</span>

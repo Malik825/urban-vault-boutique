@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   User,
   Package,
@@ -44,6 +44,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 function AccountPage() {
+  const navigate = useNavigate();
   const { user, isAdmin, signOut } = useAuth();
   const { wishlist } = useWishlist();
   const { compareList } = useCompare();
@@ -53,7 +54,13 @@ function AccountPage() {
   const [loadingOrders, setLoadingOrders] = useState(true);
 
   useEffect(() => {
-    if (user) {
+    if (isAdmin) {
+      navigate({ to: "/dashboard", replace: true });
+    }
+  }, [isAdmin, navigate]);
+
+  useEffect(() => {
+    if (user && !isAdmin) {
       supabase
         .from("profiles")
         .select("referral_code, store_credit")
@@ -83,6 +90,7 @@ function AccountPage() {
   async function handleSignOut() {
     await signOut();
     toast.success("Signed out successfully");
+    navigate({ to: "/" });
   }
 
   return (
@@ -285,6 +293,16 @@ function AccountPage() {
                             {order.shipping_address.deliveryMethod === "pickup"
                               ? "Showroom Pickup"
                               : `Delivery: ${order.shipping_address.city || "Ghana"}`}
+                          </p>
+                        )}
+                        {order.shipping_address?.paymentMethod && (
+                          <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                            <span>{order.shipping_address.paymentMethod}</span>
+                            {order.shipping_address?.paymentStatus === "paid" && (
+                              <span className="font-bold text-primary text-[10px]">
+                                &bull; Paid (Paystack)
+                              </span>
+                            )}
                           </p>
                         )}
                       </div>

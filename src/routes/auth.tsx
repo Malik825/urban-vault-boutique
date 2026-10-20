@@ -22,10 +22,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { STORE } from "@/lib/store-data";
+import { serverRegisterUser } from "@/lib/auth.functions";
+import { BoutiqueOnboardingModal } from "@/components/auth/onboarding-modal";
 
-import authBottomImg from "@/assets/Premium Green Tech Collection.png";
+const authSearchSchema = z.object({
+  redirect: z.string().optional(),
+  mode: z.enum(["login", "register", "forgot"]).optional(),
+});
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => authSearchSchema.parse(search),
   head: () => ({
     meta: [
       { title: `Account Sign In & Register — ${STORE.name}` },
@@ -34,7 +40,9 @@ export const Route = createFileRoute("/auth")({
         content:
           `Sign in or register your ${STORE.name} account to track orders, manage wishlist, and access exclusive boutique drops.`,
       },
+      { name: "robots", content: "noindex" },
     ],
+    links: [{ rel: "canonical", href: `${STORE.siteUrl}/auth` }],
   }),
   component: AuthPage,
 });
@@ -84,7 +92,14 @@ function AppleIcon(props: React.SVGProps<SVGSVGElement>) {
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
+  const search = Route.useSearch();
+  const rawRedirect = search.redirect;
+  const targetRedirect =
+    rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
+      ? rawRedirect
+      : null;
+
+  const [mode, setMode] = useState<"login" | "register" | "forgot">(search.mode || "login");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -95,25 +110,43 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
 
-  // Auto-redirect if already signed in: admins to /dashboard, customers to /account
+  // Onboarding state
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [newlyRegisteredUser, setNewlyRegisteredUser] = useState<{
+    id: string;
+    email: string;
+    fullName?: string;
+  } | null>(null);
+
+  // Auto-redirect if already signed in: smart redirect to intended destination
   useEffect(() => {
+    if (showOnboarding || newlyRegisteredUser) return;
+
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
-        const { data: roleData } = await supabase
+        const { data: roleData } = await (supabase as any)
           .from("user_roles")
           .select("role")
           .eq("user_id", session.user.id)
           .eq("role", "admin")
           .maybeSingle();
 
-        if (roleData) {
+        const isAdmin = !!roleData;
+        if (isAdmin) {
           navigate({ to: "/dashboard", replace: true });
+        } else if (targetRedirect) {
+          // If customer tries to access dashboard, redirect to /account, otherwise respect targetRedirect
+          if (targetRedirect.startsWith("/dashboard")) {
+            navigate({ to: "/account", replace: true });
+          } else {
+            navigate({ to: targetRedirect as any, replace: true });
+          }
         } else {
           navigate({ to: "/account", replace: true });
         }
       }
     });
-  }, [navigate]);
+  }, [navigate, showOnboarding, newlyRegisteredUser, targetRedirect]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -132,10 +165,10 @@ function AuthPage() {
       if (error) throw error;
       toast.success(`Welcome back to ${STORE.name}!`);
 
-      // If user is admin, navigate directly to dashboard; otherwise go to customer account
+      // Check admin status for smart navigation
       let isAdminUser = false;
       if (authData?.user) {
-        const { data: roleData } = await supabase
+        const { data: roleData } = await (supabase as any)
           .from("user_roles")
           .select("role")
           .eq("user_id", authData.user.id)
@@ -147,8 +180,15 @@ function AuthPage() {
         }
       }
 
+      // Admin should always be redirected to the dashboard
       if (isAdminUser) {
         navigate({ to: "/dashboard" });
+      } else if (targetRedirect) {
+        if (targetRedirect.startsWith("/dashboard")) {
+          navigate({ to: "/account" });
+        } else {
+          navigate({ to: targetRedirect as any });
+        }
       } else {
         navigate({ to: "/account" });
       }
@@ -169,27 +209,57 @@ function AuthPage() {
 
     setBusy(true);
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email: parsed.data.email,
-        password: parsed.data.password,
-        options: {
+      let registeredUserId = "";
+
+      // 1. Register with instant auto-confirmation via server admin client (bypasses email delays)
+      try {
+        const res = await serverRegisterUser({
           data: {
-            full_name: parsed.data.fullName,
+            email: parsed.data.email,
+            password: parsed.data.password,
+            fullName: parsed.data.fullName,
             phone: parsed.data.phone,
           },
-          emailRedirectTo: `${window.location.origin}/auth`,
-        },
-      });
-      if (error) throw error;
-
-      if (!data.session) {
-        toast.success("Registration successful! Check your email to confirm your account.");
-      } else {
-        toast.success("Account created successfully!");
-        navigate({ to: "/account" });
+        });
+        registeredUserId = res.userId;
+      } catch (serverErr: any) {
+        console.warn("[Register] Server function fallback:", serverErr);
+        const { data: clientSignup, error: clientErr } = await supabase.auth.signUp({
+          email: parsed.data.email,
+          password: parsed.data.password,
+          options: {
+            data: {
+              full_name: parsed.data.fullName,
+              phone: parsed.data.phone,
+            },
+          },
+        });
+        if (clientErr) throw clientErr;
+        registeredUserId = clientSignup.user?.id || "";
       }
+
+      // 2. Immediately sign in with credentials to obtain active session
+      const { data: authData, error: loginErr } = await supabase.auth.signInWithPassword({
+        email: parsed.data.email,
+        password: parsed.data.password,
+      });
+
+      if (loginErr) {
+        console.warn("[Register] Immediate login notice:", loginErr);
+      }
+
+      const activeId = authData?.user?.id || registeredUserId || "guest";
+      setNewlyRegisteredUser({
+        id: activeId,
+        email: parsed.data.email,
+        fullName: parsed.data.fullName,
+      });
+
+      // 3. Open the VIP Boutique Onboarding Experience!
+      setShowOnboarding(true);
+      toast.success(`Welcome to ${STORE.name}! Your account is active.`);
     } catch (err: any) {
-      toast.error(err?.message || "Failed to create account");
+      toast.error(err?.message || "Failed to create account. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -238,9 +308,11 @@ function AuthPage() {
           <div>
             {/* Brand Header */}
             <Link to="/" className="inline-flex items-center gap-2.5 outline-none group">
-              <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-white shadow-xs">
-                <Zap className="h-4 w-4 fill-white" />
-              </div>
+              <img
+                src="/urban-vault-logo.jpg"
+                alt={STORE.name}
+                className="h-9 w-9 rounded-full object-cover shadow-glow ring-1 ring-white/20"
+              />
               <span className="font-display text-lg sm:text-xl font-bold tracking-tight text-white group-hover:text-white/80 transition-colors">
                 {STORE.name}
               </span>
@@ -251,12 +323,12 @@ function AuthPage() {
               {mode === "login" && (
                 <>
                   <h1 className="font-display text-2xl sm:text-3xl lg:text-[2.1rem] font-extrabold leading-[1.18] text-white tracking-tight">
-                    Better Tech.
+                    Curated Streetwear.
                     <br />
-                    Bigger Possibilities.
+                    Bespoke Fashion.
                   </h1>
                   <p className="mt-3 text-xs sm:text-sm text-slate-300/90 leading-relaxed max-w-xs">
-                    Your trusted store for the latest devices, gadgets and accessories.
+                    Sign in to access VIP pricing, track boutique orders, and shop new season drops.
                   </p>
                 </>
               )}
@@ -264,10 +336,10 @@ function AuthPage() {
               {mode === "register" && (
                 <>
                   <h1 className="font-display text-2xl sm:text-3xl lg:text-[2.1rem] font-extrabold leading-[1.18] text-white tracking-tight">
-                    Join {STORE.name}
+                    Join The Vault Club
                   </h1>
                   <p className="mt-3 text-xs sm:text-sm text-slate-300/90 leading-relaxed max-w-xs">
-                    Create your account and get access to exclusive deals, faster checkout and personalized recommendations.
+                    Create your account to unlock an instant 10% welcome discount, curated sizing, and early access.
                   </p>
                 </>
               )}
@@ -287,52 +359,51 @@ function AuthPage() {
             {/* 3 Value Propositions */}
             <div className="mt-6 sm:mt-8 space-y-3.5">
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/10 text-white/90 border border-white/15">
+                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/20 text-primary border border-primary/30">
                   <ShieldCheck className="h-3.5 w-3.5" />
                 </div>
                 <div>
                   <h4 className="text-xs sm:text-sm font-semibold text-white leading-tight">
-                    Genuine Products
+                    100% Authentic Designer Pieces
                   </h4>
-                  <p className="text-[11px] text-slate-400">100% authentic and verified</p>
+                  <p className="text-[11px] text-slate-400">Verified heavyweight GSM fabrics & tailoring</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/10 text-white/90 border border-white/15">
+                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/20 text-primary border border-primary/30">
                   <Truck className="h-3.5 w-3.5" />
                 </div>
                 <div>
                   <h4 className="text-xs sm:text-sm font-semibold text-white leading-tight">
-                    Fast Delivery
+                    Accra Delivery & In-Store Pickup
                   </h4>
-                  <p className="text-[11px] text-slate-400">Across Ghana and beyond</p>
+                  <p className="text-[11px] text-slate-400">Fast delivery across Greater Accra & nationwide Ghana</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-white/10 text-white/90 border border-white/15">
+                <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/20 text-primary border border-primary/30">
                   <Lock className="h-3.5 w-3.5" />
                 </div>
                 <div>
                   <h4 className="text-xs sm:text-sm font-semibold text-white leading-tight">
-                    Secure Payments
+                    Secure MoMo & Card Payments
                   </h4>
-                  <p className="text-[11px] text-slate-400">Multiple payment options</p>
+                  <p className="text-[11px] text-slate-400">MTN MoMo, Telecel Cash, Paystack cards & COD</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Bottom Device Graphic Showcase with Clean Subtle Shadow */}
+          {/* Bottom Fashion Graphic Showcase */}
           <div className="hidden lg:block mt-8 pt-4">
             <div className="relative overflow-hidden rounded-2xl border border-white/10 shadow-lg bg-black/40 group">
               <img
-                src={authBottomImg}
-                alt="Tech Collection"
-                className="w-full h-40 object-cover object-center opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                src="/boutique/urban_vault_hero_1_1792394728170.jpg"
+                alt="Urban Vault Fashion Collection"
+                className="w-full h-44 object-cover object-top opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
               />
-              {/* Clean Neutral Gradient Edge Masks */}
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E17] via-transparent to-transparent pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-r from-[#0A0E17]/60 via-transparent to-[#0A0E17]/60 pointer-events-none" />
             </div>
@@ -405,7 +476,7 @@ function AuthPage() {
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
-                      className="rounded border-border text-emerald-600 focus:ring-emerald-500 h-4 w-4"
+                      className="rounded border-border text-primary focus:ring-primary h-4 w-4"
                     />
                     <span>Remember me</span>
                   </label>
@@ -690,6 +761,16 @@ function AuthPage() {
           )}
 
         </div>
+
+        {/* ── ONBOARDING MODAL FOR NEW SIGNUPS ── */}
+        {newlyRegisteredUser && (
+          <BoutiqueOnboardingModal
+            isOpen={showOnboarding}
+            onOpenChange={setShowOnboarding}
+            user={newlyRegisteredUser}
+            redirectUrl={targetRedirect || undefined}
+          />
+        )}
     </div>
   );
 }

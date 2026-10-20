@@ -20,7 +20,9 @@ export const Route = createFileRoute("/faqs")({
         name: "description",
         content: `Frequently asked questions about ${STORE.name} — shipping, returns, device conditions, payments and more.`,
       },
+      { property: "og:url", content: `${STORE.siteUrl}/faqs` },
     ],
+    links: [{ rel: "canonical", href: `${STORE.siteUrl}/faqs` }],
   }),
   component: FaqsPage,
 });
@@ -199,9 +201,9 @@ function FaqsPage() {
             Frequently Asked <span className="text-gradient-brand">Questions</span>
           </h1>
           <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground leading-relaxed">
-            Everything you need to know about buying from Voltix. Can't find an answer?{" "}
+            Everything you need to know about shopping at Urban Vault. Can't find an answer?{" "}
             <a
-              href={whatsappLink("Hi Voltix, I have a question.")}
+              href={whatsappLink("Hi Urban Vault, I have a question about your boutique items.")}
               target="_blank"
               rel="noreferrer"
               className="font-semibold text-primary hover:underline"
@@ -289,7 +291,7 @@ function FaqsPage() {
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Button asChild size="lg" className="rounded-full px-8 shadow-md">
-                <a href={whatsappLink("Hi Voltix, I have a question.")} target="_blank" rel="noreferrer">
+                <a href={whatsappLink("Hi Urban Vault, I have a question about your products.")} target="_blank" rel="noreferrer">
                   <MessageCircle className="mr-2 h-4 w-4" /> Chat on WhatsApp
                 </a>
               </Button>

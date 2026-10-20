@@ -31,7 +31,7 @@ function getAdminClient() {
 }
 
 export type PlaceOrderInput = {
-  userId?: string;
+  userId?: string | undefined;
   firstName: string;
   lastName: string;
   email: string;
@@ -41,15 +41,17 @@ export type PlaceOrderInput = {
   city: string;
   region: string;
   paymentMethod: string;
-  momoProvider?: string;
-  notes?: string;
-  promoCode?: string;
+  momoProvider?: string | undefined;
+  paymentReference?: string | undefined;
+  paymentStatus?: "paid" | "pending" | undefined;
+  notes?: string | undefined;
+  promoCode?: string | undefined;
   items: Array<{
     id: string;
     qty: number;
-    name?: string;
-    price?: number;
-    image?: string;
+    name?: string | undefined;
+    price?: number | undefined;
+    image?: string | undefined;
   }>;
 };
 
@@ -59,6 +61,15 @@ export const createCustomerOrder = createServerFn({ method: "POST" })
     try {
       if (!data.items || data.items.length === 0) {
         throw new Error("Cannot place an order with an empty cart");
+      }
+
+      if (data.deliveryMethod === "delivery") {
+        if (!data.region || !data.region.trim()) {
+          throw new Error("Delivery region is required for shipping");
+        }
+        if (!data.address || !data.address.trim()) {
+          throw new Error("Delivery street address is required");
+        }
       }
 
       const supabase = getAdminClient();
@@ -119,7 +130,7 @@ export const createCustomerOrder = createServerFn({ method: "POST" })
       // Calculate Discounts
       let discountAmount = 0;
       const promoUpper = (data.promoCode || "").toUpperCase().trim();
-      if (promoUpper === "WELCOME10" || promoUpper === "GHANA10") {
+      if (promoUpper === "WELCOME10" || promoUpper === "GHANA10" || promoUpper === "VAULTVIP10") {
         discountAmount = Math.round(subtotal * 0.1);
       } else if (promoUpper === "FREESHIP" && data.deliveryMethod === "delivery") {
         discountAmount = shippingFee;
@@ -187,6 +198,8 @@ export const createCustomerOrder = createServerFn({ method: "POST" })
         region: data.deliveryMethod === "pickup" ? "Greater Accra" : data.region,
         paymentMethod: data.paymentMethod,
         momoProvider: data.momoProvider,
+        paymentReference: data.paymentReference || null,
+        paymentStatus: data.paymentStatus || (data.paymentMethod.toLowerCase().includes("cash") ? "pending_cod" : "pending"),
         promoCode: data.promoCode || null,
         subtotal,
         discount: discountAmount,
@@ -196,11 +209,12 @@ export const createCustomerOrder = createServerFn({ method: "POST" })
       };
 
       // 4. Insert Order
+      const initialStatus = data.paymentStatus === "paid" ? "processing" : "pending";
       const { data: orderRow, error: orderErr } = await supabase
         .from("orders")
         .insert({
           user_id: assignedUserId,
-          status: "pending",
+          status: initialStatus,
           total: finalTotal,
           shipping_address: shippingAddressSnapshot as any,
           notes: data.notes || null,
@@ -259,6 +273,8 @@ export const createCustomerOrder = createServerFn({ method: "POST" })
         region: shippingAddressSnapshot.region,
         paymentMethod: data.paymentMethod,
         momoProvider: data.momoProvider,
+        paymentReference: data.paymentReference || null,
+        paymentStatus: data.paymentStatus || (data.paymentMethod.toLowerCase().includes("cash") ? "pending_cod" : "pending"),
         subtotal,
         discount: discountAmount,
         promoCode: data.promoCode || null,

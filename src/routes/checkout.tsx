@@ -37,6 +37,7 @@ import {
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { createCustomerOrder } from "@/lib/order.functions";
+import { initializePaystackCheckout, PAYSTACK_PUBLIC_KEY } from "@/lib/paystack";
 import { formatPrice, STORE, GHANA_REGIONS, whatsappLink } from "@/lib/store-data";
 
 export const Route = createFileRoute("/checkout")({
@@ -48,7 +49,9 @@ export const Route = createFileRoute("/checkout")({
         content:
           "Secure checkout with Ghana Mobile Money (MTN MoMo, Telecel Cash), cards via Paystack, and direct WhatsApp order confirmation.",
       },
+      { name: "robots", content: "noindex" },
     ],
+    links: [{ rel: "canonical", href: `${STORE.siteUrl}/checkout` }],
   }),
   component: CheckoutPage,
 });
@@ -72,15 +75,18 @@ interface OrderConfirmationData {
   }>;
   subtotal: number;
   discount: number;
-  promoCode: string | null;
+  promoCode: string | null | undefined;
   shipping: number;
   total: number;
   paymentMethod: string;
-  momoProvider?: string;
+  momoProvider?: string | undefined;
+  paymentReference?: string | null | undefined;
+  paymentStatus?: string | undefined;
   createdAt: string;
 }
 
 const PROMO_CODES: Record<string, { discountPercent?: number; freeShipping?: boolean; label: string }> = {
+  VAULTVIP10: { discountPercent: 10, label: "VIP Club 10% Welcome Discount" },
   WELCOME10: { discountPercent: 10, label: "10% off welcome discount" },
   GHANA10: { discountPercent: 10, label: "10% African retail promo" },
   FREESHIP: { freeShipping: true, label: "Free shipping across Ghana" },
@@ -101,7 +107,7 @@ function CheckoutPage() {
   const [deliveryMethod, setDeliveryMethod] = useState<"delivery" | "pickup">("delivery");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("Accra");
-  const [region, setRegion] = useState("Greater Accra");
+  const [region, setRegion] = useState(GHANA_REGIONS[0].name);
   const [paymentMethod, setPaymentMethod] = useState("momo");
   const [momoProvider, setMomoProvider] = useState("MTN Mobile Money");
   const [momoNumber, setMomoNumber] = useState("");
@@ -110,13 +116,13 @@ function CheckoutPage() {
   useEffect(() => {
     if (user) {
       if (user.email && !email) setEmail(user.email);
-      const fullName = (user.user_metadata?.full_name as string) || "";
+      const fullName = (user.user_metadata?.["full_name"] as string) || "";
       if (fullName) {
         const parts = fullName.split(" ");
         if (!firstName) setFirstName(parts[0] || "");
         if (!lastName) setLastName(parts.slice(1).join(" ") || "");
       }
-      const userPhone = (user.user_metadata?.phone as string) || "";
+      const userPhone = (user.user_metadata?.["phone"] as string) || "";
       if (userPhone && !phone) setPhone(userPhone);
     }
   }, [user]);
@@ -154,6 +160,75 @@ function CheckoutPage() {
     toast.info("Coupon removed");
   };
 
+  const executeOrderCreation = async (paymentRef?: string, paidStatus: "paid" | "pending" = "pending") => {
+    let paymentLabel = "Cash on Delivery";
+    if (paymentMethod === "cod") paymentLabel = "Cash on Delivery (Pay on Arrival)";
+    else if (paymentMethod === "card") paymentLabel = "Debit/Credit Card (Paystack)";
+    else if (paymentMethod === "momo") paymentLabel = `Mobile Money via Paystack (${momoProvider})`;
+    else if (paymentMethod === "whatsapp") paymentLabel = "WhatsApp Direct Order";
+
+    const customerEmail = email.trim() || (user?.email ?? "orders@urbanvaultgh.com");
+
+    const res = await createCustomerOrder({
+      data: {
+        userId: user?.id,
+        firstName: firstName.trim() || "Customer",
+        lastName: lastName.trim(),
+        email: customerEmail,
+        phone: phone.trim(),
+        deliveryMethod,
+        address: deliveryMethod === "pickup" ? STORE.pickupLocation : address,
+        city: deliveryMethod === "pickup" ? "Accra" : city,
+        region: deliveryMethod === "pickup" ? "Greater Accra" : region,
+        paymentMethod: paymentLabel,
+        momoProvider: paymentMethod === "momo" ? momoProvider : undefined,
+        promoCode: appliedPromo || undefined,
+        paymentReference: paymentRef,
+        paymentStatus: paidStatus,
+        items: items.map((i) => ({
+          id: (i.product as any).dbId || i.product.id || (i.product as any).sku,
+          qty: i.qty,
+          name: i.product.name,
+          price: i.product.price,
+          image: i.product.images[0] || "/placeholder.jpg",
+        })),
+      },
+    });
+
+    const confirmation: OrderConfirmationData = {
+      orderId: res.orderNumber,
+      customerName: res.customerName,
+      email: res.email,
+      phone: res.phone,
+      deliveryMethod: res.deliveryMethod,
+      address: res.address,
+      city: res.city,
+      region: res.region,
+      items: res.items.map((i: any) => ({
+        id: i.product_id,
+        name: i.product_name,
+        price: i.unit_price,
+        qty: i.quantity,
+        image: i.image || "/placeholder.jpg",
+        condition: "New",
+      })),
+      subtotal: res.subtotal,
+      discount: res.discount,
+      promoCode: res.promoCode,
+      shipping: res.shipping,
+      total: res.total,
+      paymentMethod: res.paymentMethod,
+      momoProvider: res.momoProvider,
+      paymentReference: paymentRef || null,
+      paymentStatus: paidStatus,
+      createdAt: res.createdAt,
+    };
+
+    setOrderConfirmation(confirmation);
+    clearCart();
+    toast.success(`Order ${res.orderNumber} successfully registered!`);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) {
@@ -166,78 +241,67 @@ function CheckoutPage() {
       return;
     }
 
-    if (deliveryMethod === "delivery" && !address.trim()) {
-      toast.error("Please provide a delivery street address");
-      return;
+    if (deliveryMethod === "delivery") {
+      if (!region || !region.trim()) {
+        toast.error("Please select a delivery region");
+        return;
+      }
+      if (!city.trim()) {
+        toast.error("Please enter a city or town for delivery");
+        return;
+      }
+      if (!address.trim()) {
+        toast.error("Please provide a delivery street address or landmark");
+        return;
+      }
     }
 
     setIsSubmitting(true);
 
-    try {
-      let paymentLabel = "Cash on Delivery";
-      if (paymentMethod === "cod") paymentLabel = "Cash on Delivery (Pay on Arrival)";
-      else if (paymentMethod === "card") paymentLabel = "Debit/Credit Card (Paystack)";
-      else if (paymentMethod === "momo") paymentLabel = `Mobile Money (${momoProvider})`;
-      else if (paymentMethod === "whatsapp") paymentLabel = "WhatsApp Direct Order";
+    // Paystack Payment Flow for Cards & MoMo
+    if (paymentMethod === "card" || paymentMethod === "momo") {
+      const customerEmail = email.trim() || user?.email;
+      if (!customerEmail) {
+        toast.error("Please enter an email address for your Paystack payment receipt.");
+        setIsSubmitting(false);
+        return;
+      }
 
-      const res = await createCustomerOrder({
-        data: {
-          userId: user?.id,
+      try {
+        await initializePaystackCheckout({
+          email: customerEmail,
+          amount: total,
           firstName: firstName.trim() || "Customer",
           lastName: lastName.trim(),
-          email: email.trim() || (user?.email ?? "orders@urbanvaultgh.com"),
-          phone: phone.trim(),
-          deliveryMethod,
-          address: deliveryMethod === "pickup" ? STORE.pickupLocation : address,
-          city: deliveryMethod === "pickup" ? "Accra" : city,
-          region: deliveryMethod === "pickup" ? "Greater Accra" : region,
-          paymentMethod: paymentLabel,
-          momoProvider,
-          promoCode: appliedPromo || undefined,
-          items: items.map((i) => ({
-            id: (i.product as any).dbId || i.product.id || (i.product as any).sku,
-            qty: i.qty,
-            name: i.product.name,
-            price: i.product.price,
-            image: i.product.images[0] || "/placeholder.jpg",
-          })),
-        },
-      });
-
-      const confirmation: OrderConfirmationData = {
-        orderId: res.orderNumber,
-        customerName: res.customerName,
-        email: res.email,
-        phone: res.phone,
-        deliveryMethod: res.deliveryMethod,
-        address: res.address,
-        city: res.city,
-        region: res.region,
-        items: res.items.map((i: any) => ({
-          id: i.product_id,
-          name: i.product_name,
-          price: i.unit_price,
-          qty: i.quantity,
-          image: i.image || "/placeholder.jpg",
-          condition: "New",
-        })),
-        subtotal: res.subtotal,
-        discount: res.discount,
-        promoCode: res.promoCode,
-        shipping: res.shipping,
-        total: res.total,
-        paymentMethod: res.paymentMethod,
-        momoProvider: res.momoProvider,
-        createdAt: res.createdAt,
-      };
-
-      setOrderConfirmation(confirmation);
-      clearCart();
-      toast.success(`Order ${res.orderNumber} successfully registered!`);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to process order. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+          phone: phone.trim() || momoNumber.trim(),
+          channels: paymentMethod === "card" ? ["card"] : ["mobile_money", "card"],
+          onSuccess: async (paystackRes) => {
+            try {
+              await executeOrderCreation(paystackRes.reference, "paid");
+            } catch (err: any) {
+              toast.error(err.message || "Failed to finalize order after payment.");
+            } finally {
+              setIsSubmitting(false);
+            }
+          },
+          onClose: () => {
+            setIsSubmitting(false);
+            toast.info("Paystack checkout was closed. Your cart is preserved.");
+          },
+        });
+      } catch (err: any) {
+        setIsSubmitting(false);
+        toast.error(err.message || "Could not launch Paystack checkout. Please try again.");
+      }
+    } else {
+      // Offline / COD / WhatsApp flows
+      try {
+        await executeOrderCreation(undefined, "pending");
+      } catch (err: any) {
+        toast.error(err.message || "Failed to process order. Please try again.");
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -251,8 +315,9 @@ function CheckoutPage() {
 
   // Order Confirmation View
   if (orderConfirmation) {
+    const isPaid = orderConfirmation.paymentStatus === "paid";
     const waText = encodeURIComponent(
-      `Hello ${STORE.name}! I just placed an order:\n\n*Order ID:* ${orderConfirmation.orderId}\n*Customer:* ${orderConfirmation.customerName}\n*Phone:* ${orderConfirmation.phone}\n*Delivery Method:* ${orderConfirmation.deliveryMethod === "pickup" ? "Pickup in Osu" : `Delivery to ${orderConfirmation.address}, ${orderConfirmation.city} (${orderConfirmation.region})`}\n*Payment Method:* ${orderConfirmation.paymentMethod}\n*Total:* ${formatPrice(orderConfirmation.total)}\n\nPlease confirm my order and provide dispatch details.`
+      `Hello ${STORE.name}! I just placed an order:\n\n*Order ID:* ${orderConfirmation.orderId}\n*Customer:* ${orderConfirmation.customerName}\n*Phone:* ${orderConfirmation.phone}\n*Delivery Method:* ${orderConfirmation.deliveryMethod === "pickup" ? "Showroom Pickup" : `Delivery to ${orderConfirmation.address}, ${orderConfirmation.city} (${orderConfirmation.region})`}\n*Payment Method:* ${orderConfirmation.paymentMethod}${orderConfirmation.paymentReference ? `\n*Paystack Ref:* ${orderConfirmation.paymentReference}` : ""}\n*Status:* ${isPaid ? "PAID (Paystack Verified)" : "Pending Payment"}\n*Total:* ${formatPrice(orderConfirmation.total)}\n\nPlease confirm my order and provide dispatch details.`
     );
 
     return (
@@ -281,22 +346,36 @@ function CheckoutPage() {
         <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
           <div className="rounded-3xl border border-border bg-card p-6 shadow-card sm:p-10 space-y-8">
             <div className="text-center space-y-3">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 animate-in zoom-in-50 duration-300">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary animate-in zoom-in-50 duration-300">
                 <CheckCircle2 className="h-9 w-9" />
               </div>
               <h1 className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">
-                Thank You For Your Order!
+                {isPaid ? "Payment Successful & Order Confirmed!" : "Thank You For Your Order!"}
               </h1>
               <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
-                Your order has been placed. Our logistics team will contact you on WhatsApp to confirm delivery details and dispatch.
+                {isPaid
+                  ? "Your payment was securely verified via Paystack Ghana. Our concierge logistics team is already preparing your boutique order."
+                  : "Your order has been registered. Our logistics team will contact you to verify delivery and finalize dispatch."}
               </p>
             </div>
 
             {/* Order Reference Box */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-primary/20 bg-primary-soft/40 p-4 sm:p-5">
-              <div className="space-y-0.5 text-center sm:text-left">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Order Reference Number</p>
+              <div className="space-y-1 text-center sm:text-left">
+                <div className="flex items-center gap-2 justify-center sm:justify-start">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Order Reference</p>
+                  {isPaid && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-bold text-primary border border-primary/30">
+                      <ShieldCheck className="h-3 w-3" /> Paystack Paid
+                    </span>
+                  )}
+                </div>
                 <p className="font-mono text-xl font-extrabold text-foreground">{orderConfirmation.orderId}</p>
+                {orderConfirmation.paymentReference && (
+                  <p className="text-xs font-mono text-muted-foreground">
+                    Paystack Ref: <span className="font-semibold text-foreground">{orderConfirmation.paymentReference}</span>
+                  </p>
+                )}
                 <p className="text-xs text-muted-foreground">Placed on {orderConfirmation.createdAt}</p>
               </div>
               <div className="flex items-center gap-2">
@@ -308,10 +387,10 @@ function CheckoutPage() {
                   href={`https://wa.me/${STORE.whatsappRaw}?text=${waText}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
                 >
                   <MessageCircle className="h-4 w-4" />
-                  Confirm via WhatsApp
+                  Track on WhatsApp
                 </a>
               </div>
             </div>
@@ -339,17 +418,28 @@ function CheckoutPage() {
               </div>
 
               <div className="space-y-3 rounded-2xl border border-border bg-surface-muted/50 p-5">
-                <h3 className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Payment Summary
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Payment Summary
+                  </h3>
+                  {isPaid ? (
+                    <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary font-bold text-[10px]">
+                      PAID
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                      Pending
+                    </Badge>
+                  )}
+                </div>
                 <div className="space-y-1.5">
-                  <p className="font-semibold text-foreground">{orderConfirmation.paymentMethod}</p>
+                  <p className="font-semibold text-foreground text-xs">{orderConfirmation.paymentMethod}</p>
                   <div className="flex justify-between text-muted-foreground text-xs pt-1">
                     <span>Subtotal:</span>
                     <span>{formatPrice(orderConfirmation.subtotal)}</span>
                   </div>
                   {orderConfirmation.discount > 0 && (
-                    <div className="flex justify-between text-emerald-600 text-xs">
+                    <div className="flex justify-between text-primary text-xs">
                       <span>Discount ({orderConfirmation.promoCode}):</span>
                       <span>-{formatPrice(orderConfirmation.discount)}</span>
                     </div>
@@ -416,13 +506,13 @@ function CheckoutPage() {
             <span className="font-semibold text-foreground">Checkout</span>
           </nav>
 
-          {/* Account & Guest Status Banner */}
+          {/* Account status banner */}
           {user ? (
-            <div className="mb-6 rounded-2xl border border-primary/20 bg-primary-soft/30 p-4 flex items-center justify-between gap-3 text-sm">
+            <div className="mb-6 rounded-2xl border border-primary/30 bg-primary/5 p-4 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
                 <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
                 <span className="text-xs sm:text-sm text-foreground">
-                  Signed in as <strong>{user.email}</strong>. This purchase will be securely linked to your account.
+                  Signed in as <strong>{user.email}</strong> — order will be linked to your account.
                 </span>
               </div>
               <Button asChild variant="ghost" size="sm" className="text-xs text-primary font-semibold shrink-0">
@@ -430,14 +520,15 @@ function CheckoutPage() {
               </Button>
             </div>
           ) : (
-            <div className="mb-6 rounded-2xl border border-border bg-surface-muted/60 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
-              <div className="flex items-center gap-2.5 text-muted-foreground">
-                <Info className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-xs sm:text-sm">
-                  Have an account? Sign in for saved delivery addresses & express checkout, or continue as guest.
+            <div className="mb-6 rounded-2xl border border-amber-400/40 bg-amber-400/8 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <Info className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span className="text-xs sm:text-sm text-foreground">
+                  <strong>Sign in to complete checkout.</strong>{" "}
+                  Fill your details below, then sign in at the bottom to place your order.
                 </span>
               </div>
-              <Button asChild variant="outline" size="sm" className="text-xs shrink-0 font-medium">
+              <Button asChild variant="outline" size="sm" className="text-xs shrink-0 font-semibold border-amber-400/60 text-amber-700 dark:text-amber-400 hover:bg-amber-400/10">
                 <Link to="/auth" search={{ redirect: "/checkout" }}>
                   Sign In / Register
                 </Link>
@@ -492,7 +583,12 @@ function CheckoutPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="email">Email address</Label>
+                  <Label htmlFor="email" className="flex items-center justify-between">
+                    <span>Email address</span>
+                    {(paymentMethod === "card" || paymentMethod === "momo") && (
+                      <span className="text-[10px] font-semibold text-primary">Required for Paystack receipt</span>
+                    )}
+                  </Label>
                   <Input
                     id="email"
                     type="email"
@@ -500,6 +596,7 @@ function CheckoutPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
+                  <p className="text-[11px] text-muted-foreground">Order confirmation &amp; Paystack payment receipt</p>
                 </div>
               </div>
             </section>
@@ -617,11 +714,16 @@ function CheckoutPage() {
                     <div className="flex items-start gap-3">
                       <RadioGroupItem value="momo" id="momo" className="mt-1" />
                       <div>
-                        <Label htmlFor="momo" className="font-bold text-sm cursor-pointer block">
-                          Mobile Money (MoMo)
-                        </Label>
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="momo" className="font-bold text-sm cursor-pointer block">
+                            Mobile Money (MoMo via Paystack)
+                          </Label>
+                          <span className="rounded bg-primary/10 border border-primary/30 px-1.5 py-0.2 text-[10px] font-bold text-primary">
+                            Instant Prompt
+                          </span>
+                        </div>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          MTN Mobile Money, Telecel Cash &amp; AirtelTigo Money
+                          MTN Mobile Money, Telecel Cash &amp; AirtelTigo Money via Paystack Ghana
                         </p>
                       </div>
                     </div>
@@ -659,7 +761,7 @@ function CheckoutPage() {
                           className="text-xs"
                         />
                         <p className="text-[10px] text-muted-foreground">
-                          Instant USSD confirmation prompt will be sent to your phone.
+                          Paystack will launch the secure prompt directly to your device.
                         </p>
                       </div>
                     </div>
@@ -676,11 +778,16 @@ function CheckoutPage() {
                     <div className="flex items-start gap-3">
                       <RadioGroupItem value="card" id="card" className="mt-1" />
                       <div>
-                        <Label htmlFor="card" className="font-bold text-sm cursor-pointer block">
-                          Debit / Credit Card (Paystack)
-                        </Label>
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor="card" className="font-bold text-sm cursor-pointer block">
+                            Debit / Credit Card (Paystack)
+                          </Label>
+                          <span className="rounded bg-blue-500/10 border border-blue-500/30 px-1.5 py-0.2 text-[10px] font-bold text-blue-600 dark:text-blue-400">
+                            Visa &bull; Mastercard
+                          </span>
+                        </div>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          Instant card payment via Paystack (Visa, Mastercard, MoMo)
+                          Instant card payment secured by Paystack (Ghana &amp; International cards)
                         </p>
                       </div>
                     </div>
@@ -706,7 +813,7 @@ function CheckoutPage() {
                         </p>
                       </div>
                     </div>
-                    <Truck className="h-5 w-5 text-emerald-500 shrink-0" />
+                    <Truck className="h-5 w-5 text-primary shrink-0" />
                   </div>
                 </div>
 
@@ -728,7 +835,7 @@ function CheckoutPage() {
                         </p>
                       </div>
                     </div>
-                    <MessageCircle className="h-5 w-5 text-emerald-500 shrink-0" />
+                    <MessageCircle className="h-5 w-5 text-primary shrink-0" />
                   </div>
                 </div>
               </RadioGroup>
@@ -739,16 +846,42 @@ function CheckoutPage() {
                 <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
                 Return to catalogue
               </Link>
-              <Button type="submit" size="lg" disabled={isSubmitting || items.length === 0} className="w-full sm:w-auto px-8 font-bold">
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Confirming Order...
-                  </>
-                ) : (
-                  `Place Order (${formatPrice(total)})`
-                )}
-              </Button>
+              {!user ? (
+                /* Auth gate — shown instead of submit when guest */
+                <div className="w-full sm:w-auto flex flex-col items-stretch sm:items-end gap-2">
+                  <div className="rounded-2xl border border-amber-400/40 bg-amber-400/8 px-5 py-4 text-center sm:text-right">
+                    <p className="text-sm font-bold text-foreground">Ready to order?</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      Create a free account or sign in to place your order and track delivery.
+                    </p>
+                    <div className="mt-3 flex flex-col sm:flex-row gap-2 justify-center sm:justify-end">
+                      <Button asChild variant="outline" size="sm" className="text-xs font-semibold">
+                        <Link to="/auth" search={{ redirect: "/checkout" }}>Sign In</Link>
+                      </Button>
+                      <Button asChild size="sm" className="text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground">
+                        <Link to="/auth" search={{ redirect: "/checkout", mode: "register" }}>Create Account — it's free</Link>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <Button type="submit" size="lg" disabled={isSubmitting || items.length === 0} className="w-full sm:w-auto px-8 font-bold">
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {paymentMethod === "card" || paymentMethod === "momo" ? "Connecting to Paystack..." : "Confirming Order..."}
+                    </>
+                  ) : paymentMethod === "card" ? (
+                    `Pay with Card (Paystack) · ${formatPrice(total)}`
+                  ) : paymentMethod === "momo" ? (
+                    `Pay with MoMo (Paystack) · ${formatPrice(total)}`
+                  ) : paymentMethod === "whatsapp" ? (
+                    `Order via WhatsApp · ${formatPrice(total)}`
+                  ) : (
+                    `Place Order · ${formatPrice(total)}`
+                  )}
+                </Button>
+              )}
             </div>
           </form>
         </div>
@@ -795,7 +928,7 @@ function CheckoutPage() {
               <Tag className="h-3.5 w-3.5" /> Coupon / Promo Code
             </Label>
             {appliedPromo ? (
-              <div className="flex items-center justify-between rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-2.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+              <div className="flex items-center justify-between rounded-xl bg-primary/10 border border-primary/30 p-2.5 text-xs text-primary font-semibold">
                 <span>Applied: {appliedPromo} ({PROMO_CODES[appliedPromo]?.label})</span>
                 <button
                   type="button"
@@ -832,7 +965,7 @@ function CheckoutPage() {
               <span className="font-medium text-foreground">{formatPrice(subtotal)}</span>
             </div>
             {discountAmount > 0 && (
-              <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-medium">
+              <div className="flex justify-between text-primary font-medium">
                 <span>Discount ({appliedPromo})</span>
                 <span>-{formatPrice(discountAmount)}</span>
               </div>

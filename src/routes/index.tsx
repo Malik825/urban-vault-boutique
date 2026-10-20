@@ -62,7 +62,9 @@ export const Route = createFileRoute("/")({
         content:
           "Curated unisex clothing, designer footwear, and streetwear essentials with fast delivery across Ghana.",
       },
+      { property: "og:url", content: STORE.siteUrl },
     ],
+    links: [{ rel: "canonical", href: STORE.siteUrl }],
   }),
   loader: async (): Promise<CatalogProduct[]> => listPublishedProducts(),
   staleTime: 1000 * 60 * 5,
@@ -205,7 +207,7 @@ function Landing() {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <MessageCircle className="mr-2 h-4 w-4 text-emerald-500" />
+                      <MessageCircle className="mr-2 h-4 w-4 text-primary" />
                       Order via WhatsApp
                     </a>
                   </Button>
@@ -347,7 +349,7 @@ function Landing() {
                   onClick={() => setActiveCategoryTab(tab)}
                   className={`rounded-full px-5 py-2 text-sm font-semibold transition-all ${
                     activeCategoryTab === tab
-                      ? "bg-emerald-600 text-white shadow-xs"
+                      ? "bg-primary text-primary-foreground shadow-xs"
                       : "bg-slate-100 dark:bg-muted/70 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-muted"
                   }`}
                 >
@@ -392,7 +394,7 @@ function Landing() {
             </div>
 
             <div className="rounded-2xl border border-border bg-card p-6 shadow-xs">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 mb-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary mb-4">
                 <Package className="h-5 w-5" />
               </div>
               <h3 className="font-display text-base font-bold text-foreground">
@@ -470,7 +472,7 @@ function Landing() {
       {/* ── 6. WhatsApp Concierge Banner ─────────────────────── */}
       <section className="py-10 px-3 sm:px-6">
         <div className="mx-auto max-w-7xl">
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-6 sm:p-10 shadow-lift flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-brand-gradient text-white p-6 sm:p-10 shadow-lift flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="max-w-xl text-center md:text-left">
               <span className="inline-block rounded-md bg-white/20 px-3 py-1 text-xs font-bold tracking-wider uppercase mb-2">
                 Need Help with Sizing or Stock?
@@ -486,14 +488,14 @@ function Landing() {
             <Button
               asChild
               size="lg"
-              className="bg-white text-emerald-800 hover:bg-white/90 font-bold px-8 rounded-full shadow-lg shrink-0"
+              className="bg-white text-primary hover:bg-white/90 font-bold px-8 rounded-full shadow-lg shrink-0"
             >
               <a
                 href={whatsappLink("Hello Urban Vault Unisex Boutique! I need assistance with an order.")}
                 target="_blank"
                 rel="noreferrer"
               >
-                <MessageCircle className="mr-2 h-5 w-5 text-emerald-600" />
+                <MessageCircle className="mr-2 h-5 w-5 text-primary" />
                 Chat Now (0597489841)
               </a>
             </Button>

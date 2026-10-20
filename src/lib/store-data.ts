@@ -4,6 +4,7 @@ export const STORE = {
   name: ACTIVE_STORE.name,
   secondaryName: ACTIVE_STORE.displayName,
   tagline: ACTIVE_STORE.tagline,
+  siteUrl: ACTIVE_STORE.siteUrl,
   whatsapp: ACTIVE_STORE.whatsapp,
   whatsappRaw: ACTIVE_STORE.whatsappRaw,
   email: ACTIVE_STORE.email,

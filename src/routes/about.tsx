@@ -37,7 +37,9 @@ export const Route = createFileRoute("/about")({
         name: "description",
         content: `${STORE.name} is a premier fashion boutique in Accra, Ghana offering curated unisex apparel, streetwear, and footwear with Paystack, Cash on Delivery, and instant WhatsApp ordering.`,
       },
+      { property: "og:url", content: `${STORE.siteUrl}/about` },
     ],
+    links: [{ rel: "canonical", href: `${STORE.siteUrl}/about` }],
   }),
   component: AboutPage,
 });
@@ -139,7 +141,7 @@ function AboutPage() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <MessageCircle className="mr-2 h-4 w-4 text-emerald-600" />
+                  <MessageCircle className="mr-2 h-4 w-4 text-primary" />
                   Chat on WhatsApp
                 </a>
               </Button>
@@ -222,7 +224,7 @@ function AboutPage() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <MessageCircle className="mr-2 h-4 w-4 text-emerald-600" />
+                  <MessageCircle className="mr-2 h-4 w-4 text-primary" />
                   Chat on WhatsApp
                 </a>
               </Button>

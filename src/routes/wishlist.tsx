@@ -14,7 +14,9 @@ export const Route = createFileRoute("/wishlist")({
     meta: [
       { title: `My Wishlist — ${STORE.name}` },
       { name: "description", content: `Your saved items on ${STORE.name}.` },
+      { name: "robots", content: "noindex" },
     ],
+    links: [{ rel: "canonical", href: `${STORE.siteUrl}/wishlist` }],
   }),
   component: WishlistPage,
 });

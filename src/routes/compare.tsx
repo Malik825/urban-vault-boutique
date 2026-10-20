@@ -16,7 +16,9 @@ export const Route = createFileRoute("/compare")({
     meta: [
       { title: `Compare Products — ${STORE.name}` },
       { name: "description", content: `Compare items and details side by side on ${STORE.name}.` },
+      { property: "og:url", content: `${STORE.siteUrl}/compare` },
     ],
+    links: [{ rel: "canonical", href: `${STORE.siteUrl}/compare` }],
   }),
   component: ComparePage,
 });

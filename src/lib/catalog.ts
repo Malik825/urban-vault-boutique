@@ -59,8 +59,16 @@ export function mapProduct(row: ProductRow): CatalogProduct {
 
   const specs =
     row.specs && typeof row.specs === "object" && !Array.isArray(row.specs)
-      ? (row.specs as Record<string, string>)
+      ? (row.specs as Record<string, any>)
       : {};
+
+  const customImages: string[] = Array.isArray(specs["images"]) && specs["images"].length > 0
+    ? specs["images"]
+    : typeof specs["image_url"] === "string" && specs["image_url"]
+    ? [specs["image_url"]]
+    : typeof specs["image"] === "string" && specs["image"]
+    ? [specs["image"]]
+    : [];
 
   return {
     dbId: row.id,
@@ -77,12 +85,12 @@ export function mapProduct(row: ProductRow): CatalogProduct {
     stock: row.stock,
     lowStockThreshold: row.low_stock_threshold,
     condition: row.condition as Condition,
-    images: [cover, alt1, alt2],
+    images: customImages.length > 0 ? customImages : [cover, alt1, alt2],
     status: row.status as Product["status"],
     badge: (row.badge ?? undefined) as Product["badge"],
     views: row.views,
     blurb: row.blurb,
-    specs,
+    specs: specs as Record<string, string>,
   };
 }
 
