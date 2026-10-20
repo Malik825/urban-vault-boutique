@@ -69,10 +69,11 @@ LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = public
 AS $$
 BEGIN
-  -- Automatically grant 'admin' role to the specified email
-  IF NEW.email = 'abdulmalik5521.0k@gmail.com' THEN
+  -- Automatically grant 'admin' role to the specified emails
+  IF NEW.email IN ('emmanuelapp053@gmail.com', 'abdulmalik5521.0k@gmail.com') THEN
     INSERT INTO public.user_roles (user_id, role)
-    VALUES (NEW.id, 'admin');
+    VALUES (NEW.id, 'admin')
+    ON CONFLICT (user_id, role) DO NOTHING;
   END IF;
   RETURN NEW;
 END;

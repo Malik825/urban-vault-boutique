@@ -5,7 +5,6 @@ import {
   X,
   Clock,
   Flame,
-  Sparkles,
   Star,
   Heart,
   ShoppingCart,
@@ -319,9 +318,9 @@ export function SearchCommand({
         transition={{ duration: 0.18 }}
         className="fixed inset-0 z-50 flex flex-col bg-background dark:bg-[#090D14] text-foreground dark:text-slate-100 overflow-hidden w-full h-full"
       >
-        {/* Ambient Emerald Glow Accent */}
+        {/* Ambient Primary Glow Accent */}
         <div
-          className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[720px] sm:w-[1000px] h-[360px] bg-emerald-500/10 dark:bg-emerald-500/12 rounded-full blur-3xl opacity-70"
+          className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[720px] sm:w-[1000px] h-[360px] bg-primary/10 rounded-full blur-3xl opacity-70"
           aria-hidden="true"
         />
 
@@ -336,15 +335,15 @@ export function SearchCommand({
                 className="flex items-center gap-2.5 outline-none rounded-xl"
               >
                 <img
-                  src="/logo.jpg"
+                  src={STORE.logoUrl || "/urban-vault-logo.jpg"}
                   alt={STORE.name}
-                  className="h-9 w-9 rounded-full object-cover ring-1 ring-emerald-500/30 shadow-xs"
+                  className="h-9 w-9 rounded-full object-cover ring-1 ring-primary/30 shadow-xs"
                 />
                 <span className="font-display text-base font-bold tracking-tight text-foreground dark:text-white">
                   {STORE.name}
                 </span>
               </Link>
-              <Badge className="border-0 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-semibold text-[11px] px-2.5 py-0.5 rounded-full">
+              <Badge className="border-0 bg-primary/15 text-primary font-semibold text-[11px] px-2.5 py-0.5 rounded-full">
                 Catalogue Search
               </Badge>
             </div>
@@ -361,8 +360,8 @@ export function SearchCommand({
             </Button>
 
             {/* Prominent Search Input Box */}
-            <div className="relative flex-1 flex items-center rounded-2xl bg-muted/60 dark:bg-[#121924] border border-border dark:border-white/12 shadow-inner focus-within:border-emerald-600 dark:focus-within:border-emerald-500/80 focus-within:ring-2 focus-within:ring-emerald-600/20 transition-all">
-              <div className="pl-4 pr-2 text-emerald-600 dark:text-emerald-400 flex items-center pointer-events-none">
+            <div className="relative flex-1 flex items-center rounded-2xl bg-muted/60 dark:bg-[#121924] border border-border dark:border-white/12 shadow-inner focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+              <div className="pl-4 pr-2 text-primary flex items-center pointer-events-none">
                 <Search className="h-5 w-5 animate-pulse" />
               </div>
 
@@ -371,7 +370,7 @@ export function SearchCommand({
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search products, brands, specs (e.g. 16GB RAM, M3 Pro, OLED)…"
+                placeholder="Search products, brands, categories (e.g. linen shirt, EU 42, Casablanca, washed black)…"
                 className="h-12 sm:h-13 w-full bg-transparent pr-12 text-sm sm:text-base text-foreground dark:text-white placeholder:text-muted-foreground dark:placeholder:text-slate-400 focus:outline-none"
               />
 
@@ -406,7 +405,7 @@ export function SearchCommand({
               size="icon"
               onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
               className={`lg:hidden h-10 w-10 rounded-xl border border-border dark:border-white/10 text-muted-foreground hover:text-foreground shrink-0 ${
-                hasActiveFilters ? "border-emerald-600 text-emerald-600 bg-emerald-500/10" : ""
+                hasActiveFilters ? "border-primary text-primary bg-primary/10" : ""
               }`}
               aria-label="Filter"
             >
@@ -426,13 +425,13 @@ export function SearchCommand({
 
           {/* Quick horizontal category pills on Mobile */}
           <div className="sm:hidden mt-3 flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-            {["All", "Smartphones", "Laptops", "Tablets", "Audio", "Accessories"].map((cat) => (
+            {["All", ...categories.map((c) => c.name)].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 className={`rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap transition-colors shrink-0 ${
                   selectedCategory === cat
-                    ? "bg-emerald-600 text-white shadow-xs"
+                    ? "bg-primary text-primary-foreground shadow-xs"
                     : "bg-card border border-border/80 dark:border-white/10 text-muted-foreground hover:bg-muted"
                 }`}
               >
@@ -454,7 +453,7 @@ export function SearchCommand({
               {hasActiveFilters && (
                 <button
                   onClick={resetFilters}
-                  className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
+                  className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
                 >
                   <RotateCcw className="h-3 w-3" /> Reset all
                 </button>
@@ -463,7 +462,7 @@ export function SearchCommand({
 
             {/* Category Filter */}
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-3 flex items-center gap-2">
+              <p className="text-xs font-bold uppercase tracking-wider text-primary mb-3 flex items-center gap-2">
                 <Layers className="h-3.5 w-3.5" /> Categories
               </p>
               <div className="space-y-1">
@@ -471,7 +470,7 @@ export function SearchCommand({
                   onClick={() => setSelectedCategory("All")}
                   className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                     selectedCategory === "All"
-                      ? "bg-emerald-600/15 dark:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 border border-emerald-600/30 dark:border-emerald-500/40 font-semibold shadow-xs"
+                      ? "bg-primary/15 text-primary border border-primary/30 font-semibold shadow-xs"
                       : "text-muted-foreground dark:text-slate-300 hover:bg-muted dark:hover:bg-white/5 hover:text-foreground dark:hover:text-white"
                   }`}
                 >
@@ -488,7 +487,7 @@ export function SearchCommand({
                       onClick={() => setSelectedCategory(c.name)}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                         isSelected
-                          ? "bg-emerald-600/15 dark:bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 border border-emerald-600/30 dark:border-emerald-500/40 font-semibold shadow-xs"
+                          ? "bg-primary/15 text-primary border border-primary/30 font-semibold shadow-xs"
                           : "text-muted-foreground dark:text-slate-300 hover:bg-muted dark:hover:bg-white/5 hover:text-foreground dark:hover:text-white"
                       }`}
                     >
@@ -504,7 +503,7 @@ export function SearchCommand({
 
             {/* Brand Filter */}
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-3 flex items-center gap-2">
+              <p className="text-xs font-bold uppercase tracking-wider text-primary mb-3 flex items-center gap-2">
                 <Tag className="h-3.5 w-3.5" /> Brands
               </p>
               <div className="flex flex-wrap gap-1.5">
@@ -512,7 +511,7 @@ export function SearchCommand({
                   onClick={() => setSelectedBrand("All")}
                   className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
                     selectedBrand === "All"
-                      ? "bg-emerald-600 text-white font-semibold"
+                      ? "bg-primary text-primary-foreground font-semibold"
                       : "bg-card dark:bg-white/5 border border-border dark:border-white/10 text-muted-foreground dark:text-slate-300 hover:bg-muted"
                   }`}
                 >
@@ -526,7 +525,7 @@ export function SearchCommand({
                     }
                     className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
                       selectedBrand === b.name
-                        ? "bg-emerald-600 text-white font-semibold shadow-xs"
+                        ? "bg-primary text-primary-foreground font-semibold shadow-xs"
                         : "bg-card dark:bg-white/5 border border-border dark:border-white/10 text-muted-foreground dark:text-slate-300 hover:bg-muted"
                     }`}
                   >
@@ -538,7 +537,7 @@ export function SearchCommand({
 
             {/* Condition Filter */}
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-3">
+              <p className="text-xs font-bold uppercase tracking-wider text-primary mb-3">
                 Condition
               </p>
               <div className="grid grid-cols-2 gap-1.5">
@@ -548,7 +547,7 @@ export function SearchCommand({
                     onClick={() => setSelectedCondition(cond)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium text-center transition-all ${
                       selectedCondition === cond
-                        ? "bg-emerald-600 text-white font-semibold shadow-xs"
+                        ? "bg-primary text-primary-foreground font-semibold shadow-xs"
                         : "bg-card dark:bg-white/5 border border-border dark:border-white/10 text-muted-foreground dark:text-slate-300 hover:bg-muted"
                     }`}
                   >
@@ -565,7 +564,7 @@ export function SearchCommand({
                   type="checkbox"
                   checked={inStockOnly}
                   onChange={(e) => setInStockOnly(e.target.checked)}
-                  className="rounded border-border text-emerald-600 focus:ring-emerald-500"
+                  className="rounded border-border text-primary focus:ring-primary"
                 />
                 <span>In Stock only</span>
               </label>
@@ -575,7 +574,7 @@ export function SearchCommand({
                   type="checkbox"
                   checked={dealsOnly}
                   onChange={(e) => setDealsOnly(e.target.checked)}
-                  className="rounded border-border text-emerald-600 focus:ring-emerald-500"
+                  className="rounded border-border text-primary focus:ring-primary"
                 />
                 <span className="flex items-center gap-1">
                   <span>Flash Deals &amp; Discounts</span>
@@ -589,7 +588,7 @@ export function SearchCommand({
               <div className="pt-3 border-t border-border dark:border-white/10">
                 <div className="flex items-center justify-between mb-2.5">
                   <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400 flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> Recent
+                    <Clock className="h-3.5 w-3.5 text-primary" /> Recent
                   </p>
                   <button
                     onClick={clearAllRecent}
@@ -622,14 +621,14 @@ export function SearchCommand({
             {/* Trending Searches */}
             <div className="pt-3 border-t border-border dark:border-white/10">
               <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400 mb-2.5 flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Trending
+                <Flame className="h-3.5 w-3.5 text-primary" /> Trending
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {TRENDING_TAGS.map((tag) => (
                   <button
                     key={tag}
                     onClick={() => handleSelectQueryTag(tag)}
-                    className="rounded-full bg-card dark:bg-white/5 border border-border dark:border-white/10 px-2.5 py-1 text-[11px] font-medium text-muted-foreground dark:text-slate-300 hover:border-emerald-600/40 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+                    className="rounded-full bg-card dark:bg-white/5 border border-border dark:border-white/10 px-2.5 py-1 text-[11px] font-medium text-muted-foreground dark:text-slate-300 hover:border-primary/40 hover:text-primary hover:bg-primary/10 transition-colors"
                   >
                     {tag}
                   </button>
@@ -639,7 +638,7 @@ export function SearchCommand({
           </aside>
 
           {/* ── MAIN PRODUCT RESULTS AREA ─────────────────────────────────── */}
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-emerald-600/30 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-primary/30 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
             {/* Toolbar: Stats & Controls */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border dark:border-white/10">
               <div className="flex items-center gap-2 flex-wrap">
@@ -648,11 +647,11 @@ export function SearchCommand({
                 </span>
                 {query && (
                   <span className="text-xs text-muted-foreground">
-                    for &ldquo;<span className="text-emerald-600 dark:text-emerald-400 font-semibold">{query}</span>&rdquo;
+                    for &ldquo;<span className="text-primary font-semibold">{query}</span>&rdquo;
                   </span>
                 )}
                 {selectedCategory !== "All" && (
-                  <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 text-[11px]">
+                  <Badge className="bg-primary/15 text-primary border border-primary/30 text-[11px]">
                     {selectedCategory}
                   </Badge>
                 )}
@@ -672,7 +671,7 @@ export function SearchCommand({
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as any)}
-                    className="rounded-xl border border-border dark:border-white/12 bg-background dark:bg-[#121924] px-3 py-1.5 text-xs font-semibold text-foreground dark:text-slate-200 focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                    className="rounded-xl border border-border dark:border-white/12 bg-background dark:bg-[#121924] px-3 py-1.5 text-xs font-semibold text-foreground dark:text-slate-200 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   >
                     <option value="relevance">Relevance</option>
                     <option value="price-asc">Price: Low to High</option>
@@ -686,7 +685,7 @@ export function SearchCommand({
                   <button
                     onClick={() => setViewMode("grid")}
                     className={`rounded-lg p-1.5 transition-colors ${
-                      viewMode === "grid" ? "bg-emerald-600 text-white" : "text-muted-foreground hover:text-foreground"
+                      viewMode === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                     }`}
                     aria-label="Grid view"
                   >
@@ -695,7 +694,7 @@ export function SearchCommand({
                   <button
                     onClick={() => setViewMode("list")}
                     className={`rounded-lg p-1.5 transition-colors ${
-                      viewMode === "list" ? "bg-emerald-600 text-white" : "text-muted-foreground hover:text-foreground"
+                      viewMode === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                     }`}
                     aria-label="List view"
                   >
@@ -707,9 +706,9 @@ export function SearchCommand({
 
             {/* Mobile Filter Drawer (Expandable when toggled) */}
             {mobileFilterOpen && (
-              <div className="lg:hidden rounded-2xl border border-emerald-500/30 bg-card dark:bg-[#0E1520] p-4 space-y-4 shadow-xl">
+              <div className="lg:hidden rounded-2xl border border-primary/30 bg-card dark:bg-[#0E1520] p-4 space-y-4 shadow-xl">
                 <div className="flex items-center justify-between pb-2 border-b border-border dark:border-white/10">
-                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                  <span className="text-xs font-bold uppercase tracking-wider text-primary">
                     Refine Results
                   </span>
                   <button
@@ -743,7 +742,7 @@ export function SearchCommand({
                       type="checkbox"
                       checked={inStockOnly}
                       onChange={(e) => setInStockOnly(e.target.checked)}
-                      className="rounded border-border text-emerald-600"
+                      className="rounded border-border text-primary focus:ring-primary"
                     />
                     <span>In Stock only</span>
                   </label>
@@ -752,7 +751,7 @@ export function SearchCommand({
                       type="checkbox"
                       checked={dealsOnly}
                       onChange={(e) => setDealsOnly(e.target.checked)}
-                      className="rounded border-border text-emerald-600"
+                      className="rounded border-border text-primary focus:ring-primary"
                     />
                     <span>Deals only 🔥</span>
                   </label>
@@ -763,7 +762,7 @@ export function SearchCommand({
             {/* Empty State */}
             {filteredProducts.length === 0 ? (
               <div className="rounded-3xl border border-border dark:border-white/10 bg-card dark:bg-[#0E141D]/90 p-8 sm:p-12 text-center max-w-xl mx-auto space-y-5">
-                <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
                   <Search className="h-8 w-8" />
                 </div>
                 <div>
@@ -775,7 +774,7 @@ export function SearchCommand({
                 <div className="flex justify-center gap-3">
                   <Button
                     onClick={resetFilters}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl"
+                    className="bg-primary hover:bg-primary-deep text-primary-foreground font-semibold rounded-xl"
                   >
                     Clear All Filters
                   </Button>
@@ -791,7 +790,7 @@ export function SearchCommand({
                       <button
                         key={s}
                         onClick={() => handleSelectQueryTag(s)}
-                        className="rounded-full bg-muted dark:bg-white/5 border border-border dark:border-white/10 px-3 py-1 text-xs text-muted-foreground dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400"
+                        className="rounded-full bg-muted dark:bg-white/5 border border-border dark:border-white/10 px-3 py-1 text-xs text-muted-foreground dark:text-slate-300 hover:text-primary"
                       >
                         {s}
                       </button>
@@ -813,7 +812,7 @@ export function SearchCommand({
                     <div
                       key={p.id}
                       onClick={() => handleSelectProduct(p)}
-                      className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 dark:border-white/10 bg-card dark:bg-[#0E1520] hover:border-emerald-600/50 dark:hover:border-emerald-500/50 hover:shadow-lg dark:hover:shadow-[0_0_25px_rgba(16,185,129,0.18)] transition-all duration-300 cursor-pointer"
+                      className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 dark:border-white/10 bg-card dark:bg-[#0E1520] hover:border-primary/50 hover:shadow-lg transition-all duration-300 cursor-pointer"
                     >
                       {/* Image Media Area */}
                       <div className="relative aspect-[16/10] w-full overflow-hidden bg-surface-muted dark:bg-[#131B26]">
@@ -857,7 +856,7 @@ export function SearchCommand({
                         <div>
                           {/* Brand & Rating */}
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
                               {p.brand}
                             </span>
                             <span className="flex items-center gap-1 text-xs font-semibold text-foreground dark:text-slate-200">
@@ -870,7 +869,7 @@ export function SearchCommand({
                           </div>
 
                           {/* Product Title */}
-                          <h4 className="mt-1.5 font-display text-sm sm:text-base font-bold text-foreground dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-1">
+                          <h4 className="mt-1.5 font-display text-sm sm:text-base font-bold text-foreground dark:text-white group-hover:text-primary transition-colors line-clamp-1">
                             {p.name}
                           </h4>
 
@@ -955,7 +954,7 @@ export function SearchCommand({
                     <div
                       key={p.id}
                       onClick={() => handleSelectProduct(p)}
-                      className="group flex flex-col sm:flex-row items-stretch gap-4 rounded-2xl border border-border/80 dark:border-white/10 bg-card dark:bg-[#0E1520] p-3 sm:p-4 hover:border-emerald-600/50 dark:hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer"
+                      className="group flex flex-col sm:flex-row items-stretch gap-4 rounded-2xl border border-border/80 dark:border-white/10 bg-card dark:bg-[#0E1520] p-3 sm:p-4 hover:border-primary/50 hover:shadow-md transition-all cursor-pointer"
                     >
                       <div className="relative aspect-video sm:aspect-square w-full sm:w-36 rounded-xl overflow-hidden bg-surface-muted dark:bg-[#131B26] shrink-0">
                         <img
@@ -964,7 +963,7 @@ export function SearchCommand({
                           className="h-full w-full object-cover transition-transform group-hover:scale-105"
                         />
                         {p.badge && (
-                          <span className="absolute left-2 top-2 rounded bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white">
+                          <span className="absolute left-2 top-2 rounded bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
                             {p.badge}
                           </span>
                         )}
@@ -973,7 +972,7 @@ export function SearchCommand({
                       <div className="flex-1 flex flex-col justify-between gap-2">
                         <div>
                           <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
                               {p.brand} · {p.category}
                             </span>
                             <span className="flex items-center gap-1 text-xs font-semibold text-foreground dark:text-slate-200">
@@ -982,7 +981,7 @@ export function SearchCommand({
                             </span>
                           </div>
 
-                          <h4 className="font-display text-base font-bold text-foreground dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors mt-0.5">
+                          <h4 className="font-display text-base font-bold text-foreground dark:text-white group-hover:text-primary transition-colors mt-0.5">
                             {p.name}
                           </h4>
 
@@ -996,7 +995,7 @@ export function SearchCommand({
                             ) : isLowStock ? (
                               <span className="text-xs text-amber-600 dark:text-amber-400">Only {p.stock} left</span>
                             ) : (
-                              <span className="text-xs text-emerald-600 dark:text-emerald-400">In stock ({p.stock})</span>
+                              <span className="text-xs text-primary">In stock ({p.stock})</span>
                             )}
                             <span className="rounded bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
                               {p.condition}

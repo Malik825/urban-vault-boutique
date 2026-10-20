@@ -9,13 +9,13 @@ import { adminListCustomers } from "@/lib/admin.functions";
 export const Route = createFileRoute("/_authenticated/dashboard/customers")({
   head: () => ({
     meta: [
-      { title: "Customers — Voltix seller dashboard" },
+      { title: "Customers — Urban Vault Admin" },
       {
         name: "description",
         content:
           "Customer profiles with WhatsApp enquiries, wishlist activity and purchase history in one view.",
       },
-      { property: "og:title", content: "Customers — Voltix seller dashboard" },
+      { property: "og:title", content: "Customers — Urban Vault Admin" },
       { property: "og:description", content: "Profiles, enquiries, wishlists and purchase history." },
     ],
   }),
@@ -110,5 +110,6 @@ function Stat({
     </div>
   );
 }
+
 
 

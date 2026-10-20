@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   User,
   Package,
@@ -10,6 +10,13 @@ import {
   Clock,
   ShieldCheck,
   LayoutDashboard,
+  SlidersHorizontal,
+  Check,
+  Copy,
+  Gift,
+  Crown,
+  Save,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -25,6 +32,8 @@ import { useCart } from "@/lib/cart";
 import { formatPrice, STORE } from "@/lib/store-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
+import { serverSaveOnboardingPreferences } from "@/lib/auth.functions";
+import { PROMO_WELCOME_CODE, BoutiqueOnboardingModal } from "@/components/auth/onboarding-modal";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
@@ -32,6 +41,8 @@ export const Route = createFileRoute("/_authenticated/account")({
   }),
   component: AccountPage,
 });
+
+import { listCustomerOrders } from "@/lib/order.functions";
 
 const STATUS_COLORS: Record<string, string> = {
   pending: "bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-200 dark:border-amber-800",
@@ -41,33 +52,54 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: "bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-200 dark:border-rose-800",
 };
 
-// Placeholder orders — swap with real Supabase fetch once migration is run
-const PLACEHOLDER_ORDERS = [
-  {
-    id: "ORD-001",
-    status: "delivered",
-    total: 2450000,
-    created_at: "2026-08-10T09:30:00Z",
-    items: [{ name: "MacBook Pro 14 M3 Pro", qty: 1, price: 2450000 }],
-  },
-  {
-    id: "ORD-002",
-    status: "shipped",
-    total: 1590000,
-    created_at: "2026-08-15T14:10:00Z",
-    items: [{ name: "iPhone 15 Pro Max 256GB", qty: 1, price: 1590000 }],
-  },
+const STYLE_AESTHETICS = [
+  { id: "streetwear", label: "Streetwear & Oversized Fits", emoji: "🕶️" },
+  { id: "linen", label: "Cuban Linen & Kaftans", emoji: "👔" },
+  { id: "denim", label: "Vintage Denim & Cargo Pieces", emoji: "👖" },
+  { id: "sneakers", label: "Designer Footwear & Kicks", emoji: "👟" },
+  { id: "luxury", label: "Minimalist High Fashion", emoji: "✨" },
 ];
 
+const TOP_SIZES = ["S", "M", "L", "XL", "XXL"];
+const SHOE_SIZES = ["EU 40", "EU 41", "EU 42", "EU 43", "EU 44", "EU 45"];
+const DEPARTMENTS = ["Unisex / All", "Men's Collection", "Women's Collection"];
+
 function AccountPage() {
+  const navigate = useNavigate();
   const { user, isAdmin, signOut } = useAuth();
   const { wishlist } = useWishlist();
   const { compareList } = useCompare();
   const { items: cartItems, count: cartCount } = useCart();
   const [profile, setProfile] = useState<any>(null);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+
+  // Style & Fit Customization state
+  const [selectedStyles, setSelectedStyles] = useState<string[]>(["streetwear", "sneakers"]);
+  const [selectedTopSize, setSelectedTopSize] = useState<string>("L");
+  const [selectedShoeSize, setSelectedShoeSize] = useState<string>("EU 42");
+  const [selectedDept, setSelectedDept] = useState<string>("Unisex / All");
+  const [savingPrefs, setSavingPrefs] = useState(false);
+  const [copiedVoucher, setCopiedVoucher] = useState(false);
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("onboarding") === "true") {
+        setShowOnboardingModal(true);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAdmin) {
+      navigate({ to: "/dashboard", replace: true });
+    }
+  }, [isAdmin, navigate]);
+
+  useEffect(() => {
+    if (user && !isAdmin) {
       supabase
         .from("profiles")
         .select("referral_code, store_credit")
@@ -76,8 +108,84 @@ function AccountPage() {
         .then(({ data }) => {
           if (data) setProfile(data);
         });
+
+      listCustomerOrders({ data: { userId: user.id } })
+        .then((data) => {
+          setOrders(data || []);
+        })
+        .catch((err) => {
+          console.error("Failed to load customer orders:", err);
+        })
+        .finally(() => {
+          setLoadingOrders(false);
+        });
     }
   }, [user]);
+
+  // Load saved preferences
+  useEffect(() => {
+    if (user) {
+      const savedPrefs = (user.user_metadata as any)?.preferences;
+      if (savedPrefs) {
+        if (savedPrefs.styles) setSelectedStyles(savedPrefs.styles);
+        if (savedPrefs.topSize) setSelectedTopSize(savedPrefs.topSize);
+        if (savedPrefs.shoeSize) setSelectedShoeSize(savedPrefs.shoeSize);
+        if (savedPrefs.department) setSelectedDept(savedPrefs.department);
+      } else if (typeof window !== "undefined") {
+        const local = localStorage.getItem("urban-vault-preferences");
+        if (local) {
+          try {
+            const parsed = JSON.parse(local);
+            if (parsed.styles) setSelectedStyles(parsed.styles);
+            if (parsed.topSize) setSelectedTopSize(parsed.topSize);
+            if (parsed.shoeSize) setSelectedShoeSize(parsed.shoeSize);
+            if (parsed.department) setSelectedDept(parsed.department);
+          } catch {}
+        }
+      }
+    }
+  }, [user]);
+
+  const toggleStyle = (id: string) => {
+    setSelectedStyles((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
+
+  const handleCopyVoucher = () => {
+    navigator.clipboard.writeText(PROMO_WELCOME_CODE);
+    setCopiedVoucher(true);
+    toast.success(`Promo code ${PROMO_WELCOME_CODE} copied!`);
+    setTimeout(() => setCopiedVoucher(false), 2000);
+  };
+
+  const handleSavePreferences = async () => {
+    if (!user) return;
+    setSavingPrefs(true);
+    const preferences = {
+      styles: selectedStyles,
+      topSize: selectedTopSize,
+      shoeSize: selectedShoeSize,
+      department: selectedDept,
+    };
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("urban-vault-preferences", JSON.stringify(preferences));
+      }
+      await serverSaveOnboardingPreferences({
+        data: {
+          userId: user.id,
+          preferences,
+        },
+      });
+      toast.success("Boutique fit & style preferences saved successfully!");
+    } catch (e) {
+      console.warn("Could not sync preferences with server:", e);
+      toast.success("Preferences saved to this device!");
+    } finally {
+      setSavingPrefs(false);
+    }
+  };
 
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? "GH";
   const displayName =
@@ -86,6 +194,7 @@ function AccountPage() {
   async function handleSignOut() {
     await signOut();
     toast.success("Signed out successfully");
+    navigate({ to: "/" });
   }
 
   return (
@@ -161,7 +270,7 @@ function AccountPage() {
             {
               icon: Package,
               label: "Orders",
-              value: PLACEHOLDER_ORDERS.length,
+              value: orders.length,
               to: "/account" as any,
               search: {},
             },
@@ -197,18 +306,224 @@ function AccountPage() {
 
         <Separator className="my-8" />
 
+        {/* Style & Fit Customization & VIP Voucher Strip */}
+        <div className="grid gap-6 md:grid-cols-12 mb-8">
+          {/* VIP Welcome Pass / Voucher */}
+          <div className="md:col-span-5 rounded-2xl border border-primary/30 bg-primary/5 p-6 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <Badge className="bg-primary text-primary-foreground font-semibold text-xs px-2.5 py-0.5">
+                  <Crown className="h-3.5 w-3.5 mr-1" /> VIP Member
+                </Badge>
+                <button
+                  type="button"
+                  onClick={() => setShowOnboardingModal(true)}
+                  className="text-xs text-primary font-semibold hover:underline"
+                >
+                  Preview Welcome Modal
+                </button>
+              </div>
+
+              <h3 className="font-display text-lg font-bold text-foreground">
+                VIP Welcome Voucher
+              </h3>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                Enjoy 10% discount on all streetwear, footwear, and accessories.
+              </p>
+
+              <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-border bg-background p-3">
+                <div>
+                  <span className="text-[10px] uppercase font-mono text-muted-foreground block">Voucher Code</span>
+                  <span className="font-mono text-base font-bold text-foreground tracking-wider">
+                    {PROMO_WELCOME_CODE}
+                  </span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyVoucher}
+                  className="rounded-lg text-xs"
+                >
+                  {copiedVoucher ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 mr-1" /> Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5 mr-1" /> Copy
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-border/50 text-[11px] text-muted-foreground flex items-center justify-between">
+              <span>Code active across all categories</span>
+              <button
+                type="button"
+                onClick={() => setShowOnboardingModal(true)}
+                className="text-primary font-semibold hover:underline"
+              >
+                Launch Welcome Walkthrough &rarr;
+              </button>
+            </div>
+          </div>
+
+          {/* Style & Fit Preferences Card */}
+          <div className="md:col-span-7 rounded-2xl border border-border bg-card p-6 shadow-xs space-y-5">
+            <div className="flex items-center justify-between border-b border-border pb-4">
+              <div className="flex items-center gap-2.5">
+                <span className="h-8 w-8 rounded-lg bg-surface-muted text-primary border border-border flex items-center justify-center">
+                  <SlidersHorizontal className="h-4 w-4" />
+                </span>
+                <div>
+                  <h3 className="font-display text-base font-bold text-foreground">
+                    Fit &amp; Aesthetic Profile
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Customize your sizing for personalized drops and recommendations
+                  </p>
+                </div>
+              </div>
+
+              <Button
+                size="sm"
+                onClick={handleSavePreferences}
+                disabled={savingPrefs}
+                className="rounded-xl shadow-xs font-semibold text-xs"
+              >
+                {savingPrefs ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-3.5 w-3.5 mr-1" /> Save Profile
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Sizing grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground block mb-1.5 font-semibold">
+                  Top / Shirt Size
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {TOP_SIZES.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => setSelectedTopSize(size)}
+                      className={`h-8 w-10 rounded-lg text-xs font-bold transition-all ${
+                        selectedTopSize === size
+                          ? "bg-primary text-primary-foreground shadow-xs"
+                          : "bg-surface-muted hover:bg-muted border border-border text-muted-foreground"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground block mb-1.5 font-semibold">
+                  Footwear Size
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {SHOE_SIZES.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => setSelectedShoeSize(size)}
+                      className={`h-8 px-2 rounded-lg text-xs font-bold transition-all ${
+                        selectedShoeSize === size
+                          ? "bg-primary text-primary-foreground shadow-xs"
+                          : "bg-surface-muted hover:bg-muted border border-border text-muted-foreground"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Department */}
+            <div>
+              <label className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground block mb-1.5 font-semibold">
+                Preferred Department
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {DEPARTMENTS.map((dept) => (
+                  <button
+                    key={dept}
+                    type="button"
+                    onClick={() => setSelectedDept(dept)}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                      selectedDept === dept
+                        ? "bg-primary text-primary-foreground shadow-xs"
+                        : "bg-surface-muted hover:bg-muted border border-border text-muted-foreground"
+                    }`}
+                  >
+                    {dept}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Aesthetics */}
+            <div>
+              <label className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground block mb-1.5 font-semibold">
+                Favorite Aesthetics
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {STYLE_AESTHETICS.map((style) => {
+                  const isSelected = selectedStyles.includes(style.id);
+                  return (
+                    <button
+                      key={style.id}
+                      type="button"
+                      onClick={() => toggleStyle(style.id)}
+                      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all ${
+                        isSelected
+                          ? "bg-primary text-primary-foreground shadow-xs"
+                          : "bg-surface-muted hover:bg-muted border border-border text-muted-foreground"
+                      }`}
+                    >
+                      <span>{style.emoji}</span>
+                      <span>{style.label}</span>
+                      {isSelected && <Check className="h-3 w-3 ml-0.5" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Separator className="my-8" />
+
         {/* Order history */}
         <div>
           <div className="flex items-center justify-between gap-4">
             <h2 className="font-display text-xl font-extrabold">Order History</h2>
           </div>
 
-          {PLACEHOLDER_ORDERS.length === 0 ? (
+          {loadingOrders ? (
+            <div className="mt-6 flex flex-col gap-4">
+              {[1, 2].map((i) => (
+                <div key={i} className="h-28 rounded-xl border border-border bg-surface-muted/40 animate-pulse" />
+              ))}
+            </div>
+          ) : orders.length === 0 ? (
             <div className="mt-8 flex flex-col items-center gap-4 rounded-xl border border-dashed border-border py-16 text-center">
               <Clock className="h-10 w-10 text-muted-foreground" />
               <p className="font-medium">No orders yet</p>
               <p className="text-sm text-muted-foreground">
-                Orders you place will appear here.
+                Orders you place will appear here in real time.
               </p>
               <Button asChild size="sm">
                 <Link to="/products" search={{}}>
@@ -218,61 +533,93 @@ function AccountPage() {
             </div>
           ) : (
             <div className="mt-6 flex flex-col gap-4">
-              {PLACEHOLDER_ORDERS.map((order) => (
-                <div
-                  key={order.id}
-                  className="overflow-hidden rounded-xl border border-border bg-card shadow-xs"
-                >
-                  {/* Order header */}
-                  <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-surface-muted px-5 py-3">
-                    <div className="flex items-center gap-4">
-                      <p className="font-mono text-xs font-semibold text-muted-foreground">
-                        {order.id}
-                      </p>
-                      <span
-                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold capitalize ${
-                          STATUS_COLORS[order.status] ?? ""
-                        }`}
-                      >
-                        {order.status}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(order.created_at).toLocaleDateString("en-GH", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </p>
-                  </div>
+              {orders.map((order) => {
+                const orderNumber =
+                  order.shipping_address?.orderNumber ||
+                  `UV-${order.id.slice(0, 8).toUpperCase()}`;
 
-                  {/* Order items */}
-                  <div className="divide-y divide-border">
-                    {order.items.map((item, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between gap-4 px-5 py-3"
-                      >
-                        <div>
-                          <p className="text-sm font-semibold">{item.name}</p>
-                          <p className="text-xs text-muted-foreground">Qty: {item.qty}</p>
+                const orderItems =
+                  order.order_items && order.order_items.length > 0
+                    ? order.order_items
+                    : order.shipping_address?.items || [];
+
+                return (
+                  <div
+                    key={order.id}
+                    className="overflow-hidden rounded-xl border border-border bg-card shadow-xs"
+                  >
+                    {/* Order header */}
+                    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-surface-muted px-5 py-3">
+                      <div className="flex items-center gap-4">
+                        <p className="font-mono text-xs font-semibold text-muted-foreground">
+                          {orderNumber}
+                        </p>
+                        <span
+                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold capitalize ${
+                            STATUS_COLORS[order.status] ?? "bg-surface-muted text-muted-foreground"
+                          }`}
+                        >
+                          {order.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(order.created_at).toLocaleDateString("en-GH", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+
+                    {/* Order items */}
+                    <div className="divide-y divide-border">
+                      {orderItems.map((item: any, i: number) => (
+                        <div
+                          key={i}
+                          className="flex items-center justify-between gap-4 px-5 py-3"
+                        >
+                          <div>
+                            <p className="text-sm font-semibold">{item.product_name || item.name}</p>
+                            <p className="text-xs text-muted-foreground">Qty: {item.quantity || item.qty}</p>
+                          </div>
+                          <p className="font-display text-sm font-bold">
+                            {formatPrice(item.unit_price || item.price || 0)}
+                          </p>
                         </div>
-                        <p className="font-display text-sm font-bold">
-                          {formatPrice(item.price)}
+                      ))}
+                    </div>
+
+                    {/* Order footer */}
+                    <div className="flex items-center justify-between gap-4 border-t border-border px-5 py-3 bg-surface-muted/30">
+                      <div>
+                        {order.shipping_address?.deliveryMethod && (
+                          <p className="text-xs text-muted-foreground">
+                            {order.shipping_address.deliveryMethod === "pickup"
+                              ? "Showroom Pickup"
+                              : `Delivery: ${order.shipping_address.city || "Ghana"}`}
+                          </p>
+                        )}
+                        {order.shipping_address?.paymentMethod && (
+                          <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                            <span>{order.shipping_address.paymentMethod}</span>
+                            {order.shipping_address?.paymentStatus === "paid" && (
+                              <span className="font-bold text-primary text-[10px]">
+                                &bull; Paid (Paystack)
+                              </span>
+                            )}
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">Order total</p>
+                        <p className="font-display text-base font-extrabold">
+                          {formatPrice(order.total)}
                         </p>
                       </div>
-                    ))}
+                    </div>
                   </div>
-
-                  {/* Order footer */}
-                  <div className="flex items-center justify-between gap-4 border-t border-border px-5 py-3">
-                    <p className="text-sm text-muted-foreground">Order total</p>
-                    <p className="font-display text-base font-extrabold">
-                      {formatPrice(order.total)}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -364,6 +711,18 @@ function AccountPage() {
           </div>
         </div>
       </div>
+
+      {showOnboardingModal && (
+        <BoutiqueOnboardingModal
+          isOpen={showOnboardingModal}
+          onOpenChange={setShowOnboardingModal}
+          user={{
+            id: user?.id || "preview-id",
+            email: user?.email || "vip-member@urbanvault.store",
+            fullName: displayName,
+          }}
+        />
+      )}
 
       <SiteFooter />
     </div>

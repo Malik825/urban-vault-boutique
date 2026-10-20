@@ -26,13 +26,13 @@ import type { CatalogProduct } from "@/lib/catalog";
 export const Route = createFileRoute("/_authenticated/dashboard/inventory")({
   head: () => ({
     meta: [
-      { title: "Inventory & stock control — Voltix" },
+      { title: "Inventory & stock control — Urban Vault" },
       {
         name: "description",
         content:
           "Adjust stock levels, set low-stock thresholds and review an audited history of every inventory movement in your store.",
       },
-      { property: "og:title", content: "Inventory & stock control — Voltix" },
+      { property: "og:title", content: "Inventory & stock control — Urban Vault" },
       { property: "og:description", content: "Audited stock adjustments for every listing." },
     ],
   }),
@@ -393,3 +393,4 @@ function InventoryRow({
     </TableRow>
   );
 }
+

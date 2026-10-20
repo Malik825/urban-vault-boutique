@@ -117,13 +117,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           `${STORE.name} — Curated streetwear, designer footwear, and contemporary unisex essentials in Accra, Ghana. Paystack, Cash on Delivery, WhatsApp orders (0597489841).`,
       },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: STORE.secondaryName },
+      { property: "og:url", content: STORE.siteUrl },
+      { property: "og:image", content: `${STORE.siteUrl}${STORE.logoUrl}` },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:site", content: "@urbanvaultgh" },
+      { name: "twitter:image", content: `${STORE.siteUrl}${STORE.logoUrl}` },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "canonical", href: STORE.siteUrl },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -154,12 +160,12 @@ function RootShell({ children }: { children: ReactNode }) {
             __html: `
               (function() {
                 try {
-                  var mode = localStorage.getItem("voltix-theme-mode");
+                  var mode = localStorage.getItem("urban-vault-theme-mode") || localStorage.getItem("voltix-theme-mode");
                   var isDark = mode === "dark" || (mode !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
                   if (isDark) document.documentElement.classList.add("dark");
                   else document.documentElement.classList.remove("dark");
 
-                  var color = localStorage.getItem("voltix-theme-color") || "#111827";
+                  var color = localStorage.getItem("urban-vault-theme-color") || localStorage.getItem("voltix-theme-color") || "#10B981";
                   var presets = {
                     "#10B981": {"--primary":"oklch(0.696 0.149 162.48)","--color-primary":"oklch(0.696 0.149 162.48)","--primary-foreground":"oklch(0.99 0 0)","--color-primary-foreground":"oklch(0.99 0 0)","--primary-deep":"oklch(0.596 0.132 163.2)","--primary-soft":"oklch(0.958 0.033 164)","--accent":"oklch(0.958 0.033 164)","--accent-foreground":"oklch(0.44 0.1 163)","--ring":"oklch(0.696 0.149 162.48)"},
                     "#059669": {"--primary":"oklch(0.6 0.14 165)","--color-primary":"oklch(0.6 0.14 165)","--primary-foreground":"oklch(0.99 0 0)","--primary-deep":"oklch(0.52 0.12 165)","--primary-soft":"oklch(0.94 0.03 165)","--accent":"oklch(0.94 0.03 165)","--accent-foreground":"oklch(0.44 0.11 165)","--ring":"oklch(0.6 0.14 165)"},
@@ -401,7 +407,10 @@ function RootComponent() {
 
   useEffect(() => {
     function applyTheme() {
-      const color = localStorage.getItem("voltix-theme-color") || "#10B981";
+      const color =
+        localStorage.getItem("urban-vault-theme-color") ||
+        localStorage.getItem("voltix-theme-color") ||
+        "#10B981";
       const preset = THEME_PRESETS[color];
       if (preset) {
         Object.entries(preset).forEach(([prop, val]) => {
@@ -409,7 +418,10 @@ function RootComponent() {
         });
       }
       
-      const mode = localStorage.getItem("voltix-theme-mode") || "system";
+      const mode =
+        localStorage.getItem("urban-vault-theme-mode") ||
+        localStorage.getItem("voltix-theme-mode") ||
+        "system";
       setThemeMode(mode as "light" | "dark" | "system");
       const isDark = mode === "dark" || (mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
       if (isDark) document.documentElement.classList.add("dark");
@@ -417,11 +429,13 @@ function RootComponent() {
     }
     applyTheme();
     window.addEventListener("storage", applyTheme);
+    window.addEventListener("urban-vault-theme-change", applyTheme);
     window.addEventListener("voltix-theme-change", applyTheme);
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     mediaQuery.addEventListener("change", applyTheme);
     return () => {
       window.removeEventListener("storage", applyTheme);
+      window.removeEventListener("urban-vault-theme-change", applyTheme);
       window.removeEventListener("voltix-theme-change", applyTheme);
       mediaQuery.removeEventListener("change", applyTheme);
     };

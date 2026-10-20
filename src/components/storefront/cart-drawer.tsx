@@ -157,7 +157,7 @@ export function CartDrawer({
               <Button
                 asChild
                 variant="outline"
-                className="w-full border-emerald-500/50 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 dark:text-emerald-300 font-semibold"
+                className="w-full border-primary/50 bg-primary/10 text-primary hover:bg-primary/20 font-semibold"
                 size="lg"
               >
                 <a
@@ -166,7 +166,7 @@ export function CartDrawer({
                   rel="noreferrer"
                   className="flex items-center justify-center gap-2"
                 >
-                  <MessageCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <MessageCircle className="h-4 w-4 text-primary" />
                   Send Cart to WhatsApp
                 </a>
               </Button>

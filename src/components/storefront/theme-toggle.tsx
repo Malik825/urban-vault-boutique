@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 /** Read theme from the actual <html> class – matches the anti-flicker script */
 function getActiveTheme(): "light" | "dark" {
@@ -18,11 +19,9 @@ function applyTheme(theme: "light" | "dark") {
   window.dispatchEvent(new CustomEvent("voltix-theme-change", { detail: theme }));
 }
 
-export function ThemeToggle() {
-  // Initialise from the *actual* DOM so it matches the anti-flicker script
+export function ThemeToggle({ className = "" }: { className?: string }) {
   const [theme, setTheme] = useState<"light" | "dark">(getActiveTheme);
 
-  // Sync across tabs
   useEffect(() => {
     function onStorage(e: StorageEvent) {
       if (e.key === "voltix-theme-mode" && (e.newValue === "light" || e.newValue === "dark")) {
@@ -41,24 +40,20 @@ export function ThemeToggle() {
   };
 
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="icon"
+      type="button"
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-      className="theme-toggle"
-      data-theme={theme}
+      title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+      className={`rounded-full h-8 w-8 sm:h-9 sm:w-9 text-muted-foreground hover:text-foreground active:scale-95 transition-transform shrink-0 ${className}`}
     >
-      <span className="theme-toggle__track">
-        <span className="theme-toggle__thumb">
-          {theme === "light" ? (
-            <Sun className="theme-toggle__icon" />
-          ) : (
-            <Moon className="theme-toggle__icon" />
-          )}
-        </span>
-      </span>
-      <span className="theme-toggle__label">
-        {theme === "light" ? "Light" : "Dark"}
-      </span>
-    </button>
+      {theme === "light" ? (
+        <Sun className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
+      ) : (
+        <Moon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+      )}
+    </Button>
   );
 }

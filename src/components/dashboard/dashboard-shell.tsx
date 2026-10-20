@@ -160,7 +160,7 @@ export function DashboardShell({
         <div className="flex h-16 shrink-0 items-center gap-2.5 overflow-hidden px-4">
           <Link to="/" aria-label="Home" className="flex items-center gap-2.5">
             <img
-              src="/logo.jpg"
+              src="/urban-vault-logo.jpg"
               alt={STORE.name}
               className="h-9 w-9 shrink-0 rounded-full object-cover shadow-glow"
             />
@@ -285,7 +285,19 @@ export function DashboardShell({
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[80vw] max-w-xs bg-sidebar">
-                <div className="mt-8">
+                {/* Mobile sidebar logo */}
+                <div className="flex items-center gap-2.5 px-1 pb-4 pt-2 border-b border-sidebar-border">
+                  <img
+                    src="/urban-vault-logo.jpg"
+                    alt={STORE.name}
+                    className="h-9 w-9 shrink-0 rounded-full object-cover shadow-glow"
+                  />
+                  <div className="min-w-0">
+                    <p className="truncate font-display text-sm font-extrabold">{STORE.name}</p>
+                    <p className="truncate text-[11px] text-muted-foreground">Admin Panel</p>
+                  </div>
+                </div>
+                <div className="mt-4">
                   <NavList onNavigate={() => setMobileOpen(false)} />
                 </div>
               </SheetContent>

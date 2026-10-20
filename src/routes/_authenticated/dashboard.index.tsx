@@ -35,16 +35,16 @@ import { adminGetStats } from "@/lib/admin.functions";
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({
     meta: [
-      { title: "Seller dashboard — Voltix inventory & revenue" },
+      { title: "Seller dashboard — Urban Vault inventory & revenue" },
       {
         name: "description",
         content:
-          "Track revenue, visitors, WhatsApp enquiries and inventory health for your electronics store in one modern dashboard.",
+          "Track revenue, orders, WhatsApp enquiries and inventory health for your boutique in one modern dashboard.",
       },
-      { property: "og:title", content: "Seller dashboard — Voltix" },
+      { property: "og:title", content: "Seller dashboard — Urban Vault" },
       {
         property: "og:description",
-        content: "Revenue, traffic, enquiries and stock health at a glance.",
+        content: "Revenue, traffic, orders and stock health at a glance.",
       },
     ],
   }),
@@ -383,4 +383,5 @@ export function Panel({
     </section>
   );
 }
+
 

@@ -347,5 +347,37 @@ export const adminGetAnalytics = createServerFn({ method: "GET" }).handler(async
   };
 });
 
+// ─── Product Image Upload ──────────────────────────────────────────────────────
+
+export const adminUploadProductImage = createServerFn({ method: "POST" })
+  .validator((data: { base64: string; fileName: string; contentType: string }) => data)
+  .handler(async ({ data }) => {
+    try {
+      const supabase = getAdminClient();
+      const buffer = Buffer.from(data.base64, "base64");
+      const ext = data.fileName.split(".").pop() || "jpg";
+      const cleanName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`;
+      const path = `uploads/${cleanName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("product-images")
+        .upload(path, buffer, {
+          contentType: data.contentType,
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("product-images")
+        .getPublicUrl(path);
+
+      return { publicUrl: urlData.publicUrl };
+    } catch (err: any) {
+      console.error("adminUploadProductImage error:", err);
+      throw new Error(err.message || "Failed to upload product image");
+    }
+  });
+
 
 

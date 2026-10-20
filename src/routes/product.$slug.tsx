@@ -64,6 +64,8 @@ export const Route = createFileRoute("/product/$slug")({
         meta: [{ title: `Product unavailable — ${STORE.name}` }, { name: "robots", content: "noindex" }],
       };
     const p = loaderData.product;
+    const productUrl = `${STORE.siteUrl}/product/${p.slug}`;
+    const ogImage = p.images?.[0] ?? `${STORE.siteUrl}${STORE.logoUrl}`;
     return {
       meta: [
         { title: `${p.name} — ${formatPrice(p.price)} | ${STORE.name}` },
@@ -73,7 +75,14 @@ export const Route = createFileRoute("/product/$slug")({
         },
         { property: "og:title", content: `${p.name} | ${STORE.name}` },
         { property: "og:description", content: p.blurb },
+        { property: "og:url", content: productUrl },
+        { property: "og:image", content: ogImage },
+        { property: "og:type", content: "product" },
+        { name: "twitter:title", content: `${p.name} | ${STORE.name}` },
+        { name: "twitter:description", content: p.blurb },
+        { name: "twitter:image", content: ogImage },
       ],
+      links: [{ rel: "canonical", href: productUrl }],
     };
   },
   component: ProductDetail,
@@ -616,7 +625,7 @@ function ProductDetail() {
           <Button
             size="sm"
             variant="outline"
-            className="border-emerald-500/50 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold px-2.5 h-9"
+            className="border-primary/50 bg-primary/10 text-primary font-semibold px-2.5 h-9"
             asChild
           >
             <a href={whatsappLink(createProductEnquiry(product))} target="_blank" rel="noreferrer">

@@ -219,49 +219,49 @@
 }
 
 .dark {
-  /* ── Deep slate background — not just plain black ── */
-  --background: oklch(0.135 0.018 258);
+  /* ── Refined luxury onyx background (#101318) ── */
+  --background: #101318;
   --foreground: oklch(0.96 0.006 240);
 
   /* Layered surfaces for depth perception */
-  --surface: oklch(0.185 0.018 256);
-  --surface-muted: oklch(0.225 0.02 256);
+  --surface: #151b23;
+  --surface-muted: #1a222c;
 
   /* Cards sit slightly above the page */
-  --card: oklch(0.195 0.019 256);
+  --card: #151b23;
   --card-foreground: oklch(0.96 0.006 240);
-  --popover: oklch(0.20 0.019 256);
+  --popover: #151b23;
   --popover-foreground: oklch(0.96 0.006 240);
 
-  /* Vibrant emerald — slightly lighter & more saturated for dark bg */
+  /* Vibrant emerald */
   --primary: oklch(0.74 0.165 162.5);
   --primary-foreground: oklch(0.12 0.04 163);
   --primary-deep: oklch(0.63 0.145 163);
   --primary-dark: oklch(0.52 0.12 163);
   --primary-soft: oklch(0.28 0.055 163);
 
-  --secondary: oklch(0.265 0.022 256);
+  --secondary: #1a222c;
   --secondary-foreground: oklch(0.95 0.006 240);
-  --muted: oklch(0.265 0.022 256);
+  --muted: #1a222c;
   --muted-foreground: oklch(0.68 0.022 255);
 
   --accent: oklch(0.28 0.055 163);
   --accent-foreground: oklch(0.86 0.1 163);
 
-  /* Hairline borders that glow faintly in emerald */
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 12%);
+  /* Hairline borders with subtle contrast against #101318 */
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.11);
   --ring: oklch(0.74 0.165 162.5);
 
-  /* Dark-mode shadows — use emerald glow instead of grey */
-  --shadow-xs: 0 1px 3px oklch(0 0 0 / 0.35);
+  /* Dark-mode shadows */
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.4);
   --shadow-card:
-    0 1px 3px oklch(0 0 0 / 0.30),
-    0 4px 16px -4px oklch(0 0 0 / 0.45);
+    0 1px 3px rgba(0, 0, 0, 0.35),
+    0 4px 16px -4px rgba(0, 0, 0, 0.5);
   --shadow-lift:
-    0 2px 8px oklch(0 0 0 / 0.4),
-    0 12px 32px -8px oklch(0 0 0 / 0.55),
-    0 0 0 1px oklch(0.74 0.165 162.5 / 0.12);
+    0 2px 8px rgba(0, 0, 0, 0.45),
+    0 12px 32px -8px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
   --shadow-glow: 0 8px 32px -6px oklch(0.74 0.165 162.5 / 0.45);
   --shadow-glow-lg: 0 0 56px -8px oklch(0.74 0.165 162.5 / 0.55);
 
@@ -282,25 +282,21 @@
   --sidebar-ring: var(--ring);
 }
 
-/* Subtle animated mesh on the dark body */
+/* Subtle animated mesh on the dark body with #101318 */
 .dark body {
+  background-color: #101318;
   background-image:
     radial-gradient(ellipse 80% 50% at 85% -10%,
-      oklch(0.74 0.165 162.5 / 0.06) 0%,
+      oklch(0.74 0.165 162.5 / 0.04) 0%,
       transparent 60%),
     radial-gradient(ellipse 60% 60% at -10% 110%,
-      oklch(0.62 0.14 258 / 0.05) 0%,
+      rgba(255, 255, 255, 0.02) 0%,
       transparent 60%);
   background-attachment: fixed;
 }
 
 .dark img {
-  filter: grayscale(15%) brightness(0.88);
-  transition: filter 0.3s ease;
-}
-
-.dark img:hover {
-  filter: grayscale(0%) brightness(1);
+  filter: none;
 }
 
 @layer base {
@@ -457,75 +453,6 @@
     padding-right: 4rem;
   }
 }
-
-/* ── Theme Toggle ─────────────────────────────────────── */
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 999px;
-  color: var(--foreground);
-  transition: color 0.2s ease;
-}
-
-.theme-toggle:hover {
-  color: var(--primary);
-}
-
-.theme-toggle__track {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 2.75rem;
-  height: 1.5rem;
-  border-radius: 999px;
-  background: var(--muted);
-  border: 1px solid var(--border);
-  transition: background 0.3s ease, border-color 0.3s ease;
-}
-
-.theme-toggle[data-theme="dark"] .theme-toggle__track {
-  background: var(--primary-soft);
-  border-color: var(--primary);
-}
-
-.theme-toggle__thumb {
-  position: absolute;
-  left: 0.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.1rem;
-  height: 1.1rem;
-  border-radius: 50%;
-  background: white;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
-}
-
-.theme-toggle[data-theme="dark"] .theme-toggle__thumb {
-  transform: translateX(1.2rem);
-  background: var(--primary);
-}
-
-.theme-toggle__icon {
-  width: 0.65rem;
-  height: 0.65rem;
-  color: oklch(0.45 0.05 258);
-}
-
-.theme-toggle[data-theme="dark"] .theme-toggle__icon {
-  color: var(--primary-foreground);
-}
-
-.theme-toggle__label {
-  display: none;
-}
-
 /* ── Profile Page ─────────────────────────────────────── */
 .profile-card {
   background: var(--card);

@@ -17,17 +17,31 @@ import { adminListOrders, adminUpdateOrderStatus } from "@/lib/admin.functions";
 
 type Order = Awaited<ReturnType<typeof adminListOrders>>[number];
 
+interface OrderShippingAddress {
+  orderNumber?: string;
+  customerName?: string;
+  phone?: string;
+  email?: string;
+  items?: any[];
+  paymentStatus?: string;
+  paymentReference?: string;
+  paymentMethod?: string;
+  city?: string;
+  region?: string;
+  address?: string;
+}
+
 const ORDER_STATUSES = ["pending", "processing", "shipped", "delivered", "cancelled"] as const;
 
 export const Route = createFileRoute("/_authenticated/dashboard/orders")({
   head: () => ({
     meta: [
-      { title: "Orders — Voltix seller dashboard" },
+      { title: "Orders — Urban Vault Admin" },
       {
         name: "description",
         content: "Track order status, invoices, payments and shipping for every customer purchase.",
       },
-      { property: "og:title", content: "Orders — Voltix seller dashboard" },
+      { property: "og:title", content: "Orders — Urban Vault Admin" },
       { property: "og:description", content: "Status timeline, invoices, payments and shipping." },
     ],
   }),
@@ -82,9 +96,9 @@ function Orders() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Order</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead>Payment &amp; Status</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Shipping</TableHead>
                 <TableHead className="text-right">Total</TableHead>
@@ -93,19 +107,39 @@ function Orders() {
             </TableHeader>
             <TableBody>
               {orders.map((o) => {
-                const addr = o.shipping_address as Record<string, string> | null;
+                const addr = o.shipping_address as OrderShippingAddress | null;
+                const orderNumber = addr?.orderNumber || `#${String(o.id).slice(0, 8).toUpperCase()}`;
+                const itemCount = Array.isArray(addr?.items) ? addr.items.length : 1;
+                const isPaystackPaid = addr?.paymentStatus === "paid" || addr?.paymentReference;
+
                 return (
                   <TableRow key={o.id} className="transition-colors hover:bg-surface-muted">
-                    <TableCell className="font-semibold text-xs">
-                      #{String(o.id).slice(0, 8).toUpperCase()}
+                    <TableCell className="font-semibold text-xs font-mono">
+                      {orderNumber}
+                      <span className="text-[10px] text-muted-foreground block font-sans">
+                        {itemCount} item{itemCount === 1 ? "" : "s"}
+                      </span>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      —
+                    <TableCell className="text-sm">
+                      <p className="font-medium text-foreground">{addr?.customerName || "Customer"}</p>
+                      <p className="text-xs text-muted-foreground">{addr?.phone || "—"}</p>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className={statusColor(o.status ?? "")}>
-                        {o.status}
-                      </Badge>
+                      <div className="flex flex-col gap-1 items-start">
+                        <Badge variant="secondary" className={statusColor(o.status ?? "")}>
+                          {o.status}
+                        </Badge>
+                        {addr?.paymentMethod && (
+                          <span className="text-[10px] text-muted-foreground">
+                            {addr.paymentMethod}
+                          </span>
+                        )}
+                        {isPaystackPaid && addr?.paymentReference && (
+                          <span className="text-[10px] font-mono text-primary font-semibold">
+                            Ref: {addr.paymentReference}
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {new Date(o.created_at).toLocaleDateString("en-GH")}
@@ -114,7 +148,7 @@ function Orders() {
                       {addr ? `${addr.city ?? ""}, ${addr.region ?? ""}`.replace(/^, |, $/, "") : "—"}
                     </TableCell>
                     <TableCell className="text-right font-semibold">
-                      {formatPrice((o.total ?? 0) / 100)}
+                      {formatPrice(o.total ?? 0)}
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>
@@ -162,3 +196,4 @@ function Info({
     </div>
   );
 }
+
