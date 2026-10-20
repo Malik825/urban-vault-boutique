@@ -13,7 +13,7 @@ import {
   Package,
   ShieldCheck,
   Smartphone,
-  Sparkles,
+  MapPin,
   Star,
   Truck,
   Zap,
@@ -119,8 +119,8 @@ function AboutPage() {
       <section ref={heroRef} className="relative overflow-hidden py-16 sm:py-24 border-b border-border bg-surface-muted/50">
         <div className="mx-auto max-w-7xl container-x relative z-10">
           <div ref={heroContentRef} className="max-w-3xl">
-            <Badge variant="outline" className="mb-4 bg-background border-primary/30 text-primary font-bold">
-              <Sparkles className="mr-1.5 h-3.5 w-3.5" /> Accra, Ghana 🇬🇭
+            <Badge variant="outline" className="mb-4 bg-background border-border text-foreground/80 font-mono text-[11px] uppercase tracking-wider">
+              <MapPin className="mr-1.5 h-3.5 w-3.5 text-primary" /> Accra, Ghana
             </Badge>
 
             <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl text-foreground leading-[1.15]">

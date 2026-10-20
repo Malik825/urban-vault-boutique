@@ -10,6 +10,13 @@ import {
   Clock,
   ShieldCheck,
   LayoutDashboard,
+  SlidersHorizontal,
+  Check,
+  Copy,
+  Gift,
+  Crown,
+  Save,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -25,6 +32,8 @@ import { useCart } from "@/lib/cart";
 import { formatPrice, STORE } from "@/lib/store-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
+import { serverSaveOnboardingPreferences } from "@/lib/auth.functions";
+import { PROMO_WELCOME_CODE, BoutiqueOnboardingModal } from "@/components/auth/onboarding-modal";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({
@@ -43,6 +52,18 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: "bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-200 dark:border-rose-800",
 };
 
+const STYLE_AESTHETICS = [
+  { id: "streetwear", label: "Streetwear & Oversized Fits", emoji: "🕶️" },
+  { id: "linen", label: "Cuban Linen & Kaftans", emoji: "👔" },
+  { id: "denim", label: "Vintage Denim & Cargo Pieces", emoji: "👖" },
+  { id: "sneakers", label: "Designer Footwear & Kicks", emoji: "👟" },
+  { id: "luxury", label: "Minimalist High Fashion", emoji: "✨" },
+];
+
+const TOP_SIZES = ["S", "M", "L", "XL", "XXL"];
+const SHOE_SIZES = ["EU 40", "EU 41", "EU 42", "EU 43", "EU 44", "EU 45"];
+const DEPARTMENTS = ["Unisex / All", "Men's Collection", "Women's Collection"];
+
 function AccountPage() {
   const navigate = useNavigate();
   const { user, isAdmin, signOut } = useAuth();
@@ -52,6 +73,24 @@ function AccountPage() {
   const [profile, setProfile] = useState<any>(null);
   const [orders, setOrders] = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
+
+  // Style & Fit Customization state
+  const [selectedStyles, setSelectedStyles] = useState<string[]>(["streetwear", "sneakers"]);
+  const [selectedTopSize, setSelectedTopSize] = useState<string>("L");
+  const [selectedShoeSize, setSelectedShoeSize] = useState<string>("EU 42");
+  const [selectedDept, setSelectedDept] = useState<string>("Unisex / All");
+  const [savingPrefs, setSavingPrefs] = useState(false);
+  const [copiedVoucher, setCopiedVoucher] = useState(false);
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("onboarding") === "true") {
+        setShowOnboardingModal(true);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (isAdmin) {
@@ -82,6 +121,71 @@ function AccountPage() {
         });
     }
   }, [user]);
+
+  // Load saved preferences
+  useEffect(() => {
+    if (user) {
+      const savedPrefs = (user.user_metadata as any)?.preferences;
+      if (savedPrefs) {
+        if (savedPrefs.styles) setSelectedStyles(savedPrefs.styles);
+        if (savedPrefs.topSize) setSelectedTopSize(savedPrefs.topSize);
+        if (savedPrefs.shoeSize) setSelectedShoeSize(savedPrefs.shoeSize);
+        if (savedPrefs.department) setSelectedDept(savedPrefs.department);
+      } else if (typeof window !== "undefined") {
+        const local = localStorage.getItem("urban-vault-preferences");
+        if (local) {
+          try {
+            const parsed = JSON.parse(local);
+            if (parsed.styles) setSelectedStyles(parsed.styles);
+            if (parsed.topSize) setSelectedTopSize(parsed.topSize);
+            if (parsed.shoeSize) setSelectedShoeSize(parsed.shoeSize);
+            if (parsed.department) setSelectedDept(parsed.department);
+          } catch {}
+        }
+      }
+    }
+  }, [user]);
+
+  const toggleStyle = (id: string) => {
+    setSelectedStyles((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
+
+  const handleCopyVoucher = () => {
+    navigator.clipboard.writeText(PROMO_WELCOME_CODE);
+    setCopiedVoucher(true);
+    toast.success(`Promo code ${PROMO_WELCOME_CODE} copied!`);
+    setTimeout(() => setCopiedVoucher(false), 2000);
+  };
+
+  const handleSavePreferences = async () => {
+    if (!user) return;
+    setSavingPrefs(true);
+    const preferences = {
+      styles: selectedStyles,
+      topSize: selectedTopSize,
+      shoeSize: selectedShoeSize,
+      department: selectedDept,
+    };
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("urban-vault-preferences", JSON.stringify(preferences));
+      }
+      await serverSaveOnboardingPreferences({
+        data: {
+          userId: user.id,
+          preferences,
+        },
+      });
+      toast.success("Boutique fit & style preferences saved successfully!");
+    } catch (e) {
+      console.warn("Could not sync preferences with server:", e);
+      toast.success("Preferences saved to this device!");
+    } finally {
+      setSavingPrefs(false);
+    }
+  };
 
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? "GH";
   const displayName =
@@ -198,6 +302,206 @@ function AccountPage() {
               <p className="text-xs text-muted-foreground">{stat.label}</p>
             </Link>
           ))}
+        </div>
+
+        <Separator className="my-8" />
+
+        {/* Style & Fit Customization & VIP Voucher Strip */}
+        <div className="grid gap-6 md:grid-cols-12 mb-8">
+          {/* VIP Welcome Pass / Voucher */}
+          <div className="md:col-span-5 rounded-2xl border border-primary/30 bg-primary/5 p-6 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <Badge className="bg-primary text-primary-foreground font-semibold text-xs px-2.5 py-0.5">
+                  <Crown className="h-3.5 w-3.5 mr-1" /> VIP Member
+                </Badge>
+                <button
+                  type="button"
+                  onClick={() => setShowOnboardingModal(true)}
+                  className="text-xs text-primary font-semibold hover:underline"
+                >
+                  Preview Welcome Modal
+                </button>
+              </div>
+
+              <h3 className="font-display text-lg font-bold text-foreground">
+                VIP Welcome Voucher
+              </h3>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                Enjoy 10% discount on all streetwear, footwear, and accessories.
+              </p>
+
+              <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-border bg-background p-3">
+                <div>
+                  <span className="text-[10px] uppercase font-mono text-muted-foreground block">Voucher Code</span>
+                  <span className="font-mono text-base font-bold text-foreground tracking-wider">
+                    {PROMO_WELCOME_CODE}
+                  </span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyVoucher}
+                  className="rounded-lg text-xs"
+                >
+                  {copiedVoucher ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 mr-1" /> Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5 mr-1" /> Copy
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-border/50 text-[11px] text-muted-foreground flex items-center justify-between">
+              <span>Code active across all categories</span>
+              <button
+                type="button"
+                onClick={() => setShowOnboardingModal(true)}
+                className="text-primary font-semibold hover:underline"
+              >
+                Launch Welcome Walkthrough &rarr;
+              </button>
+            </div>
+          </div>
+
+          {/* Style & Fit Preferences Card */}
+          <div className="md:col-span-7 rounded-2xl border border-border bg-card p-6 shadow-xs space-y-5">
+            <div className="flex items-center justify-between border-b border-border pb-4">
+              <div className="flex items-center gap-2.5">
+                <span className="h-8 w-8 rounded-lg bg-surface-muted text-primary border border-border flex items-center justify-center">
+                  <SlidersHorizontal className="h-4 w-4" />
+                </span>
+                <div>
+                  <h3 className="font-display text-base font-bold text-foreground">
+                    Fit &amp; Aesthetic Profile
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Customize your sizing for personalized drops and recommendations
+                  </p>
+                </div>
+              </div>
+
+              <Button
+                size="sm"
+                onClick={handleSavePreferences}
+                disabled={savingPrefs}
+                className="rounded-xl shadow-xs font-semibold text-xs"
+              >
+                {savingPrefs ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-3.5 w-3.5 mr-1" /> Save Profile
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Sizing grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground block mb-1.5 font-semibold">
+                  Top / Shirt Size
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {TOP_SIZES.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => setSelectedTopSize(size)}
+                      className={`h-8 w-10 rounded-lg text-xs font-bold transition-all ${
+                        selectedTopSize === size
+                          ? "bg-primary text-primary-foreground shadow-xs"
+                          : "bg-surface-muted hover:bg-muted border border-border text-muted-foreground"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground block mb-1.5 font-semibold">
+                  Footwear Size
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {SHOE_SIZES.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => setSelectedShoeSize(size)}
+                      className={`h-8 px-2 rounded-lg text-xs font-bold transition-all ${
+                        selectedShoeSize === size
+                          ? "bg-primary text-primary-foreground shadow-xs"
+                          : "bg-surface-muted hover:bg-muted border border-border text-muted-foreground"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Department */}
+            <div>
+              <label className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground block mb-1.5 font-semibold">
+                Preferred Department
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {DEPARTMENTS.map((dept) => (
+                  <button
+                    key={dept}
+                    type="button"
+                    onClick={() => setSelectedDept(dept)}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+                      selectedDept === dept
+                        ? "bg-primary text-primary-foreground shadow-xs"
+                        : "bg-surface-muted hover:bg-muted border border-border text-muted-foreground"
+                    }`}
+                  >
+                    {dept}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Aesthetics */}
+            <div>
+              <label className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground block mb-1.5 font-semibold">
+                Favorite Aesthetics
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {STYLE_AESTHETICS.map((style) => {
+                  const isSelected = selectedStyles.includes(style.id);
+                  return (
+                    <button
+                      key={style.id}
+                      type="button"
+                      onClick={() => toggleStyle(style.id)}
+                      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all ${
+                        isSelected
+                          ? "bg-primary text-primary-foreground shadow-xs"
+                          : "bg-surface-muted hover:bg-muted border border-border text-muted-foreground"
+                      }`}
+                    >
+                      <span>{style.emoji}</span>
+                      <span>{style.label}</span>
+                      {isSelected && <Check className="h-3 w-3 ml-0.5" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
 
         <Separator className="my-8" />
@@ -407,6 +711,18 @@ function AccountPage() {
           </div>
         </div>
       </div>
+
+      {showOnboardingModal && (
+        <BoutiqueOnboardingModal
+          isOpen={showOnboardingModal}
+          onOpenChange={setShowOnboardingModal}
+          user={{
+            id: user?.id || "preview-id",
+            email: user?.email || "vip-member@urbanvault.store",
+            fullName: displayName,
+          }}
+        />
+      )}
 
       <SiteFooter />
     </div>

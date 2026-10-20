@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { LayoutGrid, MessageCircle, Mail, MapPin, ShieldCheck, Truck, CreditCard, Sparkles } from "lucide-react";
+import { LayoutGrid, MessageCircle, Mail, MapPin, ShieldCheck, Truck, CreditCard } from "lucide-react";
 
 import { STORE, categories, brands, whatsappLink } from "@/lib/store-data";
 import { Badge } from "@/components/ui/badge";

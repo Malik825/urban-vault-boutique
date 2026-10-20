@@ -28,6 +28,7 @@ import { BoutiqueOnboardingModal } from "@/components/auth/onboarding-modal";
 const authSearchSchema = z.object({
   redirect: z.string().optional(),
   mode: z.enum(["login", "register", "forgot"]).optional(),
+  onboarding: z.union([z.boolean(), z.string()]).optional(),
 });
 
 export const Route = createFileRoute("/auth")({
@@ -118,9 +119,21 @@ function AuthPage() {
     fullName?: string;
   } | null>(null);
 
+  // Test bypass for onboarding modal (?onboarding=true)
+  useEffect(() => {
+    if (search.onboarding === true || search.onboarding === "true") {
+      setNewlyRegisteredUser({
+        id: "test-user-preview",
+        email: "vip-member@urbanvault.store",
+        fullName: "VIP Member",
+      });
+      setShowOnboarding(true);
+    }
+  }, [search.onboarding]);
+
   // Auto-redirect if already signed in: smart redirect to intended destination
   useEffect(() => {
-    if (showOnboarding || newlyRegisteredUser) return;
+    if (showOnboarding || newlyRegisteredUser || search.onboarding === true || search.onboarding === "true") return;
 
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {

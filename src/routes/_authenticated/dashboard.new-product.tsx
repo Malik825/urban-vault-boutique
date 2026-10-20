@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Check, ImagePlus, ArrowLeft, ArrowRight, X, Plus, Sparkles, Star, UploadCloud, Loader2 } from "lucide-react";
+import { Check, ImagePlus, ArrowLeft, ArrowRight, X, Plus, Star, UploadCloud, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";

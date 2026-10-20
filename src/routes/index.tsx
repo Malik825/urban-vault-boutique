@@ -12,7 +12,6 @@ import {
   Phone,
   Search,
   ShieldCheck,
-  Sparkles,
   Star,
   Truck,
   Zap,
@@ -174,9 +173,14 @@ function Landing() {
               
               {/* Left Column: Brand Statement */}
               <div ref={heroRef} className="lg:col-span-7 space-y-5 sm:space-y-6">
-                <div className="hero-element inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>URBAN VAULT · NEW SEASON ARRIVALS</span>
+                <div className="hero-element inline-flex items-center gap-2.5 rounded-full border border-border/80 bg-background/80 px-3.5 py-1 text-xs font-medium text-foreground backdrop-blur-sm shadow-xs">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                  </span>
+                  <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground/85">
+                    Season 2026 <span className="text-muted-foreground/50">/</span> New Drop
+                  </span>
                 </div>
 
                 <h1 className="hero-element font-display text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-[3.25rem] leading-[1.08] text-foreground">

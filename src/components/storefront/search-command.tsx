@@ -5,7 +5,6 @@ import {
   X,
   Clock,
   Flame,
-  Sparkles,
   Star,
   Heart,
   ShoppingCart,
@@ -622,7 +621,7 @@ export function SearchCommand({
             {/* Trending Searches */}
             <div className="pt-3 border-t border-border dark:border-white/10">
               <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400 mb-2.5 flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Trending
+                <Flame className="h-3.5 w-3.5 text-primary" /> Trending
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {TRENDING_TAGS.map((tag) => (
