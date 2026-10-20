@@ -8,6 +8,7 @@ import { formatPrice, whatsappLink, createProductEnquiry, type Product } from "@
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/user-store";
 import type { CatalogProduct } from "@/lib/catalog";
+import { optimizeImageUrl } from "@/lib/image";
 
 export function ProductCard({
   product,
@@ -44,11 +45,11 @@ export function ProductCard({
     >
       {/* Primary image */}
       <motion.img
-        src={product.images[0]}
+        src={optimizeImageUrl(product.images[0], 500, 75)}
         alt={product.name}
         loading="lazy"
-        width={1024}
-        height={1024}
+        width={500}
+        height={625}
         className="absolute inset-0 h-full w-full object-cover object-top"
         variants={{
           rest: { scale: 1, opacity: 1 },
@@ -60,12 +61,12 @@ export function ProductCard({
       {/* Secondary image */}
       {hasSecondImage && (
         <motion.img
-          src={product.images[1]}
+          src={optimizeImageUrl(product.images[1], 500, 75)}
           alt=""
           aria-hidden
           loading="lazy"
-          width={1024}
-          height={1024}
+          width={500}
+          height={625}
           variants={{
             rest: { opacity: 0, scale: 1.1 },
             hover: { opacity: 1, scale: 1 },

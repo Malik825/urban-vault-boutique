@@ -39,6 +39,7 @@ import { useAuth } from "@/lib/auth";
 import { createCustomerOrder } from "@/lib/order.functions";
 import { initializePaystackCheckout, PAYSTACK_PUBLIC_KEY } from "@/lib/paystack";
 import { formatPrice, STORE, GHANA_REGIONS, whatsappLink } from "@/lib/store-data";
+import { optimizeImageUrl } from "@/lib/image";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -464,8 +465,11 @@ function CheckoutPage() {
                 {orderConfirmation.items.map((item) => (
                   <div key={item.id} className="flex items-center gap-4 p-3.5 bg-card">
                     <img
-                      src={item.image}
+                      src={optimizeImageUrl(item.image, 112, 75)}
                       alt={item.name}
+                      width={56}
+                      height={56}
+                      loading="lazy"
                       className="h-14 w-14 rounded-lg object-cover border border-border shrink-0"
                     />
                     <div className="flex-1 min-w-0">
@@ -904,8 +908,11 @@ function CheckoutPage() {
               <li key={item.product.id} className="flex py-3.5 items-center">
                 <div className="relative h-14 w-14 shrink-0 rounded-lg border border-border bg-background p-1">
                   <img
-                    src={item.product.images[0]}
+                    src={optimizeImageUrl(item.product.images[0], 112, 75)}
                     alt={item.product.name}
+                    width={56}
+                    height={56}
+                    loading="lazy"
                     className="h-full w-full rounded-md object-cover"
                   />
                   <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-sm">

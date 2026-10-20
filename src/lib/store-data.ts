@@ -114,7 +114,7 @@ export const CATEGORIES_TAXONOMY: CategoryTaxonomy[] = [
     id: "tops-shirts",
     name: "Tops & Shirts",
     department: "All",
-    image: "/boutique/category_shirts_1792394774964.jpg",
+    image: "/boutique/category_shirts_1792394774964.webp",
     blurb: "Heavyweight boxy tees, polo shirts, Cuban linen & long-sleeve luxury button-downs",
     count: 64,
     subcategories: [
@@ -180,7 +180,7 @@ export const CATEGORIES_TAXONOMY: CategoryTaxonomy[] = [
     id: "footwear",
     name: "Footwear",
     department: "All",
-    image: "/boutique/category_footwear_1792394799875.jpg",
+    image: "/boutique/category_footwear_1792394799875.webp",
     blurb: "Designer sneakers, classic leather dress shoes, heels, slippers & traditional sandals",
     count: 56,
     subcategories: [

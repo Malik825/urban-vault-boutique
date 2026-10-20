@@ -55,7 +55,7 @@ export const URBAN_VAULT_CONFIG: StoreConfig = {
   pickupLocation: "Urban Vault Showroom, Accra",
   currencyCode: "GHS",
   currencySymbol: "GH₵",
-  logoUrl: "/boutique/urban_vault_logo_1792394705888.jpg",
+  logoUrl: "/boutique/urban_vault_logo_1792394705888.webp",
   hero: {
     badge: "New Season Arrivals 2026",
     headline: "URBAN VAULT UNISEX BOUTIQUE",
@@ -64,15 +64,15 @@ export const URBAN_VAULT_CONFIG: StoreConfig = {
     ctaSecondary: { text: "Order via WhatsApp", link: "https://wa.me/233597489841" },
     slides: [
       {
-        image: "/boutique/urban_vault_hero_1_1792394728170.jpg",
+        image: "/boutique/urban_vault_hero_1_1792394728170.webp",
         caption: "Luxury Streetwear & Essentials",
       },
       {
-        image: "/boutique/urban_vault_hero_2_1792394739729.jpg",
+        image: "/boutique/urban_vault_hero_2_1792394739729.webp",
         caption: "Contemporary Unisex Fits",
       },
       {
-        image: "/boutique/urban_vault_hero_3_1792394763146.jpg",
+        image: "/boutique/urban_vault_hero_3_1792394763146.webp",
         caption: "Exclusive Footwear Collection",
       },
     ],

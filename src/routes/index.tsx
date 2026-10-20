@@ -30,18 +30,19 @@ import type { CatalogProduct } from "@/lib/catalog";
 import { Reveal } from "@/components/reveal";
 import { LandingSkeleton } from "@/components/storefront/product-skeletons";
 import { gsap } from "@/lib/gsap";
+import { optimizeImageUrl } from "@/lib/image";
 
 const BOUTIQUE_HERO_SLIDES = [
   {
-    image: "/boutique/urban_vault_hero_1_1792394728170.jpg",
+    image: "/boutique/urban_vault_hero_1_1792394728170.webp",
     badge: "Streetwear & Contemporary Fashion",
   },
   {
-    image: "/boutique/urban_vault_hero_2_1792394739729.jpg",
+    image: "/boutique/urban_vault_hero_2_1792394739729.webp",
     badge: "Unisex Silhouettes & Elevated Comfort",
   },
   {
-    image: "/boutique/urban_vault_hero_3_1792394763146.jpg",
+    image: "/boutique/urban_vault_hero_3_1792394763146.webp",
     badge: "Exclusive Footwear & Kicks",
   },
 ];
@@ -63,7 +64,16 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:url", content: STORE.siteUrl },
     ],
-    links: [{ rel: "canonical", href: STORE.siteUrl }],
+    links: [
+      { rel: "canonical", href: STORE.siteUrl },
+      {
+        rel: "preload",
+        as: "image",
+        href: "/boutique/urban_vault_hero_1_1792394728170.webp",
+        type: "image/webp",
+        fetchpriority: "high" as any,
+      },
+    ],
   }),
   loader: async (): Promise<CatalogProduct[]> => listPublishedProducts(),
   staleTime: 1000 * 60 * 5,
@@ -248,6 +258,11 @@ function Landing() {
                         src={slide.image}
                         alt="Urban Vault Unisex Boutique Lookbook"
                         className="h-full w-full object-cover object-center"
+                        loading={i === 0 ? "eager" : "lazy"}
+                        fetchPriority={i === 0 ? "high" : "auto"}
+                        decoding={i === 0 ? "sync" : "async"}
+                        width={960}
+                        height={536}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                       <div className="absolute bottom-5 left-5 right-5 text-white">
@@ -311,8 +326,11 @@ function Landing() {
               >
                 <div className="aspect-[4/4] overflow-hidden bg-surface-muted">
                   <img
-                    src={cat.image}
+                    src={optimizeImageUrl(cat.image, 400, 75)}
                     alt={cat.name}
+                    loading="lazy"
+                    width={400}
+                    height={400}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>

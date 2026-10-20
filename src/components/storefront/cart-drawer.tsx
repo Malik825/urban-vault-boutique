@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sheet";
 import { useCart } from "@/lib/cart";
 import { createCartWhatsAppMessage, formatPrice, whatsappLink } from "@/lib/store-data";
+import { optimizeImageUrl } from "@/lib/image";
 
 const FREE_DELIVERY_THRESHOLD = 500;
 
@@ -96,8 +97,11 @@ export function CartDrawer({
                 <li key={item.product.id} className="flex py-6">
                   <div className="h-24 w-24 shrink-0 overflow-hidden rounded-md border border-border bg-surface-muted">
                     <img
-                      src={item.product.images[0]}
+                      src={optimizeImageUrl(item.product.images[0], 192, 75)}
                       alt={item.product.name}
+                      width={96}
+                      height={96}
+                      loading="lazy"
                       className="h-full w-full object-cover object-center"
                     />
                   </div>

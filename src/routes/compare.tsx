@@ -10,6 +10,7 @@ import { useCompare } from "@/lib/user-store";
 import { useCart } from "@/lib/cart";
 import { SPEC_GROUPS } from "@/lib/catalog";
 import { toast } from "sonner";
+import { optimizeImageUrl } from "@/lib/image";
 
 export const Route = createFileRoute("/compare")({
   head: () => ({
@@ -90,8 +91,11 @@ function ComparePage() {
                           <X className="h-3.5 w-3.5" />
                         </button>
                         <img
-                          src={p.images[0]}
+                          src={optimizeImageUrl(p.images[0], 300, 75)}
                           alt={p.name}
+                          width={150}
+                          height={112}
+                          loading="lazy"
                           className="mx-auto mb-3 h-28 w-full rounded-xl object-cover"
                         />
                         <Link

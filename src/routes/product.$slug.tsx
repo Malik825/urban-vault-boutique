@@ -43,6 +43,7 @@ import { groupSpecs, type CatalogProduct } from "@/lib/catalog";
 import { listPublishedProducts, recordProductView } from "@/lib/catalog.functions";
 import { useEffect, useRef } from "react";
 import { gsap } from "@/lib/gsap";
+import { optimizeImageUrl } from "@/lib/image";
 
 export const Route = createFileRoute("/product/$slug")({
   loader: async ({ params }) => {
@@ -167,10 +168,12 @@ function ProductDetail() {
           <div className="animate-fade-in">
             <div className="overflow-hidden rounded-3xl border border-border bg-surface-muted">
               <img
-                src={product.images[active]}
+                src={optimizeImageUrl(product.images[active], 800, 80)}
                 alt={product.name}
-                width={1024}
-                height={1024}
+                width={800}
+                height={800}
+                fetchPriority="high"
+                decoding="sync"
                 className="aspect-square w-full object-cover"
               />
             </div>
@@ -184,7 +187,14 @@ function ProductDetail() {
                     active === i ? "border-primary" : "border-border hover:border-primary/40"
                   }`}
                 >
-                  <img src={im} alt="" loading="lazy" className="h-20 w-20 object-cover" />
+                  <img
+                    src={optimizeImageUrl(im, 160, 75)}
+                    alt=""
+                    loading="lazy"
+                    width={80}
+                    height={80}
+                    className="h-20 w-20 object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -632,8 +642,11 @@ function ProductDetail() {
           <div className="flex items-center gap-3 min-w-0">
             <div className="h-10 w-10 sm:h-12 sm:w-12 shrink-0 overflow-hidden rounded-lg border border-border bg-surface-muted">
               <img
-                src={product.images[0]}
+                src={optimizeImageUrl(product.images[0], 96, 75)}
                 alt={product.name}
+                width={48}
+                height={48}
+                loading="lazy"
                 className="h-full w-full object-cover object-center"
               />
             </div>

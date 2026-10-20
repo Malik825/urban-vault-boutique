@@ -30,13 +30,13 @@ export type CatalogProduct = Product & {
 
 /* ── Fashion category cover images ───────────────────────── */
 const categoryImages: Record<string, string> = {
-  "Tops & Shirts": "/boutique/category_shirts_1792394774964.jpg",
-  Shirts: "/boutique/category_shirts_1792394774964.jpg",
-  "African & Traditional Wear": "https://images.unsplash.com/photo-1590736969955-71cc94801759?auto=format&fit=crop&w=800&q=80",
-  "Bottoms & Trousers": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=80",
-  "Dresses & Skirts": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80",
-  "Suits & Tailoring": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80",
-  Footwear: "/boutique/category_footwear_1792394799875.jpg",
+  "Tops & Shirts": "/boutique/category_shirts_1792394774964.webp",
+  Shirts: "/boutique/category_shirts_1792394774964.webp",
+  "African & Traditional Wear": "https://images.unsplash.com/photo-1590736969955-71cc94801759?auto=format&fit=crop&w=600&q=75",
+  "Bottoms & Trousers": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=75",
+  "Dresses & Skirts": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=75",
+  "Suits & Tailoring": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=75",
+  Footwear: "/boutique/category_footwear_1792394799875.webp",
   "Bags & Luggage": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80",
   "Jewelry & Timepieces": "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80",
   "Accessories & Headwear": "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80",

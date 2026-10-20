@@ -413,8 +413,11 @@ function AuthPage() {
           <div className="hidden lg:block mt-8 pt-4">
             <div className="relative overflow-hidden rounded-2xl border border-white/10 shadow-lg bg-black/40 group">
               <img
-                src="/boutique/urban_vault_hero_1_1792394728170.jpg"
+                src="/boutique/urban_vault_hero_1_1792394728170.webp"
                 alt="Urban Vault Fashion Collection"
+                loading="lazy"
+                width={800}
+                height={450}
                 className="w-full h-44 object-cover object-top opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E17] via-transparent to-transparent pointer-events-none" />

@@ -74,6 +74,9 @@ export function SiteHeader() {
               <img
                 src={STORE.logoUrl || "/logo.jpg"}
                 alt={`${STORE.name} logo`}
+                width={36}
+                height={36}
+                fetchPriority="high"
                 className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover shadow-xs border border-border/40 shrink-0"
               />
               <span className="font-display text-xs sm:text-base font-semibold sm:font-bold tracking-tight text-foreground truncate max-w-[120px] xs:max-w-[170px] sm:max-w-none">
