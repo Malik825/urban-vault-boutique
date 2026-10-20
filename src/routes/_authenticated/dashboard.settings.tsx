@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { ImagePlus, MessageCircle } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ImagePlus, MessageCircle, Mail, ExternalLink, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { serverSendTestEmail } from "@/lib/email";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +41,31 @@ function Settings() {
     }
     return "#10B981";
   });
+
+  const [testEmail, setTestEmail] = useState("");
+  const [sendingTest, setSendingTest] = useState(false);
+
+  async function handleSendTest() {
+    if (!testEmail || !testEmail.includes("@")) {
+      toast.error("Please enter a valid recipient email address");
+      return;
+    }
+    setSendingTest(true);
+    try {
+      const res = await serverSendTestEmail({ data: { toEmail: testEmail } });
+      if (res.provider === "console") {
+        toast.info(
+          "Test order logged to server console (Add RESEND_API_KEY in .env to deliver live emails to your inbox)."
+        );
+      } else {
+        toast.success(`Test order confirmation email sent to ${testEmail}! Check your inbox.`);
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send test email");
+    } finally {
+      setSendingTest(false);
+    }
+  }
 
   function changeTheme(color: string) {
     setThemeColor(color);
@@ -153,6 +179,58 @@ function Settings() {
               <Label htmlFor="nation">Regional / Nationwide fee (GH₵)</Label>
               <Input id="nation" defaultValue="60" />
             </div>
+          </div>
+        </Panel>
+
+        <Panel
+          title="Transactional Email & Receipts"
+          subtitle="Powered by Resend with luxury boutique order confirmation receipts"
+          className="lg:col-span-2"
+        >
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 rounded-xl border border-border bg-surface-muted/30 mb-5">
+            <div>
+              <p className="text-sm font-semibold text-foreground">Interactive Email Template Previews</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Preview your customer receipt, admin packing checklist, and order dispatch notification templates live in your browser.
+              </p>
+            </div>
+            <Button variant="outline" size="sm" asChild className="shrink-0 font-medium">
+              <Link to="/preview-email" target="_blank">
+                <ExternalLink className="mr-1.5 h-3.5 w-3.5" /> Open Email Showcase
+              </Link>
+            </Button>
+          </div>
+
+          <div className="space-y-3">
+            <Label htmlFor="test-email-input">Send Live Test Receipt to Your Inbox</Label>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Input
+                id="test-email-input"
+                type="email"
+                placeholder="Enter your personal email (e.g. you@gmail.com)"
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+                className="flex-1"
+              />
+              <Button
+                onClick={handleSendTest}
+                disabled={sendingTest}
+                className="shrink-0 font-semibold"
+              >
+                {sendingTest ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" /> Send Test Email
+                  </>
+                )}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Make sure <code className="font-mono text-primary">RESEND_API_KEY</code> is set in your <code className="font-mono text-foreground">.env</code> to deliver live messages.
+            </p>
           </div>
         </Panel>
 
