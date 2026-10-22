@@ -4,28 +4,28 @@
 
   <!-- Homepage -->
   <url>
-    <loc>https://urbanvault.store/</loc>
+    <loc>https://urbanvaultgh.com/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   <!-- Product Listing -->
   <url>
-    <loc>https://urbanvault.store/products</loc>
+    <loc>https://urbanvaultgh.com/products</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
   <!-- About -->
   <url>
-    <loc>https://urbanvault.store/about</loc>
+    <loc>https://urbanvaultgh.com/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <!-- FAQs -->
   <url>
-    <loc>https://urbanvault.store/faqs</loc>
+    <loc>https://urbanvaultgh.com/faqs</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

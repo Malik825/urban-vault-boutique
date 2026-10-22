@@ -45,7 +45,7 @@ export const URBAN_VAULT_CONFIG: StoreConfig = {
   displayName: "Urban Vault",
   tagline: "Exclusive unisex streetwear, footwear & contemporary fashion",
   description: "Accra's premier boutique for curated unisex apparel, luxury footwear, everyday streetwear, and high-fashion essentials with nationwide Ghana delivery.",
-  siteUrl: "https://urbanvault.store",
+  siteUrl: "https://urbanvaultgh.com",
   phone: "+233 59 748 9841",
   whatsapp: "+233 59 748 9841",
   whatsappRaw: "233597489841",

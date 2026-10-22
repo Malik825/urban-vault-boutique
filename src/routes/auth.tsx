@@ -124,7 +124,7 @@ function AuthPage() {
     if (search.onboarding === true || search.onboarding === "true") {
       setNewlyRegisteredUser({
         id: "test-user-preview",
-        email: "vip-member@urbanvault.store",
+        email: "vip-member@urbanvaultgh.com",
         fullName: "VIP Member",
       });
       setShowOnboarding(true);

@@ -30,7 +30,7 @@ export function whatsappLink(message: string) {
 export function createProductEnquiry(product: { name: string; price: number; slug?: string; id?: string }) {
   const url = typeof window !== "undefined" && window.location.origin
     ? `${window.location.origin}/product/${product.slug || product.id}`
-    : `https://urbanvaultgh.store/product/${product.slug || product.id}`;
+    : `https://urbanvaultgh.com/product/${product.slug || product.id}`;
   return `Hello Urban Vault! I'm interested in the *${product.name}* (${formatPrice(product.price)}). Is this available in my size? View item: ${url}`;
 }
 

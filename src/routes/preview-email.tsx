@@ -99,7 +99,7 @@ function EmailPreviewPage() {
       orderNumber: ship.orderNumber || `UV-${matched.id.slice(0, 8).toUpperCase()}`,
       orderId: matched.id,
       customerName: ship.customerName || "Customer",
-      email: ship.email || "customer@urbanvault.store",
+      email: ship.email || "customer@urbanvaultgh.com",
       phone: ship.phone || "",
       deliveryMethod: ship.deliveryMethod || "delivery",
       address: ship.address || "Accra, Ghana",

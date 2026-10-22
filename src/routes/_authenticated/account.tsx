@@ -646,7 +646,7 @@ function AccountPage() {
           onOpenChange={setShowOnboardingModal}
           user={{
             id: user?.id || "preview-id",
-            email: user?.email || "vip-member@urbanvault.store",
+            email: user?.email || "vip-member@urbanvaultgh.com",
             fullName: displayName,
           }}
         />

@@ -10,4 +10,4 @@ Disallow: /wishlist
 User-agent: Googlebot
 Allow: /
 
-Sitemap: https://urbanvault.store/sitemap.xml
+Sitemap: https://urbanvaultgh.com/sitemap.xml
