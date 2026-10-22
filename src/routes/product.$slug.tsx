@@ -346,7 +346,7 @@ function ProductDetail() {
                     <ShieldCheck className="h-4 w-4 shrink-0 text-primary" /> 100% Authentic Apparel
                   </p>
                   <p className="flex items-center gap-1.5">
-                    <Truck className="h-4 w-4 shrink-0 text-primary" /> Same-day Accra dispatch
+                    <Truck className="h-4 w-4 shrink-0 text-primary" /> Fast Assin Fosu dispatch
                   </p>
                   <p className="flex items-center gap-1.5">
                     <RotateCcw className="h-4 w-4 shrink-0 text-primary" /> Hassle-free size exchange
@@ -360,8 +360,9 @@ function ProductDetail() {
                       <Truck className="h-3.5 w-3.5 text-primary" /> Ghana Delivery Information
                     </p>
                     <p className="text-muted-foreground mt-0.5 leading-relaxed">
-                      • Greater Accra: Same-day delivery (GH₵ 35–45)<br/>
-                      • Ashanti (Kumasi) &amp; Regional: 24–48 hours tracked courier<br/>
+                      • Assin Fosu: Same-day delivery (GH₵ 20) &amp; Free Showroom Pickup<br/>
+                      • Central (Cape Coast / Winneba): Same-day / 24 hrs (GH₵ 35)<br/>
+                      • Ashanti, Greater Accra &amp; Nationwide: 24–48 hours tracked courier<br/>
                       • Store Pickup: Free collection at {STORE.pickupLocation}
                     </p>
                   </div>
@@ -371,7 +372,7 @@ function ProductDetail() {
                       <CreditCard className="h-3.5 w-3.5 text-amber-500" /> Payment Methods Supported
                     </p>
                     <p className="text-muted-foreground mt-0.5 leading-relaxed">
-                      Cash on Delivery (Pay on Arrival in Accra), Paystack cards, MTN MoMo, Telecel Cash, or direct WhatsApp ordering ({STORE.whatsapp}).
+                      Cash on Delivery (Assin Fosu), Paystack debit/credit cards, MTN MoMo, Telecel Cash, or direct WhatsApp ordering ({STORE.whatsapp}).
                     </p>
                   </div>
                 </div>
@@ -423,9 +424,9 @@ function ProductDetail() {
                     send a quote the same day.
                   </p>
                   <p>
-                    Delivery is same-day within Greater Accra for orders placed before 2pm, and 24–48 hours
-                    nationwide to Kumasi, Takoradi, Tamale and other regional capitals with tracked couriers.
-                    Pickup from our Osu Hub counter is always free.
+                    Delivery is same-day within Assin Fosu and Central Region for orders placed before 2pm, and 24–48 hours
+                    nationwide to Kumasi, Accra, Takoradi, Tamale and other regional capitals with tracked couriers.
+                    Pickup from our {STORE.pickupLocation} is always free.
                   </p>
                 </div>
               </TabsContent>

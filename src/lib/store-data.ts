@@ -38,7 +38,7 @@ export function createProductEnquiry(product: { name: string; price: number; slu
 export function createCartWhatsAppMessage(
   items: Array<{ product: { name: string; price: number; condition?: string }; qty: number }>,
   subtotal: number,
-  deliveryArea: string = "Accra, Ghana"
+  deliveryArea: string = "Assin Fosu, Central Region, Ghana"
 ) {
   let text = `Hello ${STORE.name}! I would like to place an order for the following boutique items:\n\n`;
   items.forEach((item, index) => {
@@ -73,17 +73,17 @@ export type Product = {
 };
 
 export const GHANA_REGIONS = [
-  { name: "Greater Accra (Within Accra)", deliveryFee: 35, eta: "Same-day (2–6 hours)" },
-  { name: "Greater Accra (Tema / Kasoa)", deliveryFee: 45, eta: "Same-day / 24 hours" },
-  { name: "Ashanti (Kumasi)", deliveryFee: 60, eta: "Next-day / 24–48 hours" },
-  { name: "Central (Cape Coast / Winneba)", deliveryFee: 50, eta: "24–48 hours" },
-  { name: "Western (Takoradi / Tarkwa)", deliveryFee: 65, eta: "24–48 hours" },
-  { name: "Eastern (Koforidua)", deliveryFee: 50, eta: "24–48 hours" },
-  { name: "Northern (Tamale)", deliveryFee: 75, eta: "2–3 days via VIP / FedEx" },
+  { name: "Central (Within Assin Fosu)", deliveryFee: 20, eta: "Same-day (1–3 hours) · Free Showroom Pickup" },
+  { name: "Central (Cape Coast / Mankessim / Winneba)", deliveryFee: 35, eta: "Same-day / 24 hours" },
+  { name: "Ashanti (Kumasi / Obuasi)", deliveryFee: 40, eta: "Next-day / 24 hours" },
+  { name: "Greater Accra (Accra / Tema)", deliveryFee: 45, eta: "Next-day / 24 hours" },
+  { name: "Western (Takoradi / Tarkwa)", deliveryFee: 45, eta: "24–48 hours" },
+  { name: "Eastern (Koforidua / Nsawam)", deliveryFee: 50, eta: "24–48 hours" },
+  { name: "Northern (Tamale)", deliveryFee: 70, eta: "2–3 days via VIP / Courier" },
   { name: "Volta (Ho / Aflao)", deliveryFee: 55, eta: "24–48 hours" },
-  { name: "Bono (Sunyani)", deliveryFee: 65, eta: "2–3 days" },
-  { name: "Upper East (Bolgatanga)", deliveryFee: 80, eta: "2–3 days" },
-  { name: "Upper West (Wa)", deliveryFee: 80, eta: "2–3 days" },
+  { name: "Bono (Sunyani / Techiman)", deliveryFee: 60, eta: "2–3 days" },
+  { name: "Upper East (Bolgatanga)", deliveryFee: 75, eta: "2–3 days" },
+  { name: "Upper West (Wa)", deliveryFee: 75, eta: "2–3 days" },
 ];
 
 export const brands = [
@@ -526,13 +526,13 @@ export const popularSearches = [
 export const reviews = [
   {
     name: "Kweku Boateng",
-    role: "Content Creator, East Legon",
-    text: "Urban Vault has the cleanest streetwear cuts in Accra. Ordered the boxy tee and cargo pants via WhatsApp, received them same-day at my doorstep. Fabric quality is incredible.",
+    role: "Content Creator, Assin Fosu",
+    text: "Urban Vault has the cleanest streetwear cuts. Ordered the boxy tee and cargo pants via WhatsApp, received them prompt at my doorstep in Assin Fosu. Fabric quality is incredible.",
     rating: 5,
   },
   {
     name: "Naa Ashorkor",
-    role: "Stylist & Creative, Osu",
+    role: "Stylist & Creative, Cape Coast",
     text: "Finally an online boutique in Ghana where the images match exactly what gets delivered! The platform loafers fit true to size and the Paystack checkout was completely effortless.",
     rating: 5,
   },

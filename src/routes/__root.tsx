@@ -51,7 +51,7 @@ function AnnouncementBanner() {
         <div className="relative flex items-center justify-center gap-2 bg-primary px-4 py-2 text-primary-foreground text-xs font-semibold">
           <Truck className="h-3.5 w-3.5 shrink-0" />
           <span>
-            Free delivery on orders over <strong>GH₵ 500</strong> across Accra &nbsp;·&nbsp; Call/WhatsApp:{" "}
+            Free delivery on orders over <strong>GH₵ 500</strong> in Assin Fosu &amp; Central Region &nbsp;·&nbsp; Call/WhatsApp:{" "}
             <a href={`tel:${STORE.whatsappRaw}`} className="underline underline-offset-2">
               {STORE.whatsapp}
             </a>
@@ -189,11 +189,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: `${STORE.name} — Modern Fashion Boutique, Accra Ghana` },
+      { title: `${STORE.name} — Modern Fashion Boutique, Assin Fosu Ghana` },
       {
         name: "description",
         content:
-          `${STORE.name} — Curated streetwear, designer footwear, and contemporary unisex essentials in Accra, Ghana. Paystack, Cash on Delivery, WhatsApp orders (0597489841).`,
+          `${STORE.name} — Curated streetwear, designer footwear, and contemporary unisex essentials in Assin Fosu, Central Region, Ghana. Same-day showroom pickup, Paystack, Mobile Money, and nationwide delivery.`,
       },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: STORE.secondaryName },

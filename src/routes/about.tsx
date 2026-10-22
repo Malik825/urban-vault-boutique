@@ -32,10 +32,10 @@ import { STORE, whatsappLink } from "@/lib/store-data";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: `About ${STORE.name} — Modern Fashion Boutique, Accra Ghana` },
+      { title: `About ${STORE.name} — Modern Fashion Boutique, Assin Fosu Ghana` },
       {
         name: "description",
-        content: `${STORE.name} is a premier fashion boutique in Accra, Ghana offering curated unisex apparel, streetwear, and footwear with Paystack, Cash on Delivery, and instant WhatsApp ordering.`,
+        content: `${STORE.name} is a premier fashion boutique in Assin Fosu, Central Region, Ghana offering curated unisex apparel, streetwear, and footwear with Paystack, Cash on Delivery, and instant WhatsApp ordering.`,
       },
       { property: "og:url", content: `${STORE.siteUrl}/about` },
     ],
@@ -73,25 +73,25 @@ const capabilities = [
   {
     icon: Truck,
     title: "Regional Delivery Logic",
-    description: "Accra same-day delivery, regional courier tiers (Kumasi, Takoradi, Tamale), and free in-store pickup options.",
+    description: "Assin Fosu local delivery, regional courier routes (Kumasi, Accra, Takoradi, Cape Coast, Tamale), and free showroom pickup.",
   },
 ];
 
 const pillars = [
   {
-    title: "The Problem Facing Local Retailers",
+    title: "The Problem Facing Local Fashion Retailers",
     description:
-      "Most electronics and gadget sellers in Accra and across Africa rely exclusively on WhatsApp status updates, Instagram DMs, and TikTok. While these channels generate initial attention, they suffer from lost sales, constant repetitive messages ('How much? Is it available?'), unorganized orders, and high customer hesitation.",
+      "Most fashion boutiques in Ghana rely exclusively on WhatsApp status updates, Instagram DMs, and TikTok. While these channels generate initial attention, they suffer from lost sales, constant repetitive messages ('How much? Is my size available?'), unorganized orders, and high customer hesitation.",
   },
   {
     title: "The Storefront Solution",
     description:
-      "This storefront demonstrates how a traditional electronics business can transition to a credible, high-converting digital storefront. Customers get instant access to live stock, detailed specifications, Ghanaian Cedi pricing, and flexible checkout — while preserving the familiar, trusted WhatsApp channel.",
+      "This boutique storefront gives customers instant access to live stock, size options, detailed fabric specs, Ghanaian Cedi pricing, and flexible checkout with Paystack, MoMo, or cash upon arrival — all while preserving the trusted WhatsApp concierge.",
   },
   {
-    title: "Built as a Sellable Asset",
+    title: "Curated Unisex Streetwear Excellence",
     description:
-      "Every component in this project — from the live product filtering and cart drawer to the Mobile Money payment UI and WhatsApp cart dispatcher — is engineered as a deployable solution for real businesses looking to upgrade their online presence.",
+      "Every piece in our catalogue — from heavyweight vintage wash tees and graphic shorts to platform loafers and designer outerwear — is handpicked to deliver effortless luxury and bold personal expression.",
   },
 ];
 
@@ -120,7 +120,7 @@ function AboutPage() {
         <div className="mx-auto max-w-7xl container-x relative z-10">
           <div ref={heroContentRef} className="max-w-3xl">
             <Badge variant="outline" className="mb-4 bg-background border-border text-foreground/80 font-mono text-[11px] uppercase tracking-wider">
-              <MapPin className="mr-1.5 h-3.5 w-3.5 text-primary" /> Accra, Ghana
+              <MapPin className="mr-1.5 h-3.5 w-3.5 text-primary" /> Assin Fosu, Central Region, Ghana
             </Badge>
 
             <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl text-foreground leading-[1.15]">
@@ -128,7 +128,7 @@ function AboutPage() {
             </h1>
 
             <p className="mt-5 text-base sm:text-lg text-muted-foreground leading-relaxed">
-              {STORE.name} is a contemporary boutique based in Accra. We provide curated unisex streetwear, designer shirts, premium footwear, and everyday luxury essentials with transparent pricing and same-day doorstep delivery.
+              {STORE.name} is a contemporary boutique based in Assin Fosu, Central Region. We provide curated unisex streetwear, designer shirts, premium footwear, and everyday luxury essentials with transparent pricing, showroom pickup, and fast doorstep delivery across Ghana.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">

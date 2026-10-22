@@ -153,15 +153,27 @@ export function SiteFooter() {
                   Contact Us on WhatsApp →
                 </a>
               </li>
-              <li className="pt-1 border-t border-border/60">
-                <a
-                  href="https://www.webaddict.me/pricing"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium text-primary hover:underline flex items-center gap-1"
-                >
-                  Want a store like this? View Pricing →
-                </a>
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <h4 className="text-sm font-semibold text-foreground">Legal</h4>
+            <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
+              <li>
+                <Link to="/terms" className="transition-colors hover:text-foreground">
+                  Terms &amp; Conditions
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy" className="transition-colors hover:text-foreground">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/cookies" className="transition-colors hover:text-foreground">
+                  Cookie Policy
+                </Link>
               </li>
             </ul>
           </div>
@@ -169,19 +181,13 @@ export function SiteFooter() {
 
         <div className="mt-12 flex flex-col gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} {STORE.name} · Modern electronics retail, Accra Ghana.
+            © {new Date().getFullYear()} {STORE.name} · Curated unisex fashion &amp; streetwear, Assin Fosu, Ghana.
           </p>
-          <p className="flex flex-wrap items-center gap-1.5">
-            <span>Want an online store for your business?</span>
-            <a
-              href="https://www.webaddict.me/pricing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-primary hover:underline inline-flex items-center gap-1"
-            >
-              View Pricing &amp; Packages →
-            </a>
-          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+            <Link to="/cookies" className="hover:text-foreground transition-colors">Cookies</Link>
+          </div>
         </div>
       </div>
     </footer>

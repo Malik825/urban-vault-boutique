@@ -126,8 +126,8 @@ export const createCustomerOrder = createServerFn({ method: "POST" })
       if (data.deliveryMethod === "delivery") {
         const matchedRegion = GHANA_REGIONS.find((r) => r.name === data.region);
         shippingFee = matchedRegion ? matchedRegion.deliveryFee : 35;
-        // Automatic Accra free delivery over GH₵ 500
-        if (data.region === "Greater Accra" && subtotal >= 500) {
+        // Automatic Central Region / Assin Fosu free delivery over GH₵ 500
+        if ((data.region.includes("Central") || data.city.toLowerCase().includes("assin fosu")) && subtotal >= 500) {
           shippingFee = 0;
         }
       }
@@ -199,8 +199,8 @@ export const createCustomerOrder = createServerFn({ method: "POST" })
         phone: data.phone,
         deliveryMethod: data.deliveryMethod,
         address: data.deliveryMethod === "pickup" ? STORE.pickupLocation : data.address,
-        city: data.deliveryMethod === "pickup" ? "Accra" : data.city,
-        region: data.deliveryMethod === "pickup" ? "Greater Accra" : data.region,
+        city: data.deliveryMethod === "pickup" ? "Assin Fosu" : data.city,
+        region: data.deliveryMethod === "pickup" ? "Central (Within Assin Fosu)" : data.region,
         paymentMethod: data.paymentMethod,
         momoProvider: data.momoProvider,
         paymentReference: data.paymentReference || null,

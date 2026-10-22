@@ -114,7 +114,7 @@ export function generateOrderConfirmationHtml(payload: OrderEmailPayload): strin
                       URBAN VAULT
                     </div>
                     <div style="font-size: 10px; font-family: monospace; letter-spacing: 0.18em; text-transform: uppercase; color: #10b981; margin-top: 3px; font-weight: 600;">
-                      UNISEX BOUTIQUE &bull; ACCRA, GHANA
+                      UNISEX BOUTIQUE &bull; ASSIN FOSU, GHANA
                     </div>
                   </td>
                   <td align="right" style="vertical-align: middle;">
@@ -138,7 +138,7 @@ export function generateOrderConfirmationHtml(payload: OrderEmailPayload): strin
                 Thank You, ${payload.customerName}.
               </h1>
               <p style="margin: 12px 0 0 0; font-size: 14px; line-height: 1.6; color: #a1a1aa;">
-                Your boutique pieces have been secured and are now being packaged by our styling team in Accra. Below is your official receipt.
+                Your boutique pieces have been secured and are now being packaged by our styling team in Assin Fosu. Below is your official receipt.
               </p>
             </td>
           </tr>
@@ -240,7 +240,7 @@ export function generateOrderConfirmationHtml(payload: OrderEmailPayload): strin
                     `
                         : `
                       <div style="margin-top: 12px; padding: 10px 14px; background-color: #1c1c21; border-radius: 8px; font-size: 12px; color: #e4e4e7; line-height: 1.5;">
-                        <strong>Estimated Delivery:</strong> Same-day dispatch for Greater Accra orders placed before 3 PM. Regional Ghana deliveries take 24–48 hours.
+                        <strong>Estimated Delivery:</strong> Same-day dispatch for Assin Fosu &amp; Central Region orders placed before 3 PM. Nationwide Ghana deliveries take 24–48 hours.
                       </div>
                     `
                     }
@@ -389,7 +389,7 @@ export function generateOrderStatusUpdateHtml(payload: {
     },
     ready_for_pickup: {
       title: "Ready for Showroom Pickup",
-      desc: "Your order is ready and waiting at the Urban Vault Accra Showroom.",
+      desc: "Your order is ready and waiting at the Urban Vault Assin Fosu Showroom.",
       badge: "READY FOR PICKUP",
     },
     delivered: {
@@ -554,16 +554,16 @@ export const serverSendTestEmail = createServerFn({ method: "POST" })
         email,
         phone: "+233 59 748 9841",
         deliveryMethod: "delivery",
-        address: "Urban Vault Flagship, Ring Road Central",
-        city: "Accra",
-        region: "Greater Accra",
+        address: "Main Commercial High Street, Assin Fosu",
+        city: "Assin Fosu",
+        region: "Central (Within Assin Fosu)",
         paymentMethod: "Paystack (Visa / Mastercard / MoMo)",
         paymentStatus: "paid",
         paymentReference: `TEST-${Date.now()}`,
         subtotal: 980,
         discount: 98,
-        shippingFee: 35,
-        total: 917,
+        shippingFee: 20,
+        total: 902,
         items: [
           {
             name: "Urban Heavyweight Boxy Tee - Vintage Washed Onyx",

@@ -29,84 +29,91 @@ export const Route = createFileRoute("/faqs")({
 
 const categories = [
   "All",
-  "Orders & Shipping",
+  "Assin Fosu Pickup & Local",
+  "Nationwide Delivery",
+  "Payments & MoMo",
   "Sizing & Quality",
-  "Payments",
   "Exchanges & Returns",
 ];
 
 const faqs = [
   {
-    category: "Orders & Shipping",
-    question: "How long does delivery take?",
+    category: "Assin Fosu Pickup & Local",
+    question: "Where is the Urban Vault showroom located?",
     answer:
-      "Orders within Accra are delivered same-day (within 2 to 6 hours) via our fast dispatch riders. For deliveries to Kumasi, Takoradi, and other regions across Ghana, parcels take 24–48 hours via trusted couriers.",
+      `Our physical showroom is located on the Main Commercial High Street in Assin Fosu, Central Region, Ghana (${STORE.pickupLocation}). You can visit us in person to try on apparel, browse new drops, or pick up online orders.`,
   },
   {
-    category: "Orders & Shipping",
-    question: "Do you deliver outside Accra?",
+    category: "Assin Fosu Pickup & Local",
+    question: "Can I pick up my online order in person for free?",
     answer:
-      "Yes! We deliver nationwide across all regions in Ghana. Regional orders are dispatched daily and arrive within 1–2 business days. Delivery fees are calculated transparently at checkout.",
+      `Yes! Simply select 'Store Pickup' during checkout. In-store collection at our Assin Fosu showroom is 100% free. We will package your pieces and send you a WhatsApp alert (${STORE.whatsapp}) when your order is ready for pickup.`,
   },
   {
-    category: "Orders & Shipping",
-    question: "Can I pick up my order in person?",
+    category: "Assin Fosu Pickup & Local",
+    question: "How fast is local delivery within Assin Fosu?",
     answer:
-      `Yes. You can select 'Store Pickup' at checkout to pick up your order directly from our showroom in Accra (${STORE.pickupLocation}).`,
+      "For addresses within Assin Fosu, our local dispatch riders deliver same-day (typically within 1 to 3 hours). Delivery is only GH₵ 20, or completely free for orders over GH₵ 500.",
   },
   {
-    category: "Orders & Shipping",
-    question: "How do I track my order?",
+    category: "Nationwide Delivery",
+    question: "Do you deliver to Kumasi, Accra, Takoradi, and other regions?",
     answer:
-      `Once your order is confirmed and dispatched, you will receive real-time dispatch updates directly on WhatsApp (${STORE.whatsapp}) with your rider/courier details.`,
+      "Yes! We deliver across all 16 regions in Ghana daily. Parcels to Kumasi, Cape Coast, Accra, and Takoradi arrive within 24 to 48 hours via trusted couriers (VIP, FedEx, and regional dispatch). Tracking details are sent directly to your WhatsApp.",
   },
   {
-    category: "Sizing & Quality",
-    question: "How do I know what size to choose?",
+    category: "Nationwide Delivery",
+    question: "What are the delivery fees for other regions in Ghana?",
     answer:
-      `Most of our streetwear tees and hoodies feature a relaxed, modern boxy silhouette. You can check the sizing chart on the product page or message our stylists on WhatsApp (${STORE.whatsapp}) for personalized fit advice before ordering.`,
+      "Delivery fees are calculated transparently at checkout: Central Region (Cape Coast/Winneba) is GH₵ 35; Ashanti (Kumasi) is GH₵ 40; Greater Accra is GH₵ 45; Western (Takoradi) is GH₵ 45; Eastern is GH₵ 50; and Northern Ghana is GH₵ 70.",
   },
   {
-    category: "Sizing & Quality",
-    question: "Are your boutique items authentic?",
+    category: "Nationwide Delivery",
+    question: "How do I track my delivery?",
     answer:
-      "100% authentic. All clothing, sneakers, and accessories in Urban Vault Unisex Boutique are inspected for premium fabrics, heavyweight GSM cotton, clean stitching, and authentic designer details.",
+      `As soon as your parcel is handed to the rider or courier, you receive an automated confirmation and WhatsApp update (${STORE.whatsapp}) containing the driver or station contact, waybill number, and estimated arrival window.`,
   },
   {
-    category: "Payments",
+    category: "Payments & MoMo",
     question: "What payment methods do you accept?",
     answer:
-      "We accept: 1) Cash on Delivery upon physical arrival in Accra, 2) Paystack online payment with debit/credit cards (Visa, Mastercard), 3) Mobile Money (MTN MoMo, Telecel Cash), and 4) Direct WhatsApp order confirmation.",
+      "We accept: 1) Online payment with Ghanaian Mobile Money (MTN MoMo, Telecel Cash) and Visa / Mastercard debit cards powered by Paystack, 2) Cash on Delivery upon physical arrival in Assin Fosu, and 3) Direct WhatsApp order confirmation.",
   },
   {
-    category: "Payments",
+    category: "Payments & MoMo",
     question: "How does Cash on Delivery (COD) work?",
     answer:
-      "Select 'Cash on Delivery' at checkout. When our rider delivers your package to your doorstep in Accra, you inspect the package and pay cash or MoMo directly to the courier.",
+      "Select 'Cash on Delivery' at checkout. When our courier delivers to your address in Assin Fosu, inspect your package and pay cash or send MoMo to the rider upon receipt.",
   },
   {
-    category: "Payments",
-    question: "Is it safe to pay online via Paystack?",
+    category: "Payments & MoMo",
+    question: "Is online payment via Paystack safe?",
     answer:
-      "Yes. Online payments are secured by Paystack with 256-bit bank-level encryption. Your card or MoMo details are processed through official banking channels.",
+      "Yes, completely. All payments are processed through Paystack's bank-grade 256-bit SSL encrypted gateway. We never store or see your card or MoMo PINs.",
+  },
+  {
+    category: "Sizing & Quality",
+    question: "How do I choose the right size for unisex apparel?",
+    answer:
+      `Our streetwear tees, hoodies, and cargo shorts feature modern relaxed and boxy silhouettes designed to look great on all genders. If you are unsure between sizes, click the 'Order on WhatsApp' button or message us (${STORE.whatsapp}) with your height and build for personal styling advice.`,
+  },
+  {
+    category: "Sizing & Quality",
+    question: "Are your boutique pieces original and authentic?",
+    answer:
+      "100% authentic and premium quality. Every item in Urban Vault is inspected for heavyweight GSM cotton, reinforced stitching, durable graphics, and flawless hardware before being placed in stock.",
   },
   {
     category: "Exchanges & Returns",
-    question: "Can I exchange for a different size if it doesn't fit?",
+    question: "Can I exchange an item if it does not fit?",
     answer:
-      `Absolutely. If the fit isn't right, notify us on WhatsApp (${STORE.whatsapp}) within 48 hours of delivery. As long as tags remain attached and the item is unworn, we will exchange your size.`,
+      `Yes! If your item doesn't fit as expected, reach out to our team on WhatsApp (${STORE.whatsapp}) within 48 hours of receiving your delivery. As long as the garment is unworn with tags attached, we will gladly exchange it for your preferred size.`,
   },
   {
-    category: "Business",
-    question: "Do you offer bulk or corporate pricing?",
+    category: "Exchanges & Returns",
+    question: "What if an item arrives damaged or incorrect?",
     answer:
-      "Yes. We have dedicated pricing for bulk orders of 5+ items and corporate uniforms/merchandise. Please contact our team via WhatsApp or email and include your product requirements and quantity.",
-  },
-  {
-    category: "Business",
-    question: "Can I stock my brand with Urban Vault?",
-    answer:
-      "We work with selected designers and independent brands. If you'd like to stock your pieces with us, reach out via WhatsApp or email with your lookbook. All partner brands must align with our quality and style standards.",
+      `In the rare event of an incorrect or flawed item, contact us immediately on WhatsApp (${STORE.whatsapp}) with a photo. We will arrange a free immediate replacement or full refund.`,
   },
 ];
 

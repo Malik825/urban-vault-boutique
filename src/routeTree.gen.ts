@@ -15,9 +15,12 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CompareRouteImport } from './routes/compare'
+import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as FaqsRouteImport } from './routes/faqs'
 import { Route as PreviewEmailRouteImport } from './routes/preview-email'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
@@ -61,6 +64,11 @@ const CompareRoute = CompareRouteImport.update({
   path: '/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FaqsRoute = FaqsRouteImport.update({
   id: '/faqs',
   path: '/faqs',
@@ -71,9 +79,19 @@ const PreviewEmailRoute = PreviewEmailRouteImport.update({
   path: '/preview-email',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WishlistRoute = WishlistRouteImport.update({
@@ -158,9 +176,12 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
   '/compare': typeof CompareRoute
+  '/cookies': typeof CookiesRoute
   '/faqs': typeof FaqsRoute
   '/preview-email': typeof PreviewEmailRoute
+  '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRoute
+  '/terms': typeof TermsRoute
   '/wishlist': typeof WishlistRoute
   '/account': typeof AuthenticatedAccountRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -181,9 +202,12 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
   '/compare': typeof CompareRoute
+  '/cookies': typeof CookiesRoute
   '/faqs': typeof FaqsRoute
   '/preview-email': typeof PreviewEmailRoute
+  '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRoute
+  '/terms': typeof TermsRoute
   '/wishlist': typeof WishlistRoute
   '/account': typeof AuthenticatedAccountRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -206,9 +230,12 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/checkout': typeof CheckoutRoute
   '/compare': typeof CompareRoute
+  '/cookies': typeof CookiesRoute
   '/faqs': typeof FaqsRoute
   '/preview-email': typeof PreviewEmailRoute
+  '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRoute
+  '/terms': typeof TermsRoute
   '/wishlist': typeof WishlistRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -231,9 +258,12 @@ export interface FileRouteTypes {
     | '/auth'
     | '/checkout'
     | '/compare'
+    | '/cookies'
     | '/faqs'
     | '/preview-email'
+    | '/privacy'
     | '/products'
+    | '/terms'
     | '/wishlist'
     | '/account'
     | '/product/$slug'
@@ -254,9 +284,12 @@ export interface FileRouteTypes {
     | '/auth'
     | '/checkout'
     | '/compare'
+    | '/cookies'
     | '/faqs'
     | '/preview-email'
+    | '/privacy'
     | '/products'
+    | '/terms'
     | '/wishlist'
     | '/account'
     | '/product/$slug'
@@ -278,9 +311,12 @@ export interface FileRouteTypes {
     | '/auth'
     | '/checkout'
     | '/compare'
+    | '/cookies'
     | '/faqs'
     | '/preview-email'
+    | '/privacy'
     | '/products'
+    | '/terms'
     | '/wishlist'
     | '/_authenticated/account'
     | '/product/$slug'
@@ -303,9 +339,12 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CheckoutRoute: typeof CheckoutRoute
   CompareRoute: typeof CompareRoute
+  CookiesRoute: typeof CookiesRoute
   FaqsRoute: typeof FaqsRoute
   PreviewEmailRoute: typeof PreviewEmailRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProductsRoute: typeof ProductsRoute
+  TermsRoute: typeof TermsRoute
   WishlistRoute: typeof WishlistRoute
   ProductSlugRoute: typeof ProductSlugRoute
 }
@@ -354,6 +393,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompareRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/faqs': {
       id: '/faqs'
       path: '/faqs'
@@ -368,11 +414,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PreviewEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/products': {
       id: '/products'
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/wishlist': {
@@ -508,9 +568,12 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CheckoutRoute: CheckoutRoute,
   CompareRoute: CompareRoute,
+  CookiesRoute: CookiesRoute,
   FaqsRoute: FaqsRoute,
   PreviewEmailRoute: PreviewEmailRoute,
+  PrivacyRoute: PrivacyRoute,
   ProductsRoute: ProductsRoute,
+  TermsRoute: TermsRoute,
   WishlistRoute: WishlistRoute,
   ProductSlugRoute: ProductSlugRoute,
 }

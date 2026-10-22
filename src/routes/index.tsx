@@ -50,7 +50,7 @@ const BOUTIQUE_HERO_SLIDES = [
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: `${STORE.name} — Streetwear & Footwear in Accra, Ghana` },
+      { title: `${STORE.name} — Streetwear & Footwear in Assin Fosu, Ghana` },
       {
         name: "description",
         content:
@@ -199,7 +199,7 @@ function Landing() {
                 </h1>
 
                 <p className="hero-element text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl">
-                  Curated unisex streetwear, contemporary shirts, everyday footwear, and elevated silhouettes. Designed for effortless expression with doorstep delivery across Accra and nationwide Ghana.
+                  Curated unisex streetwear, contemporary shirts, everyday footwear, and elevated silhouettes. Designed for effortless expression with showroom pickup in Assin Fosu and nationwide delivery across Ghana.
                 </p>
 
                 {/* Quick CTA Actions */}
@@ -423,7 +423,7 @@ function Landing() {
                 Cash on Delivery
               </h3>
               <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                Inspect your items upon physical arrival in Accra and pay comfortably at your doorstep.
+                Inspect your items upon physical arrival in Assin Fosu or pick up directly from our showroom.
               </p>
             </div>
 
@@ -447,7 +447,7 @@ function Landing() {
                 Nationwide Dispatch
               </h3>
               <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                Same-day rider delivery across Accra, plus trusted 24-48 hr courier dispatch to Kumasi, Takoradi &amp; beyond.
+                Same-day delivery in Assin Fosu, plus trusted 24-48 hr courier dispatch to Kumasi, Accra, Takoradi &amp; beyond.
               </p>
             </div>
 
