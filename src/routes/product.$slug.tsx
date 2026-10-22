@@ -166,7 +166,7 @@ function ProductDetail() {
         <div className="mt-6 grid gap-10 lg:grid-cols-[1.15fr_1fr]">
           {/* Gallery */}
           <div className="animate-fade-in">
-            <div className="overflow-hidden rounded-3xl border border-border bg-surface-muted">
+            <div className="overflow-hidden rounded-3xl border border-border bg-surface-muted max-h-[440px] sm:max-h-[480px] flex items-center justify-center">
               <img
                 src={optimizeImageUrl(product.images[active], 800, 80)}
                 alt={product.name}
@@ -174,7 +174,7 @@ function ProductDetail() {
                 height={800}
                 fetchPriority="high"
                 decoding="sync"
-                className="aspect-square w-full object-cover"
+                className="w-full h-full max-h-[440px] sm:max-h-[480px] object-cover object-center"
               />
             </div>
             <div className="mt-3 flex gap-3">

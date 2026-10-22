@@ -107,11 +107,9 @@ function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<"delivery" | "pickup">("delivery");
   const [address, setAddress] = useState("");
-  const [city, setCity] = useState("Accra");
-  const [region, setRegion] = useState(GHANA_REGIONS[0]?.name || "Greater Accra");
+  const [city, setCity] = useState("Assin Fosu");
+  const [region, setRegion] = useState(GHANA_REGIONS[0]?.name || "Central");
   const [paymentMethod, setPaymentMethod] = useState("momo");
-  const [momoProvider, setMomoProvider] = useState("MTN Mobile Money");
-  const [momoNumber, setMomoNumber] = useState("");
 
   // Pre-fill user data if authenticated
   useEffect(() => {
@@ -166,7 +164,7 @@ function CheckoutPage() {
     let paymentLabel = "Cash on Delivery";
     if (paymentMethod === "cod") paymentLabel = "Cash on Delivery (Pay on Arrival)";
     else if (paymentMethod === "card") paymentLabel = "Debit/Credit Card (Paystack)";
-    else if (paymentMethod === "momo") paymentLabel = `Mobile Money via Paystack (${momoProvider})`;
+    else if (paymentMethod === "momo") paymentLabel = "Mobile Money (MoMo via Paystack)";
     else if (paymentMethod === "whatsapp") paymentLabel = "WhatsApp Direct Order";
 
     const customerEmail = email.trim() || (user?.email ?? "orders@urbanvaultgh.com");
@@ -183,7 +181,7 @@ function CheckoutPage() {
         city: deliveryMethod === "pickup" ? "Accra" : city,
         region: deliveryMethod === "pickup" ? "Greater Accra" : region,
         paymentMethod: paymentLabel,
-        momoProvider: paymentMethod === "momo" ? momoProvider : undefined,
+        momoProvider: paymentMethod === "momo" ? "Paystack Mobile Money" : undefined,
         promoCode: appliedPromo || undefined,
         paymentReference: paymentRef,
         paymentStatus: paidStatus,
@@ -274,8 +272,7 @@ function CheckoutPage() {
           email: customerEmail,
           amount: total,
           firstName: firstName.trim() || "Customer",
-          lastName: lastName.trim(),
-          phone: phone.trim() || momoNumber.trim(),
+          phone: phone.trim() || undefined,
           channels: paymentMethod === "card" ? ["card"] : ["mobile_money", "card"],
           onSuccess: async (paystackRes) => {
             try {
@@ -734,43 +731,6 @@ function CheckoutPage() {
                     </div>
                     <Smartphone className="h-5 w-5 text-amber-500 shrink-0" />
                   </div>
-
-                  {paymentMethod === "momo" && (
-                    <div className="mt-4 pt-3 border-t border-border/80 space-y-3">
-                      <div className="grid grid-cols-3 gap-2">
-                        {["MTN Mobile Money", "Telecel Cash", "AirtelTigo"].map((provider) => (
-                          <button
-                            type="button"
-                            key={provider}
-                            onClick={() => setMomoProvider(provider)}
-                            className={`rounded-lg border px-2 py-1.5 text-xs font-semibold text-center transition-colors ${
-                              momoProvider === provider
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-card text-foreground hover:bg-surface-muted border-border"
-                            }`}
-                          >
-                            {provider}
-                          </button>
-                        ))}
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <Label htmlFor="momoNumber" className="text-xs">
-                          {momoProvider} Number
-                        </Label>
-                        <Input
-                          id="momoNumber"
-                          placeholder="e.g. 024 123 4567"
-                          value={momoNumber}
-                          onChange={(e) => setMomoNumber(e.target.value)}
-                          className="text-xs"
-                        />
-                        <p className="text-[10px] text-muted-foreground">
-                          Paystack will launch the secure prompt directly to your device.
-                        </p>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* Card / Paystack */}

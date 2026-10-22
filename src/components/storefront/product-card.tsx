@@ -39,7 +39,7 @@ export function ProductCard({
           ? "w-full sm:w-5/12 aspect-[16/10] sm:aspect-auto sm:min-h-full shrink-0"
           : view === "list"
           ? "aspect-square w-28 sm:w-44 shrink-0 rounded-xl"
-          : "aspect-[4/5] w-full"
+          : "aspect-square w-full"
       }`}
       aria-label={`View ${product.name}`}
     >
@@ -49,8 +49,8 @@ export function ProductCard({
         alt={product.name}
         loading="lazy"
         width={500}
-        height={625}
-        className="absolute inset-0 h-full w-full object-cover object-top"
+        height={500}
+        className="absolute inset-0 h-full w-full object-cover object-center"
         variants={{
           rest: { scale: 1, opacity: 1 },
           hover: hasSecondImage ? { scale: 1.05, opacity: 0 } : { scale: 1.05, opacity: 1 },
@@ -66,13 +66,13 @@ export function ProductCard({
           aria-hidden
           loading="lazy"
           width={500}
-          height={625}
+          height={500}
           variants={{
             rest: { opacity: 0, scale: 1.1 },
             hover: { opacity: 1, scale: 1 },
           }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0 h-full w-full object-cover object-top"
+          className="absolute inset-0 h-full w-full object-cover object-center"
         />
       )}
 
