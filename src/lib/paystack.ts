@@ -3,7 +3,7 @@
 
 export const PAYSTACK_PUBLIC_KEY =
   (typeof import.meta !== "undefined" && import.meta.env?.VITE_PAYSTACK_PUBLIC_KEY) ||
-  "pk_test_3e02401342d2710f67c9849838e96616b8e47dfe";
+  "pk_live_713dee3c5830176365c4ae9f8156ecfacd732818";
 
 export interface PaystackSuccessResponse {
   reference: string;
