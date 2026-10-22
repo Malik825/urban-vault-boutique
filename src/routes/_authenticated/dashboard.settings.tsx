@@ -30,16 +30,16 @@ export const Route = createFileRoute("/_authenticated/dashboard/settings")({
 });
 
 const swatches = [
-  "#10B981", "#059669", "#047857", "#0EA5E9", "#111827",
-  "#8B5CF6", "#F43F5E", "#F59E0B", "#09090B"
+  "#F43F5E", "#10B981", "#059669", "#047857", "#0EA5E9",
+  "#111827", "#8B5CF6", "#F59E0B", "#09090B"
 ];
 
 function Settings() {
   const [themeColor, setThemeColor] = useState(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("urban-vault-theme-color") || "#10B981";
+      return localStorage.getItem("urban-vault-theme-color") || "#F43F5E";
     }
-    return "#10B981";
+    return "#F43F5E";
   });
 
   const [testEmail, setTestEmail] = useState("");

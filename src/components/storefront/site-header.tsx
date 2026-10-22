@@ -130,17 +130,19 @@ export function SiteHeader() {
                     variant="ghost"
                     size="icon"
                     aria-label="User Account Menu"
-                    className="hidden sm:inline-flex rounded-full h-8 w-8 p-0 overflow-hidden ring-1 ring-border/80 hover:ring-primary/60 transition-all relative shrink-0"
+                    className="hidden sm:inline-flex rounded-full h-8.5 w-8.5 p-0 overflow-visible ring-1 ring-border/80 hover:ring-primary/60 transition-all relative shrink-0"
                   >
-                    <Avatar className="h-full w-full">
-                      {userAvatar && <AvatarImage src={userAvatar} alt={user.email ?? "Avatar"} className="object-cover" />}
+                    <Avatar className="h-full w-full rounded-full overflow-hidden">
+                      {userAvatar && <AvatarImage src={userAvatar} alt={user.email ?? "Avatar"} className="h-full w-full object-cover" />}
                       <AvatarFallback className="bg-primary/15 text-primary font-bold text-[11px]">
                         {userInitials}
                       </AvatarFallback>
                     </Avatar>
-                    {isAdmin && (
-                      <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-background z-10" />
-                    )}
+                    {/* Online status indicator — cleanly positioned on top-right edge without clipping */}
+                    <span
+                      className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-background shadow-xs z-20 pointer-events-none"
+                      title={isAdmin ? "Admin Online" : "Online"}
+                    />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-[265px] rounded-2xl p-2 shadow-xl border border-border/80 bg-background/95 backdrop-blur-md">

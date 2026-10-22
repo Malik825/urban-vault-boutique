@@ -5,8 +5,8 @@
 @variant dark (&:where(.dark, .dark *));
 
 /*
- * Voltix design system — premium electronics retail SaaS.
- * Emerald primary (#10B981 / #059669 / #047857) + cool neutral grays.
+ * Urban Vault design system — curated luxury boutique & streetwear.
+ * Rose primary (#F43F5E) + cool luxury onyx / neutral grays.
  * All colors in oklch. Never hardcode colors in components.
  */
 
@@ -174,21 +174,19 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.21 0.02 258);
 
-  /* #10B981 */
-  --primary: oklch(0.696 0.149 162.48);
-  --primary-foreground: oklch(0.995 0.005 160);
-  /* #059669 */
-  --primary-deep: oklch(0.596 0.132 163.2);
-  /* #047857 */
-  --primary-dark: oklch(0.508 0.113 163.6);
-  --primary-soft: oklch(0.958 0.033 164);
+  /* #F43F5E */
+  --primary: oklch(0.65 0.23 16);
+  --primary-foreground: oklch(0.99 0 0);
+  --primary-deep: oklch(0.55 0.2 16);
+  --primary-dark: oklch(0.45 0.15 16);
+  --primary-soft: oklch(0.95 0.03 16);
 
   --secondary: oklch(0.968 0.005 247);
   --secondary-foreground: oklch(0.28 0.02 258);
   --muted: oklch(0.968 0.005 247);
   --muted-foreground: oklch(0.53 0.021 257);
-  --accent: oklch(0.958 0.033 164);
-  --accent-foreground: oklch(0.44 0.1 163);
+  --accent: oklch(0.95 0.03 16);
+  --accent-foreground: oklch(0.45 0.15 16);
 
   --destructive: oklch(0.588 0.216 22.5);
   --destructive-foreground: oklch(0.99 0.005 20);
@@ -200,10 +198,10 @@
 
   --border: oklch(0.925 0.008 250);
   --input: oklch(0.925 0.008 250);
-  --ring: oklch(0.696 0.149 162.48);
+  --ring: oklch(0.65 0.23 16);
 
-  --chart-1: oklch(0.696 0.149 162.48);
-  --chart-2: oklch(0.508 0.113 163.6);
+  --chart-1: oklch(0.65 0.23 16);
+  --chart-2: oklch(0.45 0.15 16);
   --chart-3: oklch(0.62 0.14 258);
   --chart-4: oklch(0.79 0.15 78);
   --chart-5: oklch(0.72 0.06 250);
@@ -233,25 +231,25 @@
   --popover: #151b23;
   --popover-foreground: oklch(0.96 0.006 240);
 
-  /* Vibrant emerald */
-  --primary: oklch(0.74 0.165 162.5);
-  --primary-foreground: oklch(0.12 0.04 163);
-  --primary-deep: oklch(0.63 0.145 163);
-  --primary-dark: oklch(0.52 0.12 163);
-  --primary-soft: oklch(0.28 0.055 163);
+  /* Vibrant rose #F43F5E */
+  --primary: oklch(0.68 0.23 16);
+  --primary-foreground: oklch(0.99 0 0);
+  --primary-deep: oklch(0.58 0.2 16);
+  --primary-dark: oklch(0.48 0.16 16);
+  --primary-soft: oklch(0.28 0.06 16);
 
   --secondary: #1a222c;
   --secondary-foreground: oklch(0.95 0.006 240);
   --muted: #1a222c;
   --muted-foreground: oklch(0.68 0.022 255);
 
-  --accent: oklch(0.28 0.055 163);
-  --accent-foreground: oklch(0.86 0.1 163);
+  --accent: oklch(0.28 0.06 16);
+  --accent-foreground: oklch(0.92 0.08 16);
 
   /* Hairline borders with subtle contrast against #101318 */
   --border: rgba(255, 255, 255, 0.08);
   --input: rgba(255, 255, 255, 0.11);
-  --ring: oklch(0.74 0.165 162.5);
+  --ring: oklch(0.68 0.23 16);
 
   /* Dark-mode shadows */
   --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.4);
@@ -262,12 +260,12 @@
     0 2px 8px rgba(0, 0, 0, 0.45),
     0 12px 32px -8px rgba(0, 0, 0, 0.6),
     0 0 0 1px rgba(255, 255, 255, 0.06);
-  --shadow-glow: 0 8px 32px -6px oklch(0.74 0.165 162.5 / 0.45);
-  --shadow-glow-lg: 0 0 56px -8px oklch(0.74 0.165 162.5 / 0.55);
+  --shadow-glow: 0 8px 32px -6px oklch(0.68 0.23 16 / 0.45);
+  --shadow-glow-lg: 0 0 56px -8px oklch(0.68 0.23 16 / 0.55);
 
   /* Chart tokens */
-  --chart-1: oklch(0.74 0.165 162.5);
-  --chart-2: oklch(0.55 0.135 163);
+  --chart-1: oklch(0.68 0.23 16);
+  --chart-2: oklch(0.48 0.16 16);
   --chart-3: oklch(0.62 0.14 258);
   --chart-4: oklch(0.79 0.15 78);
   --chart-5: oklch(0.70 0.07 250);
@@ -763,7 +761,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--primary, #10B981) 30%, transparent);
+  background: color-mix(in srgb, var(--primary, #F43F5E) 30%, transparent);
   border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: content-box;
@@ -771,20 +769,20 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--primary, #10B981) 60%, transparent);
+  background: color-mix(in srgb, var(--primary, #F43F5E) 60%, transparent);
   border: 1px solid transparent;
   background-clip: content-box;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--primary, #10B981) 38%, transparent);
+  background: color-mix(in srgb, var(--primary, #F43F5E) 38%, transparent);
   border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--primary, #10B981) 75%, transparent);
+  background: color-mix(in srgb, var(--primary, #F43F5E) 75%, transparent);
   border: 1px solid transparent;
   background-clip: content-box;
 }
@@ -792,7 +790,7 @@
 /* Firefox scrollbar support */
 * {
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--primary, #10B981) 38%, transparent) transparent;
+  scrollbar-color: color-mix(in srgb, var(--primary, #F43F5E) 38%, transparent) transparent;
 }
 
 /* Utility to hide scrollbars completely when requested */

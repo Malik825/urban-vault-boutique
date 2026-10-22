@@ -49,6 +49,8 @@ type ProductSearch = {
   category?: string | undefined;
   department?: string | undefined;
   deals?: boolean | undefined;
+  trending?: boolean | undefined;
+  bestseller?: boolean | undefined;
   sort?: string | undefined;
   page?: number | undefined;
 };
@@ -60,6 +62,8 @@ export const Route = createFileRoute("/products")({
     category: typeof search["category"] === "string" ? (search["category"] as string) : undefined,
     department: typeof search["department"] === "string" ? (search["department"] as string) : undefined,
     deals: search["deals"] === true || search["deals"] === "true" ? true : undefined,
+    trending: search["trending"] === true || search["trending"] === "true" ? true : undefined,
+    bestseller: search["bestseller"] === true || search["bestseller"] === "true" ? true : undefined,
     sort: typeof search["sort"] === "string" ? (search["sort"] as string) : undefined,
     page: search["page"] ? Number(search["page"]) : undefined,
   }),
@@ -153,6 +157,8 @@ function Listing() {
     const q = query.trim().toLowerCase();
     let list = products.filter((p) => p.status === "Published");
     if (search.deals) list = list.filter((p) => p.compareAt);
+    if (search.trending) list = list.filter((p) => p.isTrending || p.badge?.toLowerCase().includes("trend"));
+    if (search.bestseller) list = list.filter((p) => p.isBestSeller || p.badge?.toLowerCase().includes("best"));
     if (q)
       list = list.filter((p) =>
         `${p.name} ${p.brand} ${p.category} ${Object.values(p.specs).join(" ")}`
@@ -289,14 +295,26 @@ function Listing() {
           </Link>
           <ChevronRight className="h-3.5 w-3.5" />
           <span className="font-medium text-foreground">
-            {search.deals ? "Flash deals" : (search.category ?? "All products")}
+            {search.trending
+              ? "Trending Now"
+              : search.bestseller
+              ? "Best Sellers"
+              : search.deals
+              ? "Flash deals"
+              : (search.category ?? "All products")}
           </span>
         </nav>
 
         <header className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:justify-between">
           <div className="min-w-0">
             <h1 className="truncate text-2xl font-extrabold sm:text-4xl">
-              {search.deals ? "Flash deals" : (search.category ?? "All products")}
+              {search.trending
+                ? "🔥 Trending Now"
+                : search.bestseller
+                ? "★ Best Sellers"
+                : search.deals
+                ? "Flash deals"
+                : (search.category ?? "All products")}
             </h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
               {results.length} products · curated boutique collection

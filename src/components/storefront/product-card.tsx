@@ -76,17 +76,28 @@ export function ProductCard({
         />
       )}
 
-      {/* Badges (New, -15%, Best seller) - Uses active theme primary */}
+      {/* Badges (New, -15%, Trending, Best seller) */}
       <div className="absolute left-2.5 top-2.5 z-10 flex flex-col items-start gap-1">
-        {discount > 0 ? (
-          <span className="rounded-lg bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground shadow-xs">
+        {discount > 0 && (
+          <span className="rounded-lg bg-primary px-2 py-0.5 text-[11px] font-bold text-primary-foreground shadow-xs">
             −{discount}%
           </span>
-        ) : product.badge ? (
-          <span className="rounded-lg bg-primary px-2.5 py-0.5 text-[11px] font-semibold text-primary-foreground shadow-xs">
+        )}
+        {product.badge && product.badge !== "None" && (
+          <span
+            className={`rounded-lg px-2 py-0.5 text-[10px] sm:text-[11px] font-bold shadow-xs inline-flex items-center gap-1 uppercase tracking-wider ${
+              product.badge.toLowerCase().includes("trend")
+                ? "bg-amber-500 text-slate-950 font-black"
+                : product.badge.toLowerCase().includes("best")
+                ? "bg-foreground text-background font-black"
+                : "bg-primary text-primary-foreground"
+            }`}
+          >
+            {product.badge.toLowerCase().includes("trend") && "🔥 "}
+            {product.badge.toLowerCase().includes("best") && "★ "}
             {product.badge}
           </span>
-        ) : null}
+        )}
       </div>
 
       {/* Wishlist circular button on top right */}

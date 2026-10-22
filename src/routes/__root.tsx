@@ -246,7 +246,7 @@ function RootShell({ children }: { children: ReactNode }) {
                   if (isDark) document.documentElement.classList.add("dark");
                   else document.documentElement.classList.remove("dark");
 
-                  var color = localStorage.getItem("urban-vault-theme-color") || localStorage.getItem("voltix-theme-color") || "#10B981";
+                  var color = localStorage.getItem("urban-vault-theme-color") || localStorage.getItem("voltix-theme-color") || "#F43F5E";
                   var presets = {
                     "#10B981": {"--primary":"oklch(0.696 0.149 162.48)","--color-primary":"oklch(0.696 0.149 162.48)","--primary-foreground":"oklch(0.99 0 0)","--color-primary-foreground":"oklch(0.99 0 0)","--primary-deep":"oklch(0.596 0.132 163.2)","--primary-soft":"oklch(0.958 0.033 164)","--accent":"oklch(0.958 0.033 164)","--accent-foreground":"oklch(0.44 0.1 163)","--ring":"oklch(0.696 0.149 162.48)"},
                     "#059669": {"--primary":"oklch(0.6 0.14 165)","--color-primary":"oklch(0.6 0.14 165)","--primary-foreground":"oklch(0.99 0 0)","--primary-deep":"oklch(0.52 0.12 165)","--primary-soft":"oklch(0.94 0.03 165)","--accent":"oklch(0.94 0.03 165)","--accent-foreground":"oklch(0.44 0.11 165)","--ring":"oklch(0.6 0.14 165)"},
@@ -491,7 +491,7 @@ function RootComponent() {
       const color =
         localStorage.getItem("urban-vault-theme-color") ||
         localStorage.getItem("voltix-theme-color") ||
-        "#10B981";
+        "#F43F5E";
       const preset = THEME_PRESETS[color];
       if (preset) {
         Object.entries(preset).forEach(([prop, val]) => {

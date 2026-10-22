@@ -70,29 +70,49 @@ export function mapProduct(row: ProductRow): CatalogProduct {
     ? [specs["image"]]
     : [];
 
-  return {
-    dbId: row.id,
-    id: row.sku,
-    sku: row.sku,
-    slug: row.slug,
-    name: row.name,
-    brand: row.brand,
-    category: row.category,
-    price: Number(row.price),
-    compareAt: row.compare_at === null ? undefined : Number(row.compare_at),
-    rating: Number(row.rating),
-    reviews: row.reviews_count,
-    stock: row.stock,
-    lowStockThreshold: row.low_stock_threshold,
-    condition: row.condition as Condition,
-    images: customImages.length > 0 ? customImages : [cover, alt1, alt2],
-    status: row.status as Product["status"],
-    badge: (row.badge ?? undefined) as Product["badge"],
-    views: row.views,
-    blurb: row.blurb,
-    specs: specs as Record<string, string>,
-  };
-}
+    const isTrending =
+      Boolean(
+        row.badge?.toLowerCase().includes("trend") ||
+        specs["is_trending"] === "true" ||
+        specs["is_trending"] === true ||
+        specs["trending"] === "true" ||
+        specs["trending"] === true
+      );
+
+    const isBestSeller =
+      Boolean(
+        row.badge?.toLowerCase().includes("best") ||
+        specs["is_bestseller"] === "true" ||
+        specs["is_bestseller"] === true ||
+        specs["best_seller"] === "true" ||
+        specs["best_seller"] === true
+      );
+
+    return {
+      dbId: row.id,
+      id: row.sku,
+      sku: row.sku,
+      slug: row.slug,
+      name: row.name,
+      brand: row.brand,
+      category: row.category,
+      price: Number(row.price),
+      compareAt: row.compare_at === null ? undefined : Number(row.compare_at),
+      rating: Number(row.rating),
+      reviews: row.reviews_count,
+      stock: row.stock,
+      lowStockThreshold: row.low_stock_threshold,
+      condition: row.condition as Condition,
+      images: customImages.length > 0 ? customImages : [cover, alt1, alt2],
+      status: row.status as Product["status"],
+      badge: (row.badge ?? (isTrending ? "Trending" : isBestSeller ? "Best seller" : undefined)) as Product["badge"],
+      isTrending,
+      isBestSeller,
+      views: row.views,
+      blurb: row.blurb,
+      specs: specs as Record<string, string>,
+    };
+  }
 
 export const SPEC_GROUPS: { label: string; keys: string[] }[] = [
   { label: "Material & Fabric", keys: ["Material", "Fabric", "Weight", "Upper", "Sole"] },

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -12,7 +12,9 @@ import {
   Phone,
   Search,
   ShieldCheck,
+  Sparkles,
   Star,
+  Trophy,
   Truck,
   Zap,
 } from "lucide-react";
@@ -168,6 +170,32 @@ function Landing() {
     }
     return cat.includes(tab) || gender.includes(tab) || name.includes(tab);
   });
+
+  // 1. Trending Products: explicit trending flag or badge, or high views/rating fallback
+  const trendingProducts = useMemo(() => {
+    const explicit = products.filter(
+      (p) => p.isTrending || p.badge?.toLowerCase().includes("trend")
+    );
+    if (explicit.length >= 4) return explicit.slice(0, 8);
+    const fallback = [...products]
+      .sort((a, b) => b.views - a.views || b.rating - a.rating)
+      .slice(0, 8);
+    const combined = [...explicit, ...fallback.filter((f) => !explicit.some((e) => e.id === f.id))];
+    return combined.slice(0, 8);
+  }, [products]);
+
+  // 2. Best Seller Products: explicit best seller flag or badge, or high reviews fallback
+  const bestSellerProducts = useMemo(() => {
+    const explicit = products.filter(
+      (p) => p.isBestSeller || p.badge?.toLowerCase().includes("best")
+    );
+    if (explicit.length >= 4) return explicit.slice(0, 8);
+    const fallback = [...products]
+      .sort((a, b) => b.reviews - a.reviews || b.rating - a.rating)
+      .slice(0, 8);
+    const combined = [...explicit, ...fallback.filter((f) => !explicit.some((e) => e.id === f.id))];
+    return combined.slice(0, 8);
+  }, [products]);
 
   const featuredBoutiqueProducts = filteredProducts.slice(0, 8);
 
@@ -348,21 +376,87 @@ function Landing() {
         </div>
       </section>
 
-      {/* ── 3. Featured Products ─────────────────────────────── */}
-      <section className="py-8 sm:py-12 px-3 sm:px-6 bg-surface-muted/30 border-y border-border/50">
+      {/* ── 3. Trending Now Section ───────────────────────────── */}
+      <section className="py-8 sm:py-14 px-3 sm:px-6 bg-surface-muted/30 border-y border-border/50">
         <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-amber-500 mb-1">
+                <Flame className="h-4 w-4 fill-amber-500 text-amber-500 animate-pulse" />
+                <span>Hot Drops · Assin Fosu</span>
+              </div>
+              <h2 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Trending Now
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-xl">
+                The most hyped streetwear essentials, oversized tees, and luxury footwear turning heads right now.
+              </p>
+            </div>
+            <Link
+              to="/products"
+              search={{ trending: true } as never}
+              className="text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400 hover:underline inline-flex items-center gap-1 self-start sm:self-auto shrink-0"
+            >
+              Explore All Trending <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+            {trendingProducts.map((prod) => (
+              <ProductCard key={`trending-${prod.id}`} product={prod} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4. Best Sellers Section ───────────────────────────── */}
+      <section className="py-8 sm:py-14 px-3 sm:px-6">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-8">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-primary mb-1">
+                <Trophy className="h-4 w-4 text-primary" />
+                <span>Verified Customer Favorites</span>
+              </div>
+              <h2 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Best Sellers
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-xl">
+                Time-tested boutique silhouettes with top customer ratings and repeat orders across Ghana.
+              </p>
+            </div>
+            <Link
+              to="/products"
+              search={{ bestseller: true } as never}
+              className="text-xs sm:text-sm font-bold text-primary hover:underline inline-flex items-center gap-1 self-start sm:self-auto shrink-0"
+            >
+              Explore Best Sellers <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+            {bestSellerProducts.map((prod) => (
+              <ProductCard key={`bestseller-${prod.id}`} product={prod} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 5. Curated Catalogue / New In Store ────────────────── */}
+      <section className="py-8 sm:py-14 px-3 sm:px-6 bg-surface-muted/20 border-t border-border/50">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 sm:mb-8">
             <div>
               <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary mb-1">
-                <Flame className="h-3.5 w-3.5 text-amber-500" />
-                <span>Trending Now</span>
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                <span>Curated Catalogue</span>
               </div>
               <h2 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight">
                 New In Store
               </h2>
             </div>
 
-            {/* Category Filter Pills (Matching Design Inspiration) */}
+            {/* Category Filter Pills */}
             <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
               {["All", "Clothing", "Accessories", "Shoes", "African Wear"].map((tab) => (
                 <button
@@ -384,14 +478,14 @@ function Landing() {
           {/* Product Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
             {featuredBoutiqueProducts.map((prod) => (
-              <ProductCard key={prod.id} product={prod} />
+              <ProductCard key={`featured-${prod.id}`} product={prod} />
             ))}
           </div>
 
           <div className="mt-8 text-center">
-            <Button asChild size="lg" variant="outline" className="rounded-full px-8 font-semibold border-border">
+            <Button asChild size="lg" variant="outline" className="rounded-full px-8 font-semibold border-border hover:bg-surface-muted">
               <Link to="/products" search={{}}>
-                Explore All Products <ArrowRight className="ml-2 h-4 w-4" />
+                Explore Full Collection <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </div>

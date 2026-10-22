@@ -113,13 +113,13 @@ export function generateOrderConfirmationHtml(payload: OrderEmailPayload): strin
                     <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; font-weight: 900; letter-spacing: 0.15em; text-transform: uppercase; color: #ffffff;">
                       URBAN VAULT
                     </div>
-                    <div style="font-size: 10px; font-family: monospace; letter-spacing: 0.18em; text-transform: uppercase; color: #10b981; margin-top: 3px; font-weight: 600;">
+                    <div style="font-size: 10px; font-family: monospace; letter-spacing: 0.18em; text-transform: uppercase; color: #f43f5e; margin-top: 3px; font-weight: 600;">
                       UNISEX BOUTIQUE &bull; ASSIN FOSU, GHANA
                     </div>
                   </td>
                   <td align="right" style="vertical-align: middle;">
                     <div style="display: inline-block; background-color: #121215; border: 1px solid #27272a; padding: 6px 12px; border-radius: 9999px;">
-                      <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: #10b981; margin-right: 6px; vertical-align: middle;"></span>
+                      <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background-color: #f43f5e; margin-right: 6px; vertical-align: middle;"></span>
                       <span style="font-family: monospace; font-size: 11px; font-weight: 700; color: #ffffff; vertical-align: middle;">${payload.orderNumber}</span>
                     </div>
                   </td>
@@ -131,7 +131,7 @@ export function generateOrderConfirmationHtml(payload: OrderEmailPayload): strin
           <!-- Hero Confirmation Message -->
           <tr>
             <td style="padding: 36px 36px 24px 36px;">
-              <div style="font-family: monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: #10b981; margin-bottom: 8px;">
+              <div style="font-family: monospace; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: #f43f5e; margin-bottom: 8px;">
                 ORDER CONFIRMED // DROP ARCHIVE
               </div>
               <h1 style="margin: 0; font-size: 24px; font-weight: 900; color: #ffffff; letter-spacing: -0.02em; line-height: 1.2;">
@@ -154,13 +154,13 @@ export function generateOrderConfirmationHtml(payload: OrderEmailPayload): strin
                   </td>
                   <td style="padding: 4px 12px; border-right: 1px solid #27272a;">
                     <div style="font-size: 10px; font-family: monospace; text-transform: uppercase; letter-spacing: 0.12em; color: #71717a;">PAYMENT</div>
-                    <div style="font-size: 13px; font-weight: 700; color: ${isPaid ? "#10b981" : "#f59e0b"}; margin-top: 2px;">
+                    <div style="font-size: 13px; font-weight: 700; color: ${isPaid ? "#f43f5e" : "#f59e0b"}; margin-top: 2px;">
                       ${isPaid ? "✓ Paid (Paystack)" : "Cash on Delivery"}
                     </div>
                   </td>
                   <td style="padding: 4px 0 4px 12px;" align="right">
                     <div style="font-size: 10px; font-family: monospace; text-transform: uppercase; letter-spacing: 0.12em; color: #71717a;">TOTAL</div>
-                    <div style="font-size: 16px; font-weight: 900; color: #10b981; margin-top: 2px;">${formatPrice(payload.total)}</div>
+                    <div style="font-size: 16px; font-weight: 900; color: #f43f5e; margin-top: 2px;">${formatPrice(payload.total)}</div>
                   </td>
                 </tr>
               </table>
@@ -190,8 +190,8 @@ export function generateOrderConfirmationHtml(payload: OrderEmailPayload): strin
                 ${
                   payload.discount > 0
                     ? `<tr>
-                  <td style="padding: 5px 0; color: #10b981; font-weight: 600;">VIP Discount Applied</td>
-                  <td align="right" style="color: #10b981; font-weight: 700;">-${formatPrice(payload.discount)}</td>
+                  <td style="padding: 5px 0; color: #f43f5e; font-weight: 600;">VIP Discount Applied</td>
+                  <td align="right" style="color: #f43f5e; font-weight: 700;">-${formatPrice(payload.discount)}</td>
                 </tr>`
                     : ""
                 }
@@ -201,7 +201,7 @@ export function generateOrderConfirmationHtml(payload: OrderEmailPayload): strin
                 </tr>
                 <tr style="border-top: 1px solid #27272a;">
                   <td style="padding: 14px 0 0 0; font-size: 15px; font-weight: 800; color: #ffffff; text-transform: uppercase; letter-spacing: 0.05em;">Total Amount</td>
-                  <td align="right" style="padding: 14px 0 0 0; font-size: 20px; font-weight: 900; color: #10b981;">
+                  <td align="right" style="padding: 14px 0 0 0; font-size: 20px; font-weight: 900; color: #f43f5e;">
                     ${formatPrice(payload.total)}
                   </td>
                 </tr>
@@ -215,7 +215,7 @@ export function generateOrderConfirmationHtml(payload: OrderEmailPayload): strin
               <table width="100%" cellspacing="0" cellpadding="0" style="background-color: #141418; border: 1px solid #27272a; border-radius: 12px; overflow: hidden;">
                 <tr>
                   <td style="padding: 20px;">
-                    <div style="font-size: 11px; font-family: monospace; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: #10b981; margin-bottom: 8px;">
+                    <div style="font-size: 11px; font-family: monospace; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: #f43f5e; margin-bottom: 8px;">
                       ${isPickup ? "📍 SHOWROOM PICKUP DETAILS" : "🚚 DISPATCH DESTINATION"}
                     </div>
                     
@@ -256,7 +256,7 @@ export function generateOrderConfirmationHtml(payload: OrderEmailPayload): strin
               <table width="100%" cellspacing="0" cellpadding="0">
                 <tr>
                   <td align="center">
-                    <a href="${whatsappUrl}" style="display: inline-block; background-color: #10b981; color: #000000; font-weight: 800; font-size: 13px; text-decoration: none; padding: 14px 28px; border-radius: 9999px; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);">
+                    <a href="${whatsappUrl}" style="display: inline-block; background-color: #f43f5e; color: #ffffff; font-weight: 800; font-size: 13px; text-decoration: none; padding: 14px 28px; border-radius: 9999px; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(244, 63, 94, 0.25);">
                       Chat on WhatsApp Concierge &rarr;
                     </a>
                     <br />
@@ -318,7 +318,7 @@ export function generateAdminOrderAlertHtml(payload: OrderEmailPayload): string 
     
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
       <div>
-        <span style="background-color: #10b981; color: #ffffff; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase;">
+        <span style="background-color: #f43f5e; color: #ffffff; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase;">
           NEW ORDER
         </span>
         <h2 style="margin: 8px 0 0 0; font-size: 22px; color: #09090b;">
@@ -327,7 +327,7 @@ export function generateAdminOrderAlertHtml(payload: OrderEmailPayload): string 
       </div>
       <div style="text-align: right;">
         <div style="font-size: 20px; font-weight: 900; color: #09090b;">${formatPrice(payload.total)}</div>
-        <div style="font-size: 12px; color: ${payload.paymentStatus === "paid" ? "#10b981" : "#f59e0b"}; font-weight: bold;">
+        <div style="font-size: 12px; color: ${payload.paymentStatus === "paid" ? "#f43f5e" : "#f59e0b"}; font-weight: bold;">
           ${payload.paymentStatus.toUpperCase()} (${payload.paymentMethod})
         </div>
       </div>
@@ -335,7 +335,7 @@ export function generateAdminOrderAlertHtml(payload: OrderEmailPayload): string 
 
     <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 24px; font-size: 13px; line-height: 1.5;">
       <p style="margin: 0 0 6px 0;"><strong>Customer:</strong> ${payload.customerName}</p>
-      <p style="margin: 0 0 6px 0;"><strong>Phone:</strong> <a href="tel:${payload.phone}" style="color: #09090b; font-weight: bold;">${payload.phone}</a> &bull; <a href="https://wa.me/${payload.phone.replace(/[^0-9]/g, "")}" style="color: #10b981; font-weight: bold;">WhatsApp &rarr;</a></p>
+      <p style="margin: 0 0 6px 0;"><strong>Phone:</strong> <a href="tel:${payload.phone}" style="color: #09090b; font-weight: bold;">${payload.phone}</a> &bull; <a href="https://wa.me/${payload.phone.replace(/[^0-9]/g, "")}" style="color: #f43f5e; font-weight: bold;">WhatsApp &rarr;</a></p>
       <p style="margin: 0 0 6px 0;"><strong>Email:</strong> ${payload.email}</p>
       <p style="margin: 0 0 6px 0;"><strong>Method:</strong> ${payload.deliveryMethod.toUpperCase()}</p>
       <p style="margin: 0;"><strong>Address:</strong> ${payload.address}, ${payload.city} (${payload.region})</p>
@@ -412,7 +412,7 @@ export function generateOrderStatusUpdateHtml(payload: {
         <table role="presentation" width="100%" style="max-width: 560px; background-color: #0c0c0e; border: 1px solid #1f1f23; border-radius: 16px; overflow: hidden; padding: 32px;" cellspacing="0" cellpadding="0">
           <tr>
             <td>
-              <div style="font-family: monospace; font-size: 11px; font-weight: 700; color: #10b981; letter-spacing: 0.15em; text-transform: uppercase;">
+              <div style="font-family: monospace; font-size: 11px; font-weight: 700; color: #f43f5e; letter-spacing: 0.15em; text-transform: uppercase;">
                 ${STORE.name} &bull; ${payload.orderNumber}
               </div>
               <h1 style="font-size: 22px; font-weight: 900; color: #ffffff; margin: 12px 0 0 0;">
@@ -432,7 +432,7 @@ export function generateOrderStatusUpdateHtml(payload: {
               }
 
               <div style="text-align: center; margin-top: 24px;">
-                <a href="${STORE.siteUrl}/account" style="display: inline-block; background-color: #10b981; color: #000000; font-weight: 800; font-size: 13px; text-decoration: none; padding: 12px 24px; border-radius: 9999px;">
+                <a href="${STORE.siteUrl}/account" style="display: inline-block; background-color: #f43f5e; color: #ffffff; font-weight: 800; font-size: 13px; text-decoration: none; padding: 12px 24px; border-radius: 9999px;">
                   View Order Status &rarr;
                 </a>
               </div>

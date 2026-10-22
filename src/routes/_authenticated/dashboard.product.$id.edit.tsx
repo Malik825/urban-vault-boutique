@@ -68,12 +68,13 @@ const BOUTIQUE_CONDITIONS = [
 
 const BOUTIQUE_BADGES = [
   "None",
+  "Trending",
+  "Best seller",
   "New",
   "-10%",
   "-15%",
   "-20%",
   "-25%",
-  "Best seller",
   "Exclusive",
   "Flash deal",
 ];
@@ -196,6 +197,14 @@ export function EditProduct() {
     stock: product.stock != null ? product.stock.toString() : "",
     condition: product.condition || "Brand New",
     badge: product.badge || "None",
+    isTrending:
+      product.badge === "Trending" ||
+      existingSpecs["is_trending"] === "true" ||
+      existingSpecs["trending"] === true,
+    isBestSeller:
+      product.badge === "Best seller" ||
+      existingSpecs["is_bestseller"] === "true" ||
+      existingSpecs["best_seller"] === true,
     slug: product.slug || "",
     seoTitle: `${product.name} — Urban Vault Unisex Boutique`,
     flashDeal: product.badge === "Flash Deal" || product.badge === "Flash deal",
@@ -251,6 +260,8 @@ export function EditProduct() {
         ...formData.specs,
         Department: formData.department,
         images: formData.images,
+        is_trending: formData.isTrending ? "true" : "false",
+        is_bestseller: formData.isBestSeller ? "true" : "false",
       };
 
       await adminUpdateProduct({
@@ -269,6 +280,10 @@ export function EditProduct() {
           badge:
             formData.badge && formData.badge !== "None"
               ? formData.badge
+              : formData.isTrending
+              ? "Trending"
+              : formData.isBestSeller
+              ? "Best seller"
               : formData.flashDeal
               ? "Flash deal"
               : null,
@@ -661,9 +676,51 @@ export function EditProduct() {
 
                 <div className="flex items-center justify-between rounded-xl border border-border p-4">
                   <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-amber-500">🔥</span>
+                      <p className="text-sm font-semibold">Trending Item</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Feature this product in the homepage "Trending Now" section.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={formData.isTrending}
+                    onCheckedChange={(v) => {
+                      updateField("isTrending", v);
+                      if (v && (!formData.badge || formData.badge === "None" || formData.badge === "New")) {
+                        updateField("badge", "Trending");
+                      }
+                    }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between rounded-xl border border-border p-4">
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-primary">★</span>
+                      <p className="text-sm font-semibold">Best Seller Item</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Feature this product in the homepage "Best Sellers" section.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={formData.isBestSeller}
+                    onCheckedChange={(v) => {
+                      updateField("isBestSeller", v);
+                      if (v && (!formData.badge || formData.badge === "None" || formData.badge === "New")) {
+                        updateField("badge", "Best seller");
+                      }
+                    }}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between rounded-xl border border-border p-4">
+                  <div>
                     <p className="text-sm font-semibold">Homepage Flash Deal</p>
                     <p className="text-xs text-muted-foreground">
-                      Feature on trending boutique banner.
+                      Feature on promotional banner and deal lists.
                     </p>
                   </div>
                   <Switch

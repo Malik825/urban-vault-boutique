@@ -66,7 +66,9 @@ export type Product = {
   condition: Condition;
   images: string[];
   status: "Published" | "Draft" | "Archived";
-  badge?: "Flash deal" | "New" | "Best seller" | undefined;
+  badge?: "Flash deal" | "New" | "Best seller" | "Trending" | string | undefined;
+  isTrending?: boolean | undefined;
+  isBestSeller?: boolean | undefined;
   views: number;
   blurb: string;
   specs: Record<string, string>;
