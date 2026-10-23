@@ -47,6 +47,14 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const url = new URL(request.url);
+
+      // Handle Paystack payment webhook endpoint directly
+      if (url.pathname === "/api/paystack-webhook") {
+        const { handlePaystackWebhook } = await import("./lib/paystack.server");
+        return await handlePaystackWebhook(request);
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
