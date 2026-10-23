@@ -815,4 +815,116 @@
 
 .animate-pulse {
   animation: fast-pulse 0.85s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
+}
+
+/* ───────────────────────────────────────────────────────────────────────── */
+/* React-Toastify Style Toast Notifications (Sonner)                         */
+/* ───────────────────────────────────────────────────────────────────────── */
+
+/* Position toaster below navbar with comfortable margin */
+[data-sonner-toaster][data-x-position="right"] {
+  top: 5rem !important;
+  right: 1.25rem !important;
+  z-index: 99999 !important;
+}
+
+@media (max-width: 640px) {
+  [data-sonner-toaster][data-x-position="right"] {
+    top: 4.5rem !important;
+    right: 0.75rem !important;
+    left: 0.75rem !important;
+    width: auto !important;
+  }
+}
+
+/* Toast container slide-in animation from top right */
+[data-sonner-toast] {
+  position: relative !important;
+  overflow: hidden !important;
+  animation: toastify-slide-in-right 0.38s cubic-bezier(0.21, 1.02, 0.73, 1) both !important;
+  will-change: transform, opacity !important;
+}
+
+[data-sonner-toast][data-dismissing="true"],
+[data-sonner-toast][data-mounted="false"] {
+  animation: toastify-slide-out-right 0.28s cubic-bezier(0.06, 0.71, 0.55, 1) forwards !important;
+}
+
+@keyframes toastify-slide-in-right {
+  0% {
+    transform: translate3d(115%, 0, 0);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes toastify-slide-out-right {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(120%, 0, 0);
+    opacity: 0;
+  }
+}
+
+/* Iconic Toastify Countdown Progress Bar */
+[data-sonner-toast]::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  opacity: 0.85;
+  background-color: var(--primary);
+  animation: toastify-progress 4s linear forwards;
+}
+
+[data-sonner-toast][data-type="success"]::after {
+  background-color: #10B981 !important;
+}
+
+[data-sonner-toast][data-type="error"]::after {
+  background-color: #F43F5E !important;
+}
+
+[data-sonner-toast][data-type="warning"]::after {
+  background-color: #F59E0B !important;
+}
+
+[data-sonner-toast][data-type="info"]::after {
+  background-color: #0EA5E9 !important;
+}
+
+[data-sonner-toast]:hover::after {
+  animation-play-state: paused !important;
+}
+
+@keyframes toastify-progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Close button styling matching React-Toastify */
+[data-sonner-toast] [data-close-button] {
+  top: 10px !important;
+  right: 10px !important;
+  left: auto !important;
+  border-radius: 6px !important;
+  opacity: 0.6 !important;
+  transition: opacity 0.15s ease, transform 0.15s ease !important;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  opacity: 1 !important;
+  transform: scale(1.08) !important;
 }

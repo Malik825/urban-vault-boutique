@@ -534,7 +534,7 @@ function RootComponent() {
                 <MobileNav />
               </div>
               <WhatsAppFloat />
-              <Toaster position="top-center" theme={themeMode} />
+              <Toaster position="top-right" theme={themeMode} />
             </CompareProvider>
           </WishlistProvider>
         </CartProvider>

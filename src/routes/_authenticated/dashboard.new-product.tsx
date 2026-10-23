@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Check, ImagePlus, ArrowLeft, ArrowRight, X, Plus, Star, UploadCloud, Loader2 } from "lucide-react";
+import { Check, ImagePlus, ArrowLeft, ArrowRight, Plus, Star, UploadCloud, Loader2 } from "lucide-react";
+import { SortableImageGrid } from "@/components/dashboard/sortable-image-grid";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -139,8 +140,8 @@ export function AddProduct() {
           const base64 = await new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => {
-              const res = reader.result as string;
-              resolve(res.split(",")[1]);
+              const res = (reader.result as string) || "";
+              resolve(res.split(",")[1] ?? "");
             };
             reader.onerror = reject;
             reader.readAsDataURL(file);
@@ -239,6 +240,10 @@ export function AddProduct() {
       ...prev,
       images: prev.images.filter((_, i) => i !== index),
     }));
+  };
+
+  const reorderImages = (reordered: string[]) => {
+    setFormData((prev) => ({ ...prev, images: reordered }));
   };
 
   const handlePublish = async () => {
@@ -629,40 +634,19 @@ export function AddProduct() {
                   </div>
                 </div>
 
-                {/* Current Images List */}
+                {/* Current Images List — drag to reorder */}
                 <div>
                   <Label className="mb-2 block">
-                    Product Images ({formData.images.length}/5)
+                    Product Images ({formData.images.length}/5){" "}
+                    <span className="text-xs text-muted-foreground font-normal">
+                      — drag to reorder, first image is the cover
+                    </span>
                   </Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {formData.images.map((img, i) => (
-                      <div
-                        key={img + i}
-                        className="relative aspect-[4/5] rounded-xl overflow-hidden border border-border group bg-muted"
-                      >
-                        <img
-                          src={img}
-                          alt={`Product view ${i + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <span className="absolute left-2 top-2 rounded-md bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                          {i === 0 ? "Cover" : `#${i + 1}`}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => removeImage(i)}
-                          className="absolute right-2 top-2 p-1.5 rounded-full bg-rose-600 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                    {formData.images.length === 0 && (
-                      <div className="col-span-full py-8 text-center border-2 border-dashed border-border rounded-xl text-muted-foreground text-sm">
-                        No images added yet. Enter an image URL above or pick from the sample covers.
-                      </div>
-                    )}
-                  </div>
+                  <SortableImageGrid
+                    images={formData.images}
+                    onChange={reorderImages}
+                    onRemove={removeImage}
+                  />
                 </div>
               </div>
             )}

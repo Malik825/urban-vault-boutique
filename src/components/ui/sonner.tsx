@@ -6,30 +6,39 @@ const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
       className="toaster group"
+      position="top-right"
+      closeButton={true}
+      duration={4000}
+      visibleToasts={5}
+      expand={true}
+      gap={10}
       toastOptions={{
         classNames: {
-          // Default (success) toasts — use primary theme color
           toast:
-            "group toast group-[.toaster]:bg-primary group-[.toaster]:text-primary-foreground group-[.toaster]:border-primary-deep group-[.toaster]:shadow-lg group-[.toaster]:rounded-xl",
+            "group toast font-sans group-[.toaster]:bg-card group-[.toaster]:text-card-foreground group-[.toaster]:border group-[.toaster]:border-border/80 group-[.toaster]:shadow-2xl group-[.toaster]:rounded-xl group-[.toaster]:p-3.5 group-[.toaster]:min-w-[320px] group-[.toaster]:max-w-[420px] transition-all",
           title:
-            "group-[.toast]:text-primary-foreground group-[.toast]:font-semibold",
+            "group-[.toast]:text-foreground group-[.toast]:font-bold group-[.toast]:text-sm group-[.toast]:tracking-tight",
           description:
-            "group-[.toast]:text-primary-foreground/80",
+            "group-[.toast]:text-muted-foreground group-[.toast]:text-xs group-[.toast]:mt-1 leading-relaxed",
           actionButton:
-            "group-[.toast]:bg-primary-foreground group-[.toast]:text-primary group-[.toast]:font-semibold",
+            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground group-[.toast]:font-semibold group-[.toast]:rounded-lg group-[.toast]:px-3 group-[.toast]:py-1.5 group-[.toast]:text-xs hover:opacity-90 transition-opacity",
           cancelButton:
-            "group-[.toast]:bg-primary-deep group-[.toast]:text-primary-foreground",
+            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground group-[.toast]:rounded-lg group-[.toast]:px-3 group-[.toast]:py-1.5 group-[.toast]:text-xs",
           closeButton:
-            "group-[.toast]:bg-primary-deep group-[.toast]:text-primary-foreground group-[.toast]:border-primary-deep",
-          icon: "group-[.toast]:text-primary-foreground",
+            "group-[.toast]:bg-background/80 group-[.toast]:text-muted-foreground hover:group-[.toast]:text-foreground group-[.toast]:border group-[.toast]:border-border/60 hover:group-[.toast]:border-border group-[.toast]:rounded-lg transition-all",
+          icon: "group-[.toast]:w-5 group-[.toast]:h-5 group-[.toast]:mr-2 shrink-0",
 
-          // Error toasts — always destructive red regardless of theme
+          // Type-specific classes with React-Toastify left borders & icon hues
+          success:
+            "!border-l-[5px] !border-l-emerald-500 dark:!border-l-emerald-400 [&_[data-icon]]:text-emerald-500",
           error:
-            "!bg-destructive !text-destructive-foreground !border-destructive/60 !shadow-lg !rounded-xl",
+            "!border-l-[5px] !border-l-rose-500 dark:!border-l-rose-400 [&_[data-icon]]:text-rose-500",
           warning:
-            "!bg-yellow-500 !text-white !border-yellow-600/60 !shadow-lg !rounded-xl",
+            "!border-l-[5px] !border-l-amber-500 dark:!border-l-amber-400 [&_[data-icon]]:text-amber-500",
           info:
-            "!bg-blue-500 !text-white !border-blue-600/60 !shadow-lg !rounded-xl",
+            "!border-l-[5px] !border-l-sky-500 dark:!border-l-sky-400 [&_[data-icon]]:text-sky-500",
+          default:
+            "!border-l-[5px] !border-l-primary [&_[data-icon]]:text-primary",
         },
       }}
       {...props}

@@ -4,7 +4,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { mapProduct, type ProductRow } from "@/lib/catalog";
 
 
-function getAdminClient() {
+export function getAdminClient() {
   const url =
     process.env["SUPABASE_URL"] ||
     process.env["VITE_SUPABASE_URL"] ||
@@ -97,20 +97,20 @@ export const adminGetProduct = createServerFn({ method: "GET" })
 export const adminUpdateProduct = createServerFn({ method: "POST" })
   .validator((data: { 
     id: string; 
-    name?: string;
-    brand?: string;
-    category?: string;
-    price?: number; 
-    compare_at?: number | null;
-    stock?: number; 
-    low_stock_threshold?: number;
-    condition?: string;
-    status?: string; 
-    blurb?: string;
-    slug?: string;
-    sku?: string;
-    specs?: Record<string, string>;
-    badge?: string | null;
+    name?: string | undefined;
+    brand?: string | undefined;
+    category?: string | undefined;
+    price?: number | undefined; 
+    compare_at?: number | null | undefined;
+    stock?: number | undefined; 
+    low_stock_threshold?: number | undefined;
+    condition?: string | undefined;
+    status?: string | undefined; 
+    blurb?: string | undefined;
+    slug?: string | undefined;
+    sku?: string | undefined;
+    specs?: Record<string, any> | undefined;
+    badge?: string | null | undefined;
   }) => data)
   .handler(async ({ data }) => {
     try {
@@ -125,7 +125,7 @@ export const adminUpdateProduct = createServerFn({ method: "POST" })
       cleanPatch["updated_at"] = new Date().toISOString();
 
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-      let query = supabase.from("products").update(cleanPatch);
+      let query = supabase.from("products").update(cleanPatch as any);
       query = isUuid ? query.eq("id", id) : query.eq("sku", id);
       const { error } = await query;
       if (error) {
@@ -224,7 +224,7 @@ export const adminGetStats = createServerFn({ method: "GET" }).handler(async () 
   if (ordersRes.error) throw new Error(ordersRes.error.message);
 
   const products = (productsRes.data as unknown as ProductRow[] ?? []).map(mapProduct);
-  const orders = ordersRes.data ?? [];
+  const orders: any[] = ordersRes.data ?? [];
 
   const publishedProducts = products.filter((p) => p.status === "Published");
   const draftProducts = products.filter((p) => p.status === "Draft");
@@ -279,7 +279,7 @@ export const adminCreateProduct = createServerFn({ method: "POST" })
       brand: string;
       category: string;
       price: number;
-      compare_at?: number;
+      compare_at?: number | undefined;
       stock: number;
       low_stock_threshold: number;
       condition: string;
@@ -287,8 +287,8 @@ export const adminCreateProduct = createServerFn({ method: "POST" })
       blurb: string;
       slug: string;
       sku: string;
-      specs: Record<string, string>;
-      badge?: string;
+      specs: Record<string, any>;
+      badge?: string | undefined;
     }) => data,
   )
   .handler(async ({ data }) => {
@@ -296,16 +296,20 @@ export const adminCreateProduct = createServerFn({ method: "POST" })
     const sku = data.sku?.trim() || `PRD-${Math.floor(1000 + Math.random() * 9000)}`;
     const slug = data.slug?.trim() || data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
+    const insertPayload: any = {
+      ...data,
+      sku,
+      slug,
+      badge: data.badge ?? null,
+      compare_at: data.compare_at ?? null,
+      rating: 0,
+      reviews_count: 0,
+      views: 0,
+    };
+
     const { error, data: created } = await supabase
       .from("products")
-      .insert({
-        ...data,
-        sku,
-        slug,
-        rating: 0,
-        reviews_count: 0,
-        views: 0,
-      })
+      .insert(insertPayload)
       .select("id, slug")
       .single();
     if (error) throw new Error(error.message);
@@ -380,4 +384,34 @@ export const adminUploadProductImage = createServerFn({ method: "POST" })
   });
 
 
+// ─── Category Image Upload ─────────────────────────────────────────────────────
 
+export const adminUploadCategoryImage = createServerFn({ method: "POST" })
+  .validator(
+    (data: { base64: string; fileName: string; contentType: string; categoryId: string }) =>
+      data,
+  )
+  .handler(async ({ data }) => {
+    try {
+      const supabase = getAdminClient();
+      const buffer = Buffer.from(data.base64, "base64");
+      const ext = data.fileName.split(".").pop() || "webp";
+      const cleanName = `category_${data.categoryId}_${Date.now()}.${ext}`;
+      const path = `categories/${cleanName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("product-images")
+        .upload(path, buffer, { contentType: data.contentType, upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("product-images")
+        .getPublicUrl(path);
+
+      return { publicUrl: urlData.publicUrl, categoryId: data.categoryId };
+    } catch (err: any) {
+      console.error("adminUploadCategoryImage error:", err);
+      throw new Error(err.message || "Failed to upload category image");
+    }
+  });

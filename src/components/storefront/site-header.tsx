@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "@tanstack/react-router";
 import {
   Menu, Search, Heart, LayoutGrid, ShoppingCart,
-  Repeat2, Home, User, LayoutDashboard, LogOut, ShieldCheck
+  Repeat2, Home, User, LayoutDashboard, LogOut, ShieldCheck, Camera,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ import { useAuth } from "@/lib/auth";
 import { SearchCommand } from "./search-command";
 import { CartDrawer } from "./cart-drawer";
 import { ThemeToggle } from "./theme-toggle";
+import { VisualSearchModal } from "./visual-search-modal";
 
 const NAV_LINKS = [
   { label: "All Collections", to: "/products" as const, search: {} },
@@ -34,6 +35,7 @@ const NAV_LINKS = [
 /* ── Main header ─────────────────────────────────────────── */
 export function SiteHeader() {
   const [searchOpen, setSearchOpen] = useState(false);
+  const [visualSearchOpen, setVisualSearchOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled]     = useState(false);
   const { count, isOpen: cartOpen, setIsOpen: setCartOpen } = useCart();
@@ -101,14 +103,39 @@ export function SiteHeader() {
           {/* Center/Right: Search pill (Desktop) */}
           <div
             onClick={() => setSearchOpen(true)}
-            className="hidden md:flex flex-1 max-w-xs lg:max-w-sm items-center gap-2.5 rounded-full bg-slate-100/90 dark:bg-muted/60 px-4 py-2 text-sm text-muted-foreground border border-slate-200/60 dark:border-border/60 hover:border-slate-300 dark:hover:border-border transition-colors cursor-pointer"
+            className="hidden md:flex flex-1 max-w-xs lg:max-w-sm items-center justify-between rounded-full bg-slate-100/90 dark:bg-muted/60 pl-4 pr-1.5 py-1.5 text-sm text-muted-foreground border border-slate-200/60 dark:border-border/60 hover:border-slate-300 dark:hover:border-border transition-colors cursor-pointer group"
           >
-            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="truncate text-xs sm:text-sm">Search for products...</span>
+            <div className="flex items-center gap-2.5 truncate">
+              <Search className="h-4 w-4 text-muted-foreground shrink-0 group-hover:text-foreground transition-colors" />
+              <span className="truncate text-xs sm:text-sm">Search products…</span>
+            </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setVisualSearchOpen(true);
+              }}
+              title="Snap & Find Similar (Visual Search)"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all shadow-xs"
+            >
+              <Camera className="h-3.5 w-3.5" />
+            </button>
           </div>
 
           {/* Right-side actions */}
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-2">
+            {/* Mobile Visual Search Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Snap & Find Similar"
+              title="Visual Search (Snap & Find)"
+              className="md:hidden rounded-full h-8 w-8 text-primary hover:text-primary hover:bg-primary/10 shrink-0"
+              onClick={() => setVisualSearchOpen(true)}
+            >
+              <Camera className="h-4 w-4" />
+            </Button>
+
             {/* Mobile Search Button */}
             <Button
               variant="ghost"
@@ -305,6 +332,7 @@ export function SiteHeader() {
       </header>
 
       <SearchCommand open={searchOpen} onOpenChange={setSearchOpen} />
+      <VisualSearchModal open={visualSearchOpen} onOpenChange={setVisualSearchOpen} />
     </>
   );
 }

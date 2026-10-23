@@ -272,7 +272,7 @@ function CheckoutPage() {
           email: customerEmail,
           amount: total,
           firstName: firstName.trim() || "Customer",
-          phone: phone.trim() || undefined,
+          ...(phone.trim() ? { phone: phone.trim() } : {}),
           channels: paymentMethod === "card" ? ["card"] : ["mobile_money", "card"],
           onSuccess: async (paystackRes) => {
             try {
