@@ -100,9 +100,20 @@ function AuthPage() {
       ? rawRedirect
       : null;
 
-  const [mode, setMode] = useState<"login" | "register" | "forgot" | "reset-password">(
-    (search.mode as any) || "login",
-  );
+  const [mode, setMode] = useState<"login" | "register" | "forgot" | "reset-password">(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash || "";
+      const isRecovery =
+        hash.includes("type=recovery") ||
+        (hash.includes("access_token") && !hash.includes("type=signup")) ||
+        sessionStorage.getItem("uv-recovery-mode") === "true";
+      if (isRecovery || search.mode === "reset-password") {
+        sessionStorage.setItem("uv-recovery-mode", "true");
+        return "reset-password";
+      }
+    }
+    return (search.mode as any) || "login";
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -129,6 +140,7 @@ function AuthPage() {
     if (typeof window !== "undefined") {
       const hash = window.location.hash || "";
       if (hash.includes("type=recovery") || search.mode === "reset-password") {
+        sessionStorage.setItem("uv-recovery-mode", "true");
         setMode("reset-password");
       }
     }
@@ -137,6 +149,9 @@ function AuthPage() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("uv-recovery-mode", "true");
+        }
         setMode("reset-password");
       }
     });
@@ -355,6 +370,9 @@ function AuthPage() {
       });
       if (error) throw error;
       toast.success("Password updated successfully! You can now log in.");
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("uv-recovery-mode");
+      }
       setMode("login");
       setNewPassword("");
       setConfirmPassword("");
