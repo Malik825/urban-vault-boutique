@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
-import { mapProduct, type ProductRow } from "@/lib/catalog";
+import { mapProduct, type ProductRow, type CatalogProduct } from "@/lib/catalog";
 
 import { products as fallbackProducts } from "@/lib/store-data";
 

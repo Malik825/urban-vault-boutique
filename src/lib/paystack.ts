@@ -1,9 +1,10 @@
 // ─── Paystack Ghana Integration ──────────────────────────────────────────────
 // Supports Debit/Credit Cards (Visa, Mastercard) and Mobile Money (MTN, Telecel, AirtelTigo)
 
-export const PAYSTACK_PUBLIC_KEY =
-  (typeof import.meta !== "undefined" && import.meta.env?.VITE_PAYSTACK_PUBLIC_KEY) ||
-  "pk_live_713dee3c5830176365c4ae9f8156ecfacd732818";
+export const PAYSTACK_PUBLIC_KEY: string =
+  (typeof import.meta !== "undefined" && typeof import.meta.env?.["VITE_PAYSTACK_PUBLIC_KEY"] === "string"
+    ? import.meta.env["VITE_PAYSTACK_PUBLIC_KEY"]
+    : "") || "";
 
 export interface PaystackSuccessResponse {
   reference: string;
@@ -17,14 +18,14 @@ export interface PaystackSuccessResponse {
 export interface PaystackCheckoutOptions {
   email: string;
   amount: number; // in GHS (e.g. 150 for GH₵ 150)
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  orderNumber?: string;
-  channels?: Array<"card" | "mobile_money" | "bank" | "ussd" | "qr">;
-  metadata?: Record<string, any>;
+  firstName?: string | undefined;
+  lastName?: string | undefined;
+  phone?: string | undefined;
+  orderNumber?: string | undefined;
+  channels?: Array<"card" | "mobile_money" | "bank" | "ussd" | "qr"> | undefined;
+  metadata?: Record<string, any> | undefined;
   onSuccess: (response: PaystackSuccessResponse) => void;
-  onClose?: () => void;
+  onClose?: (() => void) | undefined;
 }
 
 declare global {

@@ -267,6 +267,7 @@ export const CATEGORIES_TAXONOMY: CategoryTaxonomy[] = [
 ];
 
 export const categories = CATEGORIES_TAXONOMY.map((c) => ({
+  id: c.id,
   name: c.name,
   count: c.count,
   image: c.image,

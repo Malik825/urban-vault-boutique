@@ -16,6 +16,7 @@ import {
   RotateCcw,
   Grid3X3,
   List,
+  Camera,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -23,6 +24,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./theme-toggle";
+import { VisualSearchModal } from "./visual-search-modal";
 import {
   brands,
   categories,
@@ -81,6 +83,7 @@ export function SearchCommand({
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [recentSearches, setRecentSearches] = useState<string[]>(DEFAULT_RECENT);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [visualSearchOpen, setVisualSearchOpen] = useState(false);
 
   // ── Load recent searches from localStorage ────────────────────────
   useEffect(() => {
@@ -143,6 +146,7 @@ export function SearchCommand({
       };
     } else {
       setMobileFilterOpen(false);
+      return undefined;
     }
   }, [open]);
 
@@ -310,7 +314,8 @@ export function SearchCommand({
   if (!open) return null;
 
   return (
-    <AnimatePresence>
+    <>
+      <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -381,12 +386,26 @@ export function SearchCommand({
                     setQuery("");
                     inputRef.current?.focus();
                   }}
-                  className="absolute right-12 sm:right-14 p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-white/10 transition-colors"
+                  className="p-1.5 mr-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-white/10 transition-colors"
                   aria-label="Clear search"
                 >
                   <X className="h-4 w-4" />
                 </button>
               )}
+
+              {/* Photo Search Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  onOpenChange(false);
+                  setVisualSearchOpen(true);
+                }}
+                title="Snap & Find Similar (Visual Search)"
+                className="flex items-center gap-1.5 mr-2 px-2.5 py-1.5 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all text-xs font-semibold shadow-xs shrink-0"
+              >
+                <Camera className="h-4 w-4" />
+                <span className="hidden sm:inline">Photo Search</span>
+              </button>
 
               {/* ESC key badge */}
               <div className="hidden sm:flex items-center pr-3 pointer-events-none">
@@ -1044,5 +1063,7 @@ export function SearchCommand({
         </div>
       </motion.div>
     </AnimatePresence>
+    <VisualSearchModal open={visualSearchOpen} onOpenChange={setVisualSearchOpen} />
+    </>
   );
 }

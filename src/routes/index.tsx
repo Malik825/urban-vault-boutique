@@ -91,6 +91,14 @@ function Landing() {
   const [heroIndex, setHeroIndex] = useState(0);
   const heroRef = useRef<HTMLDivElement>(null);
   const [activeCategoryTab, setActiveCategoryTab] = useState<string>("All");
+  const [categoryOverrides, setCategoryOverrides] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("category_images_overrides");
+      if (stored) setCategoryOverrides(JSON.parse(stored));
+    } catch {}
+  }, []);
 
   // Auto-slide hero
   useEffect(() => {
@@ -354,7 +362,7 @@ function Landing() {
               >
                 <div className="aspect-[4/4] overflow-hidden bg-surface-muted">
                   <img
-                    src={optimizeImageUrl(cat.image, 400, 75)}
+                    src={optimizeImageUrl((cat.id && categoryOverrides[cat.id]) || cat.image, 400, 75)}
                     alt={cat.name}
                     loading="lazy"
                     width={400}

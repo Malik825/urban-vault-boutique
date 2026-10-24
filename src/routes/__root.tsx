@@ -20,6 +20,7 @@ import { WishlistProvider, CompareProvider } from "@/lib/user-store";
 import { MobileNav } from "@/components/storefront/mobile-nav";
 import { useReferralTracking } from "@/lib/referral";
 import { STORE, whatsappLink } from "@/lib/store-data";
+import { supabase } from "@/integrations/supabase/client";
 
 /* ── Announcement Banner ───────────────────────────────────── */
 const BANNER_KEY = "uv-banner-dismissed-v1";
@@ -522,6 +523,28 @@ function RootComponent() {
     };
   }, []);
 
+  // Global password recovery listener: intercept recovery hash tokens even if landed on root or any route
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash || "";
+      if (hash.includes("type=recovery") && !window.location.pathname.startsWith("/auth")) {
+        window.location.replace(`/auth${window.location.hash}`);
+      }
+    }
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        if (typeof window !== "undefined" && !window.location.pathname.startsWith("/auth")) {
+          window.location.replace(`/auth#type=recovery`);
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -534,7 +557,7 @@ function RootComponent() {
                 <MobileNav />
               </div>
               <WhatsAppFloat />
-              <Toaster position="top-center" theme={themeMode} />
+              <Toaster position="top-right" theme={themeMode} />
             </CompareProvider>
           </WishlistProvider>
         </CartProvider>
