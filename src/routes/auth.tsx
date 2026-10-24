@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
+  AlertCircle,
   ArrowLeft,
   ArrowRight,
+  CheckCircle2,
   Eye,
   EyeOff,
   Loader2,
@@ -50,45 +52,97 @@ export const Route = createFileRoute("/auth")({
 
 const loginSchema = z.object({
   email: z.string().trim().email("Enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(1, "Password is required"),
 });
 
 const registerSchema = z.object({
-  fullName: z.string().trim().min(2, "Enter your full name"),
+  fullName: z.string().trim().min(2, "Full name must be at least 2 characters"),
   email: z.string().trim().email("Enter a valid email address"),
-  phone: z.string().trim().min(9, "Enter a valid phone number"),
+  phone: z.string().trim().min(9, "Enter a valid phone number (at least 9 digits)"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
-function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
+export function getPasswordStrength(p: string) {
+  const hasLength = p.length >= 8;
+  const hasCase = /[a-z]/.test(p) && /[A-Z]/.test(p);
+  const hasNumber = /\d/.test(p);
+  const hasSpecial = /[^A-Za-z0-9]/.test(p);
+
+  const score = [hasLength, hasCase, hasNumber, hasSpecial].filter(Boolean).length;
+
+  let label = "Needs improvement";
+  let color = "text-primary/60";
+  let barColor = "bg-primary/30";
+
+  if (score === 2) {
+    label = "Fair";
+    color = "text-primary/80";
+    barColor = "bg-primary/60";
+  } else if (score === 3) {
+    label = "Good";
+    color = "text-primary font-medium";
+    barColor = "bg-primary/85";
+  } else if (score >= 4) {
+    label = "Strong (Vault Grade)";
+    color = "text-primary font-bold";
+    barColor = "bg-primary shadow-glow";
+  }
+
+  return { score, label, color, barColor, hasLength, hasCase, hasNumber, hasSpecial };
+}
+
+function PasswordStrengthMeter({ password }: { password: string }) {
+  if (!password) return null;
+  const s = getPasswordStrength(password);
+
   return (
-    <svg viewBox="0 0 24 24" width="18" height="18" {...props}>
-      <path
-        fill="#4285F4"
-        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-      />
-      <path
-        fill="#34A853"
-        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-      />
-      <path
-        fill="#FBBC05"
-        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-      />
-      <path
-        fill="#EA4335"
-        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-      />
-    </svg>
+    <div className="mt-2.5 rounded-xl bg-card border border-border/80 p-3 space-y-2 text-xs">
+      <div className="flex items-center justify-between text-[11px] font-semibold">
+        <span className="text-muted-foreground">Password strength:</span>
+        <span className={s.color}>{s.label}</span>
+      </div>
+
+      <div className="grid grid-cols-4 gap-1.5 h-1.5">
+        {[1, 2, 3, 4].map((step) => (
+          <div
+            key={step}
+            className={`h-full rounded-full transition-all duration-300 ${
+              step <= s.score ? s.barColor : "bg-muted"
+            }`}
+          />
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 gap-1.5 pt-1 text-[11px]">
+        <div className={`flex items-center gap-1.5 ${s.hasLength ? "text-primary font-medium" : "text-muted-foreground/60"}`}>
+          {s.hasLength ? <CheckCircle2 className="h-3 w-3 text-primary shrink-0" /> : <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40 mx-0.5" />}
+          <span>8+ characters</span>
+        </div>
+        <div className={`flex items-center gap-1.5 ${s.hasCase ? "text-primary font-medium" : "text-muted-foreground/60"}`}>
+          {s.hasCase ? <CheckCircle2 className="h-3 w-3 text-primary shrink-0" /> : <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40 mx-0.5" />}
+          <span>Upper & lowercase</span>
+        </div>
+        <div className={`flex items-center gap-1.5 ${s.hasNumber ? "text-primary font-medium" : "text-muted-foreground/60"}`}>
+          {s.hasNumber ? <CheckCircle2 className="h-3 w-3 text-primary shrink-0" /> : <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40 mx-0.5" />}
+          <span>At least 1 number</span>
+        </div>
+        <div className={`flex items-center gap-1.5 ${s.hasSpecial ? "text-primary font-medium" : "text-muted-foreground/60"}`}>
+          {s.hasSpecial ? <CheckCircle2 className="h-3 w-3 text-primary shrink-0" /> : <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40 mx-0.5" />}
+          <span>1 symbol (!@#$)</span>
+        </div>
+      </div>
+    </div>
   );
 }
 
-function AppleIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" {...props}>
-      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 1.01-2.87-.96.04-2.12.64-2.8 1.44-.6.7-1.13 1.77-1 2.84 1.07.08 2.16-.57 2.79-1.41z" />
-    </svg>
-  );
+interface AuthErrors {
+  general?: string;
+  email?: string;
+  password?: string;
+  fullName?: string;
+  phone?: string;
+  newPassword?: string;
+  confirmPassword?: string;
 }
 
 function AuthPage() {
@@ -118,6 +172,24 @@ function AuthPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [busy, setBusy] = useState(false);
+
+  const [errors, setErrors] = useState<AuthErrors>({});
+
+  function clearError(field: keyof AuthErrors) {
+    if (errors[field] || errors.general) {
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy[field];
+        delete copy.general;
+        return copy;
+      });
+    }
+  }
+
+  // Clear errors when switching modes
+  useEffect(() => {
+    setErrors({});
+  }, [mode]);
 
   // Form states
   const [email, setEmail] = useState("");
@@ -215,22 +287,31 @@ function AuthPage() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    const parsed = loginSchema.safeParse({ email, password });
-    if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Please check your credentials");
+    setErrors({});
+    const fieldErrors: AuthErrors = {};
+    if (!email.trim()) {
+      fieldErrors.email = "Email address is required";
+    } else if (!email.includes("@")) {
+      fieldErrors.email = "Please enter a valid email address";
+    }
+    if (!password) {
+      fieldErrors.password = "Password is required";
+    }
+
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
       return;
     }
 
     setBusy(true);
     try {
       const { data: authData, error } = await supabase.auth.signInWithPassword({
-        email: parsed.data.email,
-        password: parsed.data.password,
+        email: email.trim(),
+        password,
       });
       if (error) throw error;
       toast.success(`Welcome back to ${STORE.name}!`);
 
-      // Check admin status for smart navigation
       let isAdminUser = false;
       if (authData?.user) {
         const { data: roleData } = await (supabase as any)
@@ -245,7 +326,6 @@ function AuthPage() {
         }
       }
 
-      // Admin should always be redirected to the dashboard
       if (isAdminUser) {
         navigate({ to: "/dashboard" });
       } else if (targetRedirect) {
@@ -258,7 +338,9 @@ function AuthPage() {
         navigate({ to: "/account" });
       }
     } catch (err: any) {
-      toast.error(err?.message || "Invalid email or password");
+      const message = err?.message || "Invalid email or password";
+      setErrors({ general: message });
+      toast.error(message);
     } finally {
       setBusy(false);
     }
@@ -266,9 +348,26 @@ function AuthPage() {
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
-    const parsed = registerSchema.safeParse({ fullName, email, phone, password });
-    if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Please check your details");
+    setErrors({});
+    const fieldErrors: AuthErrors = {};
+
+    if (!fullName.trim() || fullName.trim().length < 2) {
+      fieldErrors.fullName = "Please enter your full name (minimum 2 characters)";
+    }
+    if (!email.trim() || !email.includes("@")) {
+      fieldErrors.email = "Please enter a valid email address";
+    }
+    if (!phone.trim() || phone.trim().length < 9) {
+      fieldErrors.phone = "Please enter a valid phone number (at least 9 digits)";
+    }
+    if (!password) {
+      fieldErrors.password = "Please create a password";
+    } else if (password.length < 8) {
+      fieldErrors.password = "Password must be at least 8 characters long";
+    }
+
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
       return;
     }
 
@@ -276,26 +375,25 @@ function AuthPage() {
     try {
       let registeredUserId = "";
 
-      // 1. Register with instant auto-confirmation via server admin client (bypasses email delays)
       try {
         const res = await serverRegisterUser({
           data: {
-            email: parsed.data.email,
-            password: parsed.data.password,
-            fullName: parsed.data.fullName,
-            phone: parsed.data.phone,
+            email: email.trim(),
+            password,
+            fullName: fullName.trim(),
+            phone: phone.trim(),
           },
         });
         registeredUserId = res.userId;
       } catch (serverErr: any) {
         console.warn("[Register] Server function fallback:", serverErr);
         const { data: clientSignup, error: clientErr } = await supabase.auth.signUp({
-          email: parsed.data.email,
-          password: parsed.data.password,
+          email: email.trim(),
+          password,
           options: {
             data: {
-              full_name: parsed.data.fullName,
-              phone: parsed.data.phone,
+              full_name: fullName.trim(),
+              phone: phone.trim(),
             },
           },
         });
@@ -303,10 +401,9 @@ function AuthPage() {
         registeredUserId = clientSignup.user?.id || "";
       }
 
-      // 2. Immediately sign in with credentials to obtain active session
       const { data: authData, error: loginErr } = await supabase.auth.signInWithPassword({
-        email: parsed.data.email,
-        password: parsed.data.password,
+        email: email.trim(),
+        password,
       });
 
       if (loginErr) {
@@ -316,15 +413,16 @@ function AuthPage() {
       const activeId = authData?.user?.id || registeredUserId || "guest";
       setNewlyRegisteredUser({
         id: activeId,
-        email: parsed.data.email,
-        fullName: parsed.data.fullName,
+        email: email.trim(),
+        fullName: fullName.trim(),
       });
 
-      // 3. Open the VIP Boutique Onboarding Experience!
       setShowOnboarding(true);
       toast.success(`Welcome to ${STORE.name}! Your account is active.`);
     } catch (err: any) {
-      toast.error(err?.message || "Failed to create account. Please try again.");
+      const msg = err?.message || "Failed to create account. Please try again.";
+      setErrors({ general: msg });
+      toast.error(msg);
     } finally {
       setBusy(false);
     }
@@ -332,21 +430,24 @@ function AuthPage() {
 
   async function handleResetPassword(e: React.FormEvent) {
     e.preventDefault();
-    if (!email || !email.includes("@")) {
-      toast.error("Please enter a valid email address");
+    setErrors({});
+    if (!email.trim() || !email.includes("@")) {
+      setErrors({ email: "Please enter a valid email address" });
       return;
     }
 
     setBusy(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: `${window.location.origin}/auth`,
       });
       if (error) throw error;
       toast.success("Password reset link sent! Please check your inbox.");
       setMode("login");
     } catch (err: any) {
-      toast.error(err?.message || "Failed to send reset link");
+      const msg = err?.message || "Failed to send reset link";
+      setErrors({ general: msg });
+      toast.error(msg);
     } finally {
       setBusy(false);
     }
@@ -354,12 +455,23 @@ function AuthPage() {
 
   async function handleSetNewPassword(e: React.FormEvent) {
     e.preventDefault();
-    if (newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters long");
-      return;
+    setErrors({});
+    const fieldErrors: AuthErrors = {};
+
+    if (!newPassword) {
+      fieldErrors.newPassword = "New password is required";
+    } else if (newPassword.length < 8) {
+      fieldErrors.newPassword = "Password must be at least 8 characters long";
     }
-    if (newPassword !== confirmPassword) {
-      toast.error("Passwords do not match");
+
+    if (!confirmPassword) {
+      fieldErrors.confirmPassword = "Confirm password is required";
+    } else if (newPassword !== confirmPassword) {
+      fieldErrors.confirmPassword = "Passwords do not match";
+    }
+
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors(fieldErrors);
       return;
     }
 
@@ -380,23 +492,11 @@ function AuthPage() {
         window.history.replaceState(null, "", window.location.pathname);
       }
     } catch (err: any) {
-      toast.error(err?.message || "Failed to update password");
+      const msg = err?.message || "Failed to update password";
+      setErrors({ general: msg });
+      toast.error(msg);
     } finally {
       setBusy(false);
-    }
-  }
-
-  async function handleOAuth(provider: "google" | "apple") {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth`,
-        },
-      });
-      if (error) throw error;
-    } catch (err: any) {
-      toast.error(`Unable to sign in with ${provider}: ${err?.message || "Service unavailable"}`);
     }
   }
 
@@ -536,6 +636,13 @@ function AuthPage() {
                 Log in to your account to continue.
               </p>
 
+              {errors.general && (
+                <div className="mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs font-medium flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>{errors.general}</span>
+                </div>
+              )}
+
               <form onSubmit={handleLogin} className="mt-6 space-y-4">
                 {/* Email Field */}
                 <div className="space-y-1.5">
@@ -550,10 +657,23 @@ function AuthPage() {
                       required
                       placeholder="you@example.com"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary/40"
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        clearError("email");
+                      }}
+                      className={`pl-10 h-11 rounded-xl bg-background text-sm transition-colors ${
+                        errors.email
+                          ? "border-rose-500/80 focus-visible:ring-rose-500/30"
+                          : "border-border/80 focus-visible:ring-primary/40"
+                      }`}
                     />
                   </div>
+                  {errors.email && (
+                    <p className="text-[11px] font-medium text-rose-500 flex items-center gap-1 mt-1">
+                      <AlertCircle className="h-3 w-3 shrink-0" />
+                      <span>{errors.email}</span>
+                    </p>
+                  )}
                 </div>
 
                 {/* Password Field */}
@@ -569,8 +689,15 @@ function AuthPage() {
                       required
                       placeholder="Enter your password"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 pr-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary/40"
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        clearError("password");
+                      }}
+                      className={`pl-10 pr-10 h-11 rounded-xl bg-background text-sm transition-colors ${
+                        errors.password
+                          ? "border-rose-500/80 focus-visible:ring-rose-500/30"
+                          : "border-border/80 focus-visible:ring-primary/40"
+                      }`}
                     />
                     <button
                       type="button"
@@ -580,6 +707,12 @@ function AuthPage() {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
+                  {errors.password && (
+                    <p className="text-[11px] font-medium text-rose-500 flex items-center gap-1 mt-1">
+                      <AlertCircle className="h-3 w-3 shrink-0" />
+                      <span>{errors.password}</span>
+                    </p>
+                  )}
                 </div>
 
                 {/* Remember Me & Forgot Password Row */}
@@ -614,41 +747,8 @@ function AuthPage() {
                 </Button>
               </form>
 
-              {/* Or Divider */}
-              <div className="relative my-5 text-center text-xs text-muted-foreground">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-border" />
-                </div>
-                <span className="relative bg-card px-3 uppercase tracking-wider text-[11px]">
-                  or
-                </span>
-              </div>
-
-              {/* Social Login Buttons */}
-              <div className="space-y-2.5">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => handleOAuth("google")}
-                  className="w-full h-11 rounded-xl border-border bg-background hover:bg-muted font-medium text-xs sm:text-sm flex items-center justify-center gap-2.5"
-                >
-                  <GoogleIcon />
-                  <span>Continue with Google</span>
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => handleOAuth("apple")}
-                  className="w-full h-11 rounded-xl border-border bg-background hover:bg-muted font-medium text-xs sm:text-sm flex items-center justify-center gap-2.5"
-                >
-                  <AppleIcon />
-                  <span>Continue with Apple</span>
-                </Button>
-              </div>
-
               {/* Switch to Register */}
-              <p className="mt-6 text-center text-xs text-muted-foreground">
+              <p className="mt-8 text-center text-xs text-muted-foreground">
                 Don&rsquo;t have an account?{" "}
                 <button
                   type="button"
@@ -668,8 +768,15 @@ function AuthPage() {
                 Create your account
               </h2>
               <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-                It only takes a minute.
+                Unlock instant boutique benefits and member pricing.
               </p>
+
+              {errors.general && (
+                <div className="mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs font-medium flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>{errors.general}</span>
+                </div>
+              )}
 
               <form onSubmit={handleRegister} className="mt-6 space-y-3.5">
                 {/* Full Name */}
@@ -683,12 +790,25 @@ function AuthPage() {
                       id="reg-name"
                       type="text"
                       required
-                      placeholder="John Doe"
+                      placeholder="Kwame Mensah"
                       value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="pl-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary/40"
+                      onChange={(e) => {
+                        setFullName(e.target.value);
+                        clearError("fullName");
+                      }}
+                      className={`pl-10 h-11 rounded-xl bg-background text-sm transition-colors ${
+                        errors.fullName
+                          ? "border-rose-500/80 focus-visible:ring-rose-500/30"
+                          : "border-border/80 focus-visible:ring-primary/40"
+                      }`}
                     />
                   </div>
+                  {errors.fullName && (
+                    <p className="text-[11px] font-medium text-rose-500 flex items-center gap-1 mt-1">
+                      <AlertCircle className="h-3 w-3 shrink-0" />
+                      <span>{errors.fullName}</span>
+                    </p>
+                  )}
                 </div>
 
                 {/* Email Address */}
@@ -704,10 +824,23 @@ function AuthPage() {
                       required
                       placeholder="you@example.com"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary/40"
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        clearError("email");
+                      }}
+                      className={`pl-10 h-11 rounded-xl bg-background text-sm transition-colors ${
+                        errors.email
+                          ? "border-rose-500/80 focus-visible:ring-rose-500/30"
+                          : "border-border/80 focus-visible:ring-primary/40"
+                      }`}
                     />
                   </div>
+                  {errors.email && (
+                    <p className="text-[11px] font-medium text-rose-500 flex items-center gap-1 mt-1">
+                      <AlertCircle className="h-3 w-3 shrink-0" />
+                      <span>{errors.email}</span>
+                    </p>
+                  )}
                 </div>
 
                 {/* Phone Number */}
@@ -721,12 +854,25 @@ function AuthPage() {
                       id="reg-phone"
                       type="tel"
                       required
-                      placeholder="+233 XX XXX XXXX"
+                      placeholder="024 123 4567"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="pl-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary/40"
+                      onChange={(e) => {
+                        setPhone(e.target.value);
+                        clearError("phone");
+                      }}
+                      className={`pl-10 h-11 rounded-xl bg-background text-sm transition-colors ${
+                        errors.phone
+                          ? "border-rose-500/80 focus-visible:ring-rose-500/30"
+                          : "border-border/80 focus-visible:ring-primary/40"
+                      }`}
                     />
                   </div>
+                  {errors.phone && (
+                    <p className="text-[11px] font-medium text-rose-500 flex items-center gap-1 mt-1">
+                      <AlertCircle className="h-3 w-3 shrink-0" />
+                      <span>{errors.phone}</span>
+                    </p>
+                  )}
                 </div>
 
                 {/* Password */}
@@ -742,8 +888,15 @@ function AuthPage() {
                       required
                       placeholder="Create a strong password"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 pr-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary/40"
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        clearError("password");
+                      }}
+                      className={`pl-10 pr-10 h-11 rounded-xl bg-background text-sm transition-colors ${
+                        errors.password
+                          ? "border-rose-500/80 focus-visible:ring-rose-500/30"
+                          : "border-border/80 focus-visible:ring-primary/40"
+                      }`}
                     />
                     <button
                       type="button"
@@ -753,54 +906,29 @@ function AuthPage() {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
+                  {errors.password && (
+                    <p className="text-[11px] font-medium text-rose-500 flex items-center gap-1 mt-1">
+                      <AlertCircle className="h-3 w-3 shrink-0" />
+                      <span>{errors.password}</span>
+                    </p>
+                  )}
+                  {/* Dynamic Strength Indicator & Requirements */}
+                  <PasswordStrengthMeter password={password} />
                 </div>
 
                 {/* Submit Button */}
                 <Button
                   type="submit"
                   disabled={busy}
-                  className="w-full h-11 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition-all mt-2"
+                  className="w-full h-11 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition-all mt-3"
                 >
                   {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>Create account</span>}
                   {!busy && <ArrowRight className="h-4 w-4" />}
                 </Button>
               </form>
 
-              {/* Or Divider */}
-              <div className="relative my-4 text-center text-xs text-muted-foreground">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-border" />
-                </div>
-                <span className="relative bg-card px-3 uppercase tracking-wider text-[11px]">
-                  or
-                </span>
-              </div>
-
-              {/* Social Login Buttons */}
-              <div className="space-y-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => handleOAuth("google")}
-                  className="w-full h-10 rounded-xl border-border bg-background hover:bg-muted font-medium text-xs sm:text-sm flex items-center justify-center gap-2.5"
-                >
-                  <GoogleIcon />
-                  <span>Continue with Google</span>
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => handleOAuth("apple")}
-                  className="w-full h-10 rounded-xl border-border bg-background hover:bg-muted font-medium text-xs sm:text-sm flex items-center justify-center gap-2.5"
-                >
-                  <AppleIcon />
-                  <span>Continue with Apple</span>
-                </Button>
-              </div>
-
               {/* Switch to Login */}
-              <p className="mt-5 text-center text-xs text-muted-foreground">
+              <p className="mt-7 text-center text-xs text-muted-foreground">
                 Already have an account?{" "}
                 <button
                   type="button"
@@ -831,6 +959,13 @@ function AuthPage() {
                 Enter your email address and we&rsquo;ll send you a link to reset your password.
               </p>
 
+              {errors.general && (
+                <div className="mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs font-medium flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>{errors.general}</span>
+                </div>
+              )}
+
               <form onSubmit={handleResetPassword} className="mt-6 space-y-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="reset-email" className="text-xs font-semibold text-foreground">
@@ -844,10 +979,23 @@ function AuthPage() {
                       required
                       placeholder="you@example.com"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary"
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        clearError("email");
+                      }}
+                      className={`pl-10 h-11 rounded-xl bg-background text-sm transition-colors ${
+                        errors.email
+                          ? "border-rose-500/80 focus-visible:ring-rose-500/30"
+                          : "border-border/80 focus-visible:ring-primary"
+                      }`}
                     />
                   </div>
+                  {errors.email && (
+                    <p className="text-[11px] font-medium text-rose-500 flex items-center gap-1 mt-1">
+                      <AlertCircle className="h-3 w-3 shrink-0" />
+                      <span>{errors.email}</span>
+                    </p>
+                  )}
                 </div>
 
                 <Button
@@ -888,8 +1036,15 @@ function AuthPage() {
                 Set new password
               </h2>
               <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-                Please enter a secure password for your account (minimum 6 characters).
+                Please enter a secure password for your account (minimum 8 characters).
               </p>
+
+              {errors.general && (
+                <div className="mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs font-medium flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>{errors.general}</span>
+                </div>
+              )}
 
               <form onSubmit={handleSetNewPassword} className="mt-6 space-y-4">
                 <div className="space-y-1.5">
@@ -902,10 +1057,17 @@ function AuthPage() {
                       id="new-password"
                       type={showPassword ? "text" : "password"}
                       required
-                      placeholder="Enter new password (min. 6 characters)"
+                      placeholder="Enter new password (min. 8 characters)"
                       value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="pl-10 pr-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary"
+                      onChange={(e) => {
+                        setNewPassword(e.target.value);
+                        clearError("newPassword");
+                      }}
+                      className={`pl-10 pr-10 h-11 rounded-xl bg-background text-sm transition-colors ${
+                        errors.newPassword
+                          ? "border-rose-500/80 focus-visible:ring-rose-500/30"
+                          : "border-border/80 focus-visible:ring-primary"
+                      }`}
                     />
                     <button
                       type="button"
@@ -915,6 +1077,14 @@ function AuthPage() {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
+                  {errors.newPassword && (
+                    <p className="text-[11px] font-medium text-rose-500 flex items-center gap-1 mt-1">
+                      <AlertCircle className="h-3 w-3 shrink-0" />
+                      <span>{errors.newPassword}</span>
+                    </p>
+                  )}
+                  {/* Password Strength Indicator */}
+                  <PasswordStrengthMeter password={newPassword} />
                 </div>
 
                 <div className="space-y-1.5">
@@ -929,8 +1099,15 @@ function AuthPage() {
                       required
                       placeholder="Confirm your new password"
                       value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="pl-10 pr-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary"
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        clearError("confirmPassword");
+                      }}
+                      className={`pl-10 pr-10 h-11 rounded-xl bg-background text-sm transition-colors ${
+                        errors.confirmPassword
+                          ? "border-rose-500/80 focus-visible:ring-rose-500/30"
+                          : "border-border/80 focus-visible:ring-primary"
+                      }`}
                     />
                     <button
                       type="button"
@@ -940,6 +1117,25 @@ function AuthPage() {
                       {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
+                  {errors.confirmPassword && (
+                    <p className="text-[11px] font-medium text-rose-500 flex items-center gap-1 mt-1">
+                      <AlertCircle className="h-3 w-3 shrink-0" />
+                      <span>{errors.confirmPassword}</span>
+                    </p>
+                  )}
+                  {confirmPassword && (
+                    <div className="text-[11px] font-medium flex items-center gap-1.5 mt-1.5">
+                      {confirmPassword === newPassword ? (
+                        <span className="text-primary font-semibold flex items-center gap-1.5">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" /> Passwords match
+                        </span>
+                      ) : (
+                        <span className="text-rose-500 flex items-center gap-1">
+                          <AlertCircle className="h-3.5 w-3.5 shrink-0" /> Passwords do not match
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <Button

@@ -203,6 +203,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@urbanvaultgh" },
       { name: "twitter:image", content: `${STORE.siteUrl}${STORE.logoUrl}` },
+      { name: "google-site-verification", content: "z4Nlw5F1LGGMNpfP9RRYknsC-zQB_3jJh5xPSSdDco8" },
     ],
     links: [
       {
