@@ -27,7 +27,7 @@ import { BoutiqueOnboardingModal } from "@/components/auth/onboarding-modal";
 
 const authSearchSchema = z.object({
   redirect: z.string().optional(),
-  mode: z.enum(["login", "register", "forgot"]).optional(),
+  mode: z.enum(["login", "register", "forgot", "reset-password"]).optional(),
   onboarding: z.union([z.boolean(), z.string()]).optional(),
 });
 
@@ -100,8 +100,11 @@ function AuthPage() {
       ? rawRedirect
       : null;
 
-  const [mode, setMode] = useState<"login" | "register" | "forgot">(search.mode || "login");
+  const [mode, setMode] = useState<"login" | "register" | "forgot" | "reset-password">(
+    (search.mode as any) || "login",
+  );
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [busy, setBusy] = useState(false);
 
@@ -110,6 +113,8 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   // Onboarding state
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -118,6 +123,26 @@ function AuthPage() {
     email: string;
     fullName?: string;
   } | null>(null);
+
+  // Listen for Supabase password recovery event or recovery hash on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash || "";
+      if (hash.includes("type=recovery") || search.mode === "reset-password") {
+        setMode("reset-password");
+      }
+    }
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setMode("reset-password");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [search.mode]);
 
   // Test bypass for onboarding modal (?onboarding=true)
   useEffect(() => {
@@ -132,8 +157,21 @@ function AuthPage() {
   }, [search.onboarding]);
 
   // Auto-redirect if already signed in: smart redirect to intended destination
+  // CRITICAL: NEVER auto-redirect if user is resetting their password!
   useEffect(() => {
-    if (showOnboarding || newlyRegisteredUser || search.onboarding === true || search.onboarding === "true") return;
+    if (
+      mode === "reset-password" ||
+      showOnboarding ||
+      newlyRegisteredUser ||
+      search.onboarding === true ||
+      search.onboarding === "true"
+    )
+      return;
+
+    if (typeof window !== "undefined" && window.location.hash.includes("type=recovery")) {
+      setMode("reset-password");
+      return;
+    }
 
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
@@ -148,7 +186,6 @@ function AuthPage() {
         if (isAdmin) {
           navigate({ to: "/dashboard", replace: true });
         } else if (targetRedirect) {
-          // If customer tries to access dashboard, redirect to /account, otherwise respect targetRedirect
           if (targetRedirect.startsWith("/dashboard")) {
             navigate({ to: "/account", replace: true });
           } else {
@@ -159,7 +196,7 @@ function AuthPage() {
         }
       }
     });
-  }, [navigate, showOnboarding, newlyRegisteredUser, targetRedirect]);
+  }, [navigate, showOnboarding, newlyRegisteredUser, targetRedirect, mode]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -300,6 +337,37 @@ function AuthPage() {
     }
   }
 
+  async function handleSetNewPassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+      if (error) throw error;
+      toast.success("Password updated successfully! You can now log in.");
+      setMode("login");
+      setNewPassword("");
+      setConfirmPassword("");
+      if (typeof window !== "undefined" && window.history.replaceState) {
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to update password");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleOAuth(provider: "google" | "apple") {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -364,6 +432,17 @@ function AuthPage() {
                   </h1>
                   <p className="mt-3 text-xs sm:text-sm text-slate-300/90 leading-relaxed max-w-xs">
                     No worries! Enter your email address and we&rsquo;ll send you a link to reset it.
+                  </p>
+                </>
+              )}
+
+              {mode === "reset-password" && (
+                <>
+                  <h1 className="font-display text-2xl sm:text-3xl lg:text-[2.1rem] font-extrabold leading-[1.18] text-white tracking-tight">
+                    Create new password
+                  </h1>
+                  <p className="mt-3 text-xs sm:text-sm text-slate-300/90 leading-relaxed max-w-xs">
+                    Choose a strong, secure password for your {STORE.name} account.
                   </p>
                 </>
               )}
@@ -759,6 +838,98 @@ function AuthPage() {
                   className="w-full h-11 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition-all mt-4"
                 >
                   {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>Send reset link</span>}
+                  {!busy && <ArrowRight className="h-4 w-4" />}
+                </Button>
+              </form>
+
+              <p className="mt-6 text-center text-xs text-muted-foreground">
+                Remember your password?{" "}
+                <button
+                  type="button"
+                  onClick={() => setMode("login")}
+                  className="font-semibold text-primary hover:underline"
+                >
+                  Log in
+                </button>
+              </p>
+            </div>
+          )}
+
+          {/* ── MODE 4: SET NEW PASSWORD ── */}
+          {mode === "reset-password" && (
+            <div className="max-w-md w-full mx-auto">
+              <button
+                type="button"
+                onClick={() => setMode("login")}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline mb-6"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" /> Back to login
+              </button>
+
+              <h2 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+                Set new password
+              </h2>
+              <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+                Please enter a secure password for your account (minimum 6 characters).
+              </p>
+
+              <form onSubmit={handleSetNewPassword} className="mt-6 space-y-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="new-password" className="text-xs font-semibold text-foreground">
+                    New Password
+                  </Label>
+                  <div className="relative">
+                    <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="new-password"
+                      type={showPassword ? "text" : "password"}
+                      required
+                      placeholder="Enter new password (min. 6 characters)"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="pl-10 pr-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="confirm-password" className="text-xs font-semibold text-foreground">
+                    Confirm New Password
+                  </Label>
+                  <div className="relative">
+                    <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="confirm-password"
+                      type={showConfirmPassword ? "text" : "password"}
+                      required
+                      placeholder="Confirm your new password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="pl-10 pr-10 h-11 rounded-xl bg-background border-border/80 text-sm focus-visible:ring-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5"
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={busy}
+                  className="w-full h-11 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground font-semibold text-sm shadow-sm flex items-center justify-center gap-2 transition-all mt-4"
+                >
+                  {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <span>Update password</span>}
                   {!busy && <ArrowRight className="h-4 w-4" />}
                 </Button>
               </form>
