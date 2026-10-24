@@ -1,14 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  ArrowDownRight,
-  ArrowUpRight,
   Box,
   Download,
-  Eye,
   MessageCircle,
+  Package,
   Plus,
   Receipt,
   TrendingUp,
+  Users,
   Wallet,
 } from "lucide-react";
 import {
@@ -28,7 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { brands, formatPrice, revenueSeries, trafficSeries } from "@/lib/store-data";
+import { brands, formatPrice, revenueSeries } from "@/lib/store-data";
 import { adminGetStats } from "@/lib/admin.functions";
 
 
@@ -65,37 +64,38 @@ function DashboardHome() {
     {
       label: "Revenue",
       value: live ? formatPrice((live.totalRevenue ?? 0) / 100) : "—",
-      delta: null as number | null,
       icon: Wallet,
       sub: `${live?.totalOrders ?? 0} orders total`,
     },
     {
       label: "Products live",
       value: live ? String(live.publishedProducts) : "—",
-      delta: null as number | null,
       icon: Box,
       sub: `${live?.draftProducts ?? 0} drafts pending`,
     },
     {
-      label: "Visitors",
-      value: "8,132",
-      delta: 12.1 as number | null,
-      icon: Eye,
-      sub: "Analytics coming soon",
+      label: "VIP Members",
+      value: live ? String(live.totalCustomers) : "0",
+      icon: Users,
+      sub: "Registered accounts",
     },
     {
       label: "Orders",
       value: live ? String(live.totalOrders) : "—",
-      delta: null as number | null,
       icon: Receipt,
       sub: `${live?.pendingOrdersCount ?? 0} awaiting dispatch`,
     },
     {
-      label: "WhatsApp enquiries",
-      value: "453",
-      delta: -3.4 as number | null,
+      label: "Concierge Requests",
+      value: live ? String(live.totalSourcing) : "0",
       icon: MessageCircle,
-      sub: "avg reply 4m 12s",
+      sub: "Custom sourcing requests",
+    },
+    {
+      label: "Low Stock Items",
+      value: live ? String(live.lowStockCount) : "0",
+      icon: Package,
+      sub: "Items needing reorder",
     },
   ];
 
@@ -158,29 +158,23 @@ function DashboardHome() {
           );
         })()}
 
-        {/* Right: 3 stat cards stacked in rows */}
-        <div className="grid grid-rows-3 gap-3">
-          {[stats[1], stats[2], stats[4]].map((s) => {
+        {/* Right: 4 stat cards stacked in a 2×2 grid */}
+        <div className="grid grid-cols-2 grid-rows-2 gap-3">
+          {[stats[1], stats[2], stats[4], stats[5]].map((s) => {
             const Icon = s.icon;
             return (
               <div
                 key={s.label}
-                className="hover-lift rounded-lg border border-border bg-card px-5 py-4 shadow-card flex items-center gap-4"
+                className="hover-lift rounded-lg border border-border bg-card px-4 py-3 shadow-card flex items-center gap-3"
               >
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-primary-soft text-accent-foreground">
-                  <Icon className="h-5 w-5" />
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-primary-soft text-accent-foreground">
+                  <Icon className="h-4 w-4" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="font-display text-2xl font-extrabold tracking-tight">{s.value}</p>
+                  <p className="font-display text-xl font-extrabold tracking-tight">{s.value}</p>
                   <p className="text-xs font-medium text-muted-foreground leading-tight">{s.label}</p>
-                  <p className="text-[11px] text-muted-foreground/70 truncate">{s.sub}</p>
+                  <p className="text-[10px] text-muted-foreground/70 truncate">{s.sub}</p>
                 </div>
-                {s.delta != null && (
-                  <span className={`flex shrink-0 items-center gap-0.5 text-xs font-semibold ${s.delta >= 0 ? "text-accent-foreground" : "text-destructive"}`}>
-                    {s.delta >= 0 ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
-                    {Math.abs(s.delta)}%
-                  </span>
-                )}
               </div>
             );
           })}
@@ -228,24 +222,45 @@ function DashboardHome() {
           </ResponsiveContainer>
         </Panel>
 
-        <Panel title="Traffic & enquiries" subtitle="Last 7 days">
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={trafficSeries} margin={{ left: -20, right: 6, top: 8 }}>
-              <CartesianGrid stroke="var(--color-border)" vertical={false} />
-              <XAxis dataKey="day" tickLine={false} axisLine={false} fontSize={12} />
-              <YAxis tickLine={false} axisLine={false} fontSize={12} />
-              <Tooltip
-                contentStyle={{
-                  borderRadius: 6,
-                  border: "1px solid var(--color-border)",
-                  background: "var(--color-surface)",
-                  fontSize: 12,
-                }}
-              />
-              <Bar dataKey="visitors" fill="var(--color-chart-1)" radius={[3, 3, 0, 0]} />
-              <Bar dataKey="enquiries" fill="var(--color-chart-3)" radius={[3, 3, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        <Panel
+          title="Inventory by Category"
+          subtitle={live?.categoryDistribution?.length ? "Products per category" : "No category data yet"}
+        >
+          {live?.categoryDistribution?.length ? (
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart
+                data={live.categoryDistribution.slice(0, 8)}
+                margin={{ left: -20, right: 6, top: 8 }}
+                layout="vertical"
+              >
+                <CartesianGrid stroke="var(--color-border)" horizontal={false} />
+                <XAxis type="number" tickLine={false} axisLine={false} fontSize={11} />
+                <YAxis
+                  dataKey="name"
+                  type="category"
+                  tickLine={false}
+                  axisLine={false}
+                  fontSize={10}
+                  width={90}
+                  tick={{ fill: "var(--color-muted-foreground)" }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: 6,
+                    border: "1px solid var(--color-border)",
+                    background: "var(--color-surface)",
+                    fontSize: 12,
+                  }}
+                  formatter={(v: number) => [v, "Products"]}
+                />
+                <Bar dataKey="count" fill="var(--color-chart-1)" radius={[0, 3, 3, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="py-16 text-center text-sm text-muted-foreground">
+              Add products to see your catalogue breakdown here.
+            </p>
+          )}
         </Panel>
       </div>
 
