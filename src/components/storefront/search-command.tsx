@@ -500,6 +500,10 @@ export function SearchCommand({
                 </button>
                 {categories.map((c) => {
                   const isSelected = selectedCategory.toLowerCase() === c.name.toLowerCase();
+                  const realCount = defaultProducts.filter((p) =>
+                    p.category.toLowerCase().includes(c.name.toLowerCase()) ||
+                    c.name.toLowerCase().includes(p.category.toLowerCase())
+                  ).length;
                   return (
                     <button
                       key={c.name}
@@ -511,9 +515,11 @@ export function SearchCommand({
                       }`}
                     >
                       <span className="truncate">{c.name}</span>
-                      <span className="text-[11px] font-mono text-muted-foreground dark:text-slate-500">
-                        {c.count}
-                      </span>
+                      {realCount > 0 && (
+                        <span className="text-[11px] font-mono text-muted-foreground dark:text-slate-500">
+                          {realCount}
+                        </span>
+                      )}
                     </button>
                   );
                 })}

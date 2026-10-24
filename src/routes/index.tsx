@@ -353,7 +353,13 @@ function Landing() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-            {categories.map((cat) => (
+          {categories.map((cat) => {
+              const realCount = products.filter((p) => {
+                const pc = (p.category ?? "").toLowerCase();
+                const cc = cat.name.toLowerCase();
+                return pc.includes(cc) || cc.includes(pc);
+              }).length;
+              return (
               <Link
                 key={cat.name}
                 to="/products"
@@ -375,11 +381,12 @@ function Landing() {
                     {cat.name}
                   </h3>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {cat.count} Items
+                    {realCount > 0 ? `${realCount} Items` : "Explore"}
                   </p>
                 </div>
               </Link>
-            ))}
+            );
+          })}
           </div>
         </div>
       </section>
