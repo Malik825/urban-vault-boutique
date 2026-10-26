@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
   BadgeCheck,
+  ChevronLeft,
+  ChevronRight,
   CreditCard,
   Flame,
   Layers,
@@ -18,6 +20,7 @@ import {
   Truck,
   Zap,
 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -37,15 +40,60 @@ import { optimizeImageUrl } from "@/lib/image";
 const BOUTIQUE_HERO_SLIDES = [
   {
     image: "/boutique/urban_vault_hero_1_1792394728170.webp",
-    badge: "Streetwear & Contemporary Fashion",
+    badge: "Season 2026 // Streetwear Drop",
+    headlineLine1: "DRESS THE",
+    headlineHighlight: "CULTURE.",
+    subtitle:
+      "Curated unisex streetwear, graphic tees, designer hoodies, and elevated contemporary aesthetics crafted for fearless self-expression.",
+    primaryCta: {
+      text: "Shop New Drop",
+      to: "/products" as const,
+      search: {},
+    },
+    secondaryCta: {
+      text: "WhatsApp Concierge",
+      href: whatsappLink("Hello Urban Vault Unisex Boutique! I want to check out the new 2026 Streetwear drop."),
+    },
+    tabLabel: "Streetwear Drop",
+    code: "01",
   },
   {
     image: "/boutique/urban_vault_hero_2_1792394739729.webp",
-    badge: "Unisex Silhouettes & Elevated Comfort",
+    badge: "Unisex Silhouettes // Modern Fit",
+    headlineLine1: "EFFORTLESS",
+    headlineHighlight: "LUXURY.",
+    subtitle:
+      "Modern unisex tracksuits, oversized silhouettes, and elevated wardrobe essentials. Premium fabrics made for everyday luxury and all-day comfort.",
+    primaryCta: {
+      text: "Explore Unisex Fits",
+      to: "/products" as const,
+      search: { category: "Clothing" },
+    },
+    secondaryCta: {
+      text: "Order on WhatsApp",
+      href: whatsappLink("Hello Urban Vault! I'm interested in your unisex silhouettes and tracksuits."),
+    },
+    tabLabel: "Unisex Silhouettes",
+    code: "02",
   },
   {
     image: "/boutique/urban_vault_hero_3_1792394763146.webp",
-    badge: "Exclusive Footwear & Kicks",
+    badge: "Exclusive Footwear // Kicks & Slides",
+    headlineLine1: "STEP INTO",
+    headlineHighlight: "PREMIUM.",
+    subtitle:
+      "From rare statement sneakers to everyday boutique slides. Elevate your footwear rotation with verified authenticity and showroom pickup.",
+    primaryCta: {
+      text: "Browse Footwear",
+      to: "/products" as const,
+      search: { category: "Footwear" },
+    },
+    secondaryCta: {
+      text: "Check Shoe Sizes",
+      href: whatsappLink("Hello Urban Vault! I want to check footwear availability and sizing."),
+    },
+    tabLabel: "Footwear & Kicks",
+    code: "03",
   },
 ];
 
@@ -89,7 +137,8 @@ function Landing() {
   const products: CatalogProduct[] = Route.useLoaderData();
   const navigate = useNavigate();
   const [heroIndex, setHeroIndex] = useState(0);
-  const heroRef = useRef<HTMLDivElement>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
   const [activeCategoryTab, setActiveCategoryTab] = useState<string>("All");
   const [categoryOverrides, setCategoryOverrides] = useState<Record<string, string>>({});
 
@@ -100,32 +149,38 @@ function Landing() {
     } catch {}
   }, []);
 
-  // Auto-slide hero
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setHeroIndex((prev) => (prev + 1) % BOUTIQUE_HERO_SLIDES.length);
-    }, 4500);
-    return () => clearInterval(timer);
+  const nextSlide = useCallback(() => {
+    setHeroIndex((prev) => (prev + 1) % BOUTIQUE_HERO_SLIDES.length);
   }, []);
 
-  // GSAP animation
-  useEffect(() => {
-    if (!heroRef.current) return;
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ".hero-element",
-        { opacity: 0, y: 16 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          stagger: 0.08,
-          ease: "power2.out",
-        }
-      );
-    }, heroRef);
-    return () => ctx.revert();
+  const prevSlide = useCallback(() => {
+    setHeroIndex((prev) => (prev - 1 + BOUTIQUE_HERO_SLIDES.length) % BOUTIQUE_HERO_SLIDES.length);
   }, []);
+
+  // Auto-slide hero with pause-on-hover support
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = setInterval(() => {
+      nextSlide();
+    }, 5500);
+    return () => clearInterval(timer);
+  }, [isPaused, nextSlide]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStart === null) return;
+    const touchEnd = e.changedTouches[0].clientX;
+    const diff = touchStart - touchEnd;
+    if (diff > 50) {
+      nextSlide();
+    } else if (diff < -50) {
+      prevSlide();
+    }
+    setTouchStart(null);
+  };
 
   const filteredProducts = products.filter((p) => {
     if (activeCategoryTab === "All") return true;
@@ -211,123 +266,248 @@ function Landing() {
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/20">
       <SiteHeader />
 
-      {/* ── 1. Hero Section ───────────────────────────────────── */}
-      <section className="pt-3 sm:pt-6 pb-8 sm:pb-14 px-3 sm:px-6">
+      {/* ── 1. Hero Big Slider Section ──────────────────────────── */}
+      <section className="pt-2 sm:pt-4 pb-8 sm:pb-12 px-2 sm:px-6">
         <div className="mx-auto max-w-7xl">
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/70 bg-gradient-to-br from-card via-card/90 to-surface-muted p-5 sm:p-10 lg:p-14 shadow-card">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-              
-              {/* Left Column: Brand Statement */}
-              <div ref={heroRef} className="lg:col-span-7 space-y-5 sm:space-y-6">
-                <div className="hero-element inline-flex items-center gap-2.5 rounded-full border border-border/80 bg-background/80 px-3.5 py-1 text-xs font-medium text-foreground backdrop-blur-sm shadow-xs">
-                  <span className="relative flex h-2 w-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-                  </span>
-                  <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground/85">
-                    Season 2026 <span className="text-muted-foreground/50">/</span> New Drop
-                  </span>
+          <div
+            className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border bg-[#101318] shadow-2xl min-h-[580px] sm:min-h-[640px] lg:min-h-[720px] max-h-[820px] flex flex-col justify-between"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            {/* Background Image Carousel Layer */}
+            {BOUTIQUE_HERO_SLIDES.map((slide, i) => {
+              const isActive = i === heroIndex;
+              return (
+                <div
+                  key={slide.image}
+                  className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
+                    isActive ? "opacity-100 z-0 pointer-events-auto" : "opacity-0 -z-10 pointer-events-none"
+                  }`}
+                >
+                  <img
+                    src={slide.image}
+                    alt={`${STORE.name} — ${slide.tabLabel}`}
+                    className={`h-full w-full object-cover object-center sm:object-[center_30%] transition-transform duration-[7000ms] ease-out ${
+                      isActive ? "scale-105" : "scale-100"
+                    }`}
+                    loading={i === 0 ? "eager" : "lazy"}
+                    fetchPriority={i === 0 ? "high" : "auto"}
+                    decoding={i === 0 ? "sync" : "async"}
+                    width={1600}
+                    height={900}
+                  />
                 </div>
+              );
+            })}
 
-                <h1 className="hero-element font-display text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-[3.25rem] leading-[1.08] text-foreground">
-                  URBAN VAULT <br />
-                  <span className="text-primary tracking-normal">UNISEX BOUTIQUE</span>
-                </h1>
+            {/* Dark solid tint overlay for high contrast & clarity (No gradients, pure brand dark) */}
+            <div className="absolute inset-0 bg-[#101318]/70 pointer-events-none z-1" />
 
-                <p className="hero-element text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed max-w-xl">
-                  Curated unisex streetwear, contemporary shirts, everyday footwear, and elevated silhouettes. Designed for effortless expression with showroom pickup in Assin Fosu and nationwide delivery across Ghana.
-                </p>
-
-                {/* Quick CTA Actions */}
-                <div className="hero-element flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
-                  <Button asChild size="lg" className="px-8 font-bold rounded-full shadow-md hover:shadow-lg transition-all">
-                    <Link to="/products" search={{}}>
-                      Shop Collection <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="lg"
-                    className="px-6 font-semibold rounded-full border-border hover:bg-surface-muted text-foreground"
-                  >
-                    <a
-                      href={whatsappLink("Hello Urban Vault Unisex Boutique! I'd like to check available items and new arrivals.")}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <MessageCircle className="mr-2 h-4 w-4 text-primary" />
-                      Order via WhatsApp
-                    </a>
-                  </Button>
-                </div>
-
-                {/* Key value propositions */}
-                <div className="hero-element pt-4 flex flex-wrap items-center gap-4 text-xs font-medium text-muted-foreground border-t border-border/50">
-                  <span className="flex items-center gap-1.5">
-                    <BadgeCheck className="h-4 w-4 text-primary" />
-                    100% Authentic Apparel
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <CreditCard className="h-4 w-4 text-primary" />
-                    Paystack &amp; Cash on Delivery
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Phone className="h-4 w-4 text-primary" />
-                    Hotline: 0597489841
-                  </span>
-                </div>
+            {/* Top Bar inside Hero: Brand Tag & Live Slide Counter */}
+            <div className="relative z-10 p-5 sm:p-8 flex items-center justify-between">
+              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-[#151b23]/90 px-3.5 py-1 text-xs font-semibold text-white">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                </span>
+                <span className="font-mono text-[11px] uppercase tracking-[0.16em]">
+                  {STORE.name}
+                </span>
               </div>
 
-              {/* Right Column: Hero Visual Carousel */}
-              <div className="lg:col-span-5">
-                <div className="relative aspect-[4/5] sm:aspect-[4/4] lg:aspect-[4/5] w-full overflow-hidden rounded-2xl border border-border shadow-lift bg-surface-muted">
-                  {BOUTIQUE_HERO_SLIDES.map((slide, i) => (
-                    <div
-                      key={i}
-                      className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                        i === heroIndex ? "opacity-100 scale-100" : "opacity-0 scale-105 pointer-events-none"
+              {/* Slide Counter & Pause indicator */}
+              <div className="flex items-center gap-2">
+                {isPaused && (
+                  <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-primary bg-[#151b23] border border-primary/40 px-2.5 py-1 rounded-full">
+                    Paused
+                  </span>
+                )}
+                <div className="rounded-full bg-[#151b23]/90 border border-border px-3 py-1 text-white font-mono text-xs">
+                  <span className="text-primary font-bold">0{heroIndex + 1}</span>
+                  <span className="text-white/40 mx-1">/</span>
+                  <span className="text-white/70">0{BOUTIQUE_HERO_SLIDES.length}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Left/Right Floating Navigation Arrows */}
+            <button
+              type="button"
+              onClick={prevSlide}
+              aria-label="Previous slide"
+              className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full border border-border bg-[#151b23]/90 text-white flex items-center justify-center hover:bg-primary hover:border-primary hover:scale-110 active:scale-95 transition-all duration-200 shadow-xl opacity-80 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
+            >
+              <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+            </button>
+
+            <button
+              type="button"
+              onClick={nextSlide}
+              aria-label="Next slide"
+              className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full border border-border bg-[#151b23]/90 text-white flex items-center justify-center hover:bg-primary hover:border-primary hover:scale-110 active:scale-95 transition-all duration-200 shadow-xl opacity-80 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
+            >
+              <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+            </button>
+
+            {/* Hero Main Content (Animated on slide change) */}
+            <div className="relative z-10 px-5 sm:px-10 lg:px-16 py-4 sm:py-8 max-w-3xl my-auto">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={heroIndex}
+                  initial={{ opacity: 0, y: 22 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -22 }}
+                  transition={{ duration: 0.45, ease: "easeOut" }}
+                  className="space-y-4 sm:space-y-6"
+                >
+                  {/* Category / Drop Badge */}
+                  <div className="inline-flex items-center gap-2 rounded-full border border-border bg-[#151b23]/90 px-3.5 py-1 text-xs font-semibold text-white shadow-lg">
+                    <Sparkles className="h-3.5 w-3.5 text-primary" />
+                    <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/95">
+                      {BOUTIQUE_HERO_SLIDES[heroIndex].badge}
+                    </span>
+                  </div>
+
+                  {/* Headline: Solid Brand Colors (No gradients) */}
+                  <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.04]">
+                    {BOUTIQUE_HERO_SLIDES[heroIndex].headlineLine1} <br />
+                    <span className="text-primary">
+                      {BOUTIQUE_HERO_SLIDES[heroIndex].headlineHighlight}
+                    </span>
+                  </h1>
+
+                  {/* Subtitle */}
+                  <p className="text-sm sm:text-base lg:text-lg text-white/80 max-w-xl leading-relaxed">
+                    {BOUTIQUE_HERO_SLIDES[heroIndex].subtitle}
+                  </p>
+
+                  {/* Call To Actions */}
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+                    <Button
+                      asChild
+                      size="lg"
+                      className="px-8 py-6 text-base font-bold rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all hover:scale-105 active:scale-95"
+                    >
+                      <Link
+                        to={BOUTIQUE_HERO_SLIDES[heroIndex].primaryCta.to}
+                        search={BOUTIQUE_HERO_SLIDES[heroIndex].primaryCta.search}
+                      >
+                        {BOUTIQUE_HERO_SLIDES[heroIndex].primaryCta.text}{" "}
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </Link>
+                    </Button>
+
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="lg"
+                      className="px-6 py-6 text-base font-semibold rounded-full border-border bg-[#151b23]/90 hover:bg-[#1a222c] text-white transition-all hover:scale-105 active:scale-95"
+                    >
+                      <a
+                        href={BOUTIQUE_HERO_SLIDES[heroIndex].secondaryCta.href}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <MessageCircle className="mr-2 h-5 w-5 text-primary" />
+                        {BOUTIQUE_HERO_SLIDES[heroIndex].secondaryCta.text}
+                      </a>
+                    </Button>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Bottom Slider Navigation Tabs & Indicator */}
+            <div className="relative z-10 px-5 sm:px-10 lg:px-16 pb-5 sm:pb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                {BOUTIQUE_HERO_SLIDES.map((slide, i) => {
+                  const isActive = i === heroIndex;
+                  return (
+                    <button
+                      key={slide.image}
+                      type="button"
+                      onClick={() => setHeroIndex(i)}
+                      className={`group/btn relative text-left py-2 px-3 sm:px-4 rounded-xl transition-all duration-300 flex items-center gap-2.5 cursor-pointer ${
+                        isActive
+                          ? "bg-[#151b23] border border-primary text-white shadow-md"
+                          : "bg-[#101318]/80 hover:bg-[#151b23] text-white/60 hover:text-white border border-border"
                       }`}
                     >
-                      <img
-                        src={slide.image}
-                        alt="Urban Vault Unisex Boutique Lookbook"
-                        className="h-full w-full object-cover object-center"
-                        loading={i === 0 ? "eager" : "lazy"}
-                        fetchPriority={i === 0 ? "high" : "auto"}
-                        decoding={i === 0 ? "sync" : "async"}
-                        width={960}
-                        height={536}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                      <div className="absolute bottom-5 left-5 right-5 text-white">
-                        <span className="inline-block rounded-md bg-white/20 backdrop-blur-md px-3 py-1 text-xs font-semibold uppercase tracking-wider mb-2 border border-white/30">
-                          {slide.badge}
-                        </span>
-                        <p className="text-sm font-semibold text-white/90">
-                          Urban Vault Collection 2026
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Carousel navigation indicators */}
-                  <div className="absolute top-4 right-4 z-10 flex gap-1.5">
-                    {BOUTIQUE_HERO_SLIDES.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setHeroIndex(i)}
-                        aria-label={`Go to slide ${i + 1}`}
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          i === heroIndex ? "w-6 bg-white" : "w-2 bg-white/50"
+                      <span className={`font-mono text-xs font-bold ${isActive ? "text-primary" : "text-white/50"}`}>
+                        {slide.code}
+                      </span>
+                      <span className="hidden sm:inline text-xs font-semibold tracking-wide">
+                        {slide.tabLabel}
+                      </span>
+                      <div
+                        className={`h-1.5 rounded-full transition-all duration-300 ${
+                          isActive ? "w-6 bg-primary" : "w-2 bg-white/20 group-hover/btn:bg-white/40"
                         }`}
                       />
-                    ))}
-                  </div>
-                </div>
+                    </button>
+                  );
+                })}
               </div>
 
+              {/* Progress dot indicators (visible on mobile) */}
+              <div className="flex sm:hidden items-center justify-center gap-1.5 self-center">
+                {BOUTIQUE_HERO_SLIDES.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setHeroIndex(i)}
+                    aria-label={`Go to slide ${i + 1}`}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      i === heroIndex ? "w-6 bg-primary" : "w-2 bg-white/30"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Value Propositions Strip */}
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
+            <div className="flex items-center gap-3 p-3.5 sm:p-4 rounded-xl border border-border/70 bg-card/60 backdrop-blur-sm">
+              <div className="h-9 w-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                <BadgeCheck className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm font-bold text-foreground">100% Authentic</p>
+                <p className="text-[11px] text-muted-foreground">Curated streetwear &amp; kicks</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-3.5 sm:p-4 rounded-xl border border-border/70 bg-card/60 backdrop-blur-sm">
+              <div className="h-9 w-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                <Truck className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm font-bold text-foreground">Nationwide Delivery</p>
+                <p className="text-[11px] text-muted-foreground">Fast dispatch across Ghana</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-3.5 sm:p-4 rounded-xl border border-border/70 bg-card/60 backdrop-blur-sm">
+              <div className="h-9 w-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                <CreditCard className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm font-bold text-foreground">Paystack &amp; COD</p>
+                <p className="text-[11px] text-muted-foreground">MoMo, Card &amp; Pay on Delivery</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-3.5 sm:p-4 rounded-xl border border-border/70 bg-card/60 backdrop-blur-sm">
+              <div className="h-9 w-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                <Phone className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm font-bold text-foreground">Showroom &amp; Support</p>
+                <p className="text-[11px] text-muted-foreground">Assin Fosu / 0597489841</p>
+              </div>
             </div>
           </div>
         </div>
@@ -603,7 +783,7 @@ function Landing() {
       {/* ── 6. WhatsApp Concierge Banner ─────────────────────── */}
       <section className="py-10 px-3 sm:px-6">
         <div className="mx-auto max-w-7xl">
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-brand-gradient text-white p-6 sm:p-10 shadow-lift flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary text-primary-foreground p-6 sm:p-10 shadow-lift flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="max-w-xl text-center md:text-left">
               <span className="inline-block rounded-md bg-white/20 px-3 py-1 text-xs font-bold tracking-wider uppercase mb-2">
                 Need Help with Sizing or Stock?
