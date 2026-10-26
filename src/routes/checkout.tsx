@@ -107,7 +107,7 @@ function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<"delivery" | "pickup">("delivery");
   const [address, setAddress] = useState("");
-  const [city, setCity] = useState("Assin Fosu");
+  const [city, setCity] = useState("Accra");
   const [region, setRegion] = useState(GHANA_REGIONS[0]?.name || "Central");
   const [paymentMethod, setPaymentMethod] = useState("momo");
 

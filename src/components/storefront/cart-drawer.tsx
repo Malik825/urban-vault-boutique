@@ -50,13 +50,13 @@ export function CartDrawer({
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
                     <Check className="h-3.5 w-3.5" />
                   </span>
-                  <span><strong>Free Accra Delivery Unlocked!</strong> You qualify for 100% free delivery.</span>
+                  <span><strong>Free Assin Fosu Delivery Unlocked!</strong> You qualify for 100% free delivery.</span>
                 </>
               ) : (
                 <>
                   <Truck className="h-4 w-4 text-primary shrink-0" />
                   <span>
-                    Add <strong>GH₵ {remainingForFree.toFixed(0)}</strong> more to get <strong>FREE Accra Delivery</strong>!
+                    Add <strong>GH₵ {remainingForFree.toFixed(0)}</strong> more to get <strong>FREE Assin Fosu Delivery</strong>!
                   </span>
                 </>
               )}
@@ -64,9 +64,8 @@ export function CartDrawer({
             {/* Progress Track */}
             <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-border/60">
               <div
-                className={`h-full transition-all duration-500 ${
-                  isFreeDelivery ? "bg-emerald-500" : "bg-primary"
-                }`}
+                className={`h-full transition-all duration-500 ${isFreeDelivery ? "bg-emerald-500" : "bg-primary"
+                  }`}
                 style={{ width: `${deliveryProgress}%` }}
               />
             </div>
@@ -178,7 +177,7 @@ export function CartDrawer({
               <div className="flex justify-between text-muted-foreground text-xs">
                 <span>Estimated Delivery</span>
                 <span className={isFreeDelivery ? "font-semibold text-emerald-600 dark:text-emerald-400" : ""}>
-                  {isFreeDelivery ? "FREE (Accra)" : "From GH₵ 35 (Accra) · Free Pickup"}
+                  {isFreeDelivery ? "FREE (Assin Fosu)" : "From GH₵ 35 (Assin Fosu) · Free Pickup"}
                 </span>
               </div>
               <div className="flex justify-between text-base font-bold text-foreground pt-1 border-t border-border/60">

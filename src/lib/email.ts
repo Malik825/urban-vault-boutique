@@ -114,7 +114,7 @@ export function generateOrderConfirmationHtml(payload: OrderEmailPayload): strin
                       URBAN VAULT
                     </div>
                     <div style="font-size: 10px; font-family: monospace; letter-spacing: 0.18em; text-transform: uppercase; color: #f43f5e; margin-top: 3px; font-weight: 600;">
-                      UNISEX BOUTIQUE &bull; ASSIN FOSU, GHANA
+                      UNISEX BOUTIQUE &bull; ACCRA FLAGSHIP, GHANA
                     </div>
                   </td>
                   <td align="right" style="vertical-align: middle;">
@@ -138,7 +138,7 @@ export function generateOrderConfirmationHtml(payload: OrderEmailPayload): strin
                 Thank You, ${payload.customerName}.
               </h1>
               <p style="margin: 12px 0 0 0; font-size: 14px; line-height: 1.6; color: #a1a1aa;">
-                Your boutique pieces have been secured and are now being packaged by our styling team in Assin Fosu. Below is your official receipt.
+                Your boutique pieces have been secured and are now being packaged by our styling team at our Accra flagship. Below is your official receipt.
               </p>
             </td>
           </tr>
@@ -240,7 +240,7 @@ export function generateOrderConfirmationHtml(payload: OrderEmailPayload): strin
                     `
                         : `
                       <div style="margin-top: 12px; padding: 10px 14px; background-color: #1c1c21; border-radius: 8px; font-size: 12px; color: #e4e4e7; line-height: 1.5;">
-                        <strong>Estimated Delivery:</strong> Same-day dispatch for Assin Fosu &amp; Central Region orders placed before 3 PM. Nationwide Ghana deliveries take 24–48 hours.
+                        <strong>Estimated Delivery:</strong> Same-day dispatch for Accra [&]amp; Greater Accra Region orders placed before 3 PM. Nationwide Ghana deliveries take 24–48 hours.
                       </div>
                     `
                     }
@@ -389,7 +389,7 @@ export function generateOrderStatusUpdateHtml(payload: {
     },
     ready_for_pickup: {
       title: "Ready for Showroom Pickup",
-      desc: "Your order is ready and waiting at the Urban Vault Assin Fosu Showroom.",
+      desc: "Your order is ready and waiting at the Urban Vault Urban Vault Accra Flagship.",
       badge: "READY FOR PICKUP",
     },
     delivered: {
@@ -554,9 +554,9 @@ export const serverSendTestEmail = createServerFn({ method: "POST" })
         email,
         phone: "+233 59 748 9841",
         deliveryMethod: "delivery",
-        address: "Main Commercial High Street, Assin Fosu",
-        city: "Assin Fosu",
-        region: "Central (Within Assin Fosu)",
+        address: "Urban Vault Flagship, Accra",
+        city: "Accra",
+        region: "Greater Accra (Accra / Tema / Madina)",
         paymentMethod: "Paystack (Visa / Mastercard / MoMo)",
         paymentStatus: "paid",
         paymentReference: `TEST-${Date.now()}`,
@@ -590,3 +590,4 @@ export const serverSendTestEmail = createServerFn({ method: "POST" })
       throw new Error(err.message || "Failed to send test email.");
     }
   });
+

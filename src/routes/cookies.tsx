@@ -73,7 +73,7 @@ function CookiesPage() {
             Cookie Policy
           </h1>
           <p className="text-sm text-muted-foreground mb-12">
-            Last updated: October 2026 &nbsp;·&nbsp; {STORE.name}, Assin Fosu, Central Region, Ghana.
+            Last updated: October 2026 &nbsp;·&nbsp; {STORE.name}, Accra, Greater Accra Region, Ghana.
           </p>
 
           <Section title="1. What Are Cookies?">

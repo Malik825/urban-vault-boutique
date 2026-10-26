@@ -31,8 +31,8 @@ const CompareContext = createContext<CompareContextType | null>(null);
 
 // ─── LocalStorage helpers ─────────────────────────────────────────────────────
 
-const WISHLIST_KEY = "gadgethaus-wishlist";
-const COMPARE_KEY = "gadgethaus-compare";
+const WISHLIST_KEY = "urbanvault-wishlist";
+const COMPARE_KEY = "urbanvault-compare";
 
 function getStorage<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -145,4 +145,5 @@ export function useCompare() {
   if (!ctx) throw new Error("useCompare must be used inside <CompareProvider>");
   return ctx;
 }
+
 

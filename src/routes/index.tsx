@@ -42,7 +42,7 @@ import { getPublicHeroSlides } from "@/lib/hero.functions";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: `${STORE.name} — Streetwear & Footwear in Assin Fosu, Ghana` },
+      { title: `${STORE.name} — Accra Flagship | Streetwear & Footwear Ghana` },
       {
         name: "description",
         content:
@@ -464,7 +464,7 @@ function Landing() {
               <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-primary shrink-0" />
               <div>
                 <p className="text-xs sm:text-sm font-bold text-foreground">WhatsApp Support</p>
-                <p className="text-[11px] text-muted-foreground hidden sm:block">0597489841 — Assin Fosu</p>
+                <p className="text-[11px] text-muted-foreground hidden sm:block">0597489841 — Accra Flagship</p>
               </div>
             </div>
           </div>
@@ -536,7 +536,7 @@ function Landing() {
             <div>
               <div className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-amber-500 mb-1">
                 <Flame className="h-4 w-4 fill-amber-500 text-amber-500 animate-pulse" />
-                <span>Hot Drops · Assin Fosu</span>
+                <span>Hot Drops · Accra</span>
               </div>
               <h2 className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight">
                 Trending Now
@@ -670,7 +670,7 @@ function Landing() {
                 Cash on Delivery
               </h3>
               <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                Inspect your items upon physical arrival in Assin Fosu or pick up directly from our showroom.
+                Inspect your items upon physical arrival in Accra or pick up directly from our flagship showroom.
               </p>
             </div>
 
@@ -694,7 +694,7 @@ function Landing() {
                 Nationwide Dispatch
               </h3>
               <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                Same-day delivery in Assin Fosu, plus trusted 24-48 hr courier dispatch to Kumasi, Accra, Takoradi &amp; beyond.
+                Same-day delivery in Accra, plus trusted 24-48 hr courier dispatch to Kumasi, Takoradi, Cape Coast &amp; beyond.
               </p>
             </div>
 

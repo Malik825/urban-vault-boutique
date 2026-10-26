@@ -343,12 +343,12 @@ function Settings() {
         </Button>
       }
     >
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2 min-w-0 max-w-full">
         <Panel title="Store branding" subtitle="Logo and display name">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 min-w-0">
             <button
               onClick={() => toast.success("Logo upload opened")}
-              className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl border-2 border-dashed border-border bg-surface-muted text-muted-foreground transition-colors hover:border-primary/50 overflow-hidden"
+              className="grid h-16 w-16 sm:h-20 sm:w-20 shrink-0 place-items-center rounded-2xl border-2 border-dashed border-border bg-surface-muted text-muted-foreground transition-colors hover:border-primary/50 overflow-hidden"
             >
               <img
                 src="/urban-vault-logo.jpg"
@@ -356,21 +356,21 @@ function Settings() {
                 className="h-full w-full object-cover"
               />
             </button>
-            <div className="min-w-0 flex-1 space-y-2">
+            <div className="min-w-0 flex-1 space-y-1.5 sm:space-y-2">
               <Label htmlFor="store-name">Store name</Label>
-              <Input id="store-name" defaultValue={STORE.name} />
+              <Input id="store-name" defaultValue={STORE.name} className="w-full min-w-0" />
             </div>
           </div>
-          <div className="mt-5 space-y-2">
+          <div className="mt-4 sm:mt-5 space-y-2 min-w-0">
             <Label>Theme colour</Label>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {swatches.map((c) => (
                 <button
                   key={c}
                   aria-label={`Theme colour ${c}`}
                   onClick={() => changeTheme(c)}
                   style={{ backgroundColor: c }}
-                  className={`h-9 w-9 rounded-full border-2 transition-transform hover:scale-105 ${
+                  className={`h-8 w-8 sm:h-9 sm:w-9 rounded-full border-2 transition-transform hover:scale-105 shrink-0 ${
                     themeColor === c ? "border-foreground scale-105" : "border-transparent"
                   }`}
                 />
@@ -467,7 +467,7 @@ function Settings() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 min-w-0">
             {CATEGORIES_TAXONOMY.map((cat) => (
               <CategoryImageCard
                 key={cat.id}
@@ -479,13 +479,13 @@ function Settings() {
           </div>
 
           {Object.keys(categoryImageOverrides).length > 0 && (
-            <div className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-3.5 text-xs">
+            <div className="mt-4 rounded-xl border border-primary/30 bg-primary/5 p-3.5 text-xs min-w-0">
               <p className="font-semibold text-primary mb-1.5">
                 {Object.keys(categoryImageOverrides).length} custom image{Object.keys(categoryImageOverrides).length !== 1 ? "s" : ""} set — copy these URLs into store-data.ts to persist permanently:
               </p>
-              <div className="space-y-1">
+              <div className="space-y-1 min-w-0">
                 {Object.entries(categoryImageOverrides).map(([id, url]) => (
-                  <div key={id} className="flex items-center gap-2">
+                  <div key={id} className="flex items-center gap-2 min-w-0">
                     <code className="text-muted-foreground font-mono shrink-0">{id}:</code>
                     <button
                       type="button"
@@ -493,7 +493,7 @@ function Settings() {
                         navigator.clipboard.writeText(url);
                         toast.success("URL copied to clipboard");
                       }}
-                      className="truncate text-primary hover:underline text-left max-w-xs"
+                      className="truncate text-primary hover:underline text-left max-w-full"
                       title={url}
                     >
                       {url}
@@ -511,36 +511,36 @@ function Settings() {
           subtitle="Powered by Resend with luxury boutique order confirmation receipts"
           className="lg:col-span-2"
         >
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 rounded-xl border border-border bg-surface-muted/30 mb-5">
-            <div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-xl border border-border bg-surface-muted/30 mb-5 min-w-0">
+            <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground">Interactive Email Template Previews</p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Preview your customer receipt, admin packing checklist, and order dispatch
                 notification templates live in your browser.
               </p>
             </div>
-            <Button variant="outline" size="sm" asChild className="shrink-0 font-medium">
+            <Button variant="outline" size="sm" asChild className="w-full sm:w-auto shrink-0 font-medium justify-center">
               <Link to="/preview-email" target="_blank">
                 <ExternalLink className="mr-1.5 h-3.5 w-3.5" /> Open Email Showcase
               </Link>
             </Button>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 min-w-0">
             <Label htmlFor="test-email-input">Send Live Test Receipt to Your Inbox</Label>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 min-w-0">
               <Input
                 id="test-email-input"
                 type="email"
                 placeholder="Enter your personal email (e.g. you@gmail.com)"
                 value={testEmail}
                 onChange={(e) => setTestEmail(e.target.value)}
-                className="flex-1"
+                className="flex-1 min-w-0"
               />
               <Button
                 onClick={handleSendTest}
                 disabled={sendingTest}
-                className="shrink-0 font-semibold"
+                className="w-full sm:w-auto shrink-0 font-semibold justify-center"
               >
                 {sendingTest ? (
                   <>
@@ -603,7 +603,7 @@ function Settings() {
               </p>
             </div>
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 min-w-0">
               {sourcingRequests.map((req: any) => {
                 const cleanPhone = (req.whatsapp_number || "").replace(/[^0-9+]/g, "");
                 const waLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(
@@ -613,7 +613,7 @@ function Settings() {
                 return (
                   <div
                     key={req.id}
-                    className="flex flex-col justify-between rounded-xl border border-border bg-card p-3.5 shadow-xs"
+                    className="flex flex-col justify-between rounded-xl border border-border bg-card p-3.5 shadow-xs min-w-0 max-w-full overflow-hidden"
                   >
                     <div>
                       <div className="flex items-start gap-3">

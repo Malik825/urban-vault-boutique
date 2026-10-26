@@ -233,13 +233,13 @@ export function HeroSliderSettings() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-0 max-w-full">
       {/* Top Banner & Action Controls */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl border border-primary/20 bg-primary/5">
-        <div>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl border border-primary/20 bg-primary/5 min-w-0">
+        <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-sm font-bold text-foreground">
+            <Sparkles className="h-4 w-4 text-primary shrink-0" />
+            <span className="text-sm font-bold text-foreground truncate">
               Storefront Hero Carousel ({slides.length} Slide{slides.length !== 1 ? "s" : ""})
             </span>
           </div>
@@ -247,24 +247,24 @@ export function HeroSliderSettings() {
             Configure images, bold editorial headlines, highlighted accent words, and call-to-action buttons.
           </p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={handleReset}
-            className="text-xs h-8"
+            className="text-xs h-8 flex-1 sm:flex-none justify-center"
           >
-            <RotateCcw className="h-3.5 w-3.5 mr-1" /> Reset Defaults
+            <RotateCcw className="h-3.5 w-3.5 mr-1 shrink-0" /> Reset
           </Button>
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={addSlide}
-            className="text-xs h-8"
+            className="text-xs h-8 flex-1 sm:flex-none justify-center"
           >
-            <Plus className="h-3.5 w-3.5 mr-1" /> Add Slide
+            <Plus className="h-3.5 w-3.5 mr-1 shrink-0" /> Add Slide
           </Button>
           <Button
             type="button"
@@ -272,15 +272,15 @@ export function HeroSliderSettings() {
             size="sm"
             onClick={handleSave}
             disabled={saving}
-            className="text-xs h-8 font-bold shadow-md shadow-primary/20"
+            className="text-xs h-8 font-bold shadow-md shadow-primary/20 w-full sm:w-auto justify-center"
           >
             {saving ? (
               <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> Saving…
+                <Loader2 className="h-3.5 w-3.5 animate-spin mr-1 shrink-0" /> Saving…
               </>
             ) : (
               <>
-                <Save className="h-3.5 w-3.5 mr-1" /> Save Hero Slides
+                <Save className="h-3.5 w-3.5 mr-1 shrink-0" /> Save Hero Slides
               </>
             )}
           </Button>
@@ -288,26 +288,26 @@ export function HeroSliderSettings() {
       </div>
 
       {/* Slide Cards List */}
-      <div className="space-y-5">
+      <div className="space-y-5 min-w-0">
         {slides.map((slide, index) => {
           const isUploading = uploadingIndex === index;
           return (
             <div
               key={slide.id || index}
-              className="rounded-2xl border border-border bg-card p-5 shadow-xs transition-all hover:border-primary/40 space-y-4"
+              className="rounded-2xl border border-border bg-card p-3.5 sm:p-5 shadow-xs transition-all hover:border-primary/40 space-y-4 min-w-0 max-w-full overflow-hidden"
             >
               {/* Card Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-border/60">
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-[11px] font-mono font-bold text-primary">
+              <div className="flex items-center justify-between gap-2 pb-3 border-b border-border/60 min-w-0">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-mono font-bold text-primary">
                     0{index + 1}
                   </span>
-                  <span className="text-sm font-bold text-foreground truncate max-w-xs sm:max-w-md">
+                  <span className="text-sm font-bold text-foreground truncate min-w-0">
                     {slide.headlineLine1 || "Slide"}{" "}
                     <span className="text-primary">{slide.headlineHighlight}</span>
                   </span>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 shrink-0">
                   <Button
                     type="button"
                     variant="ghost"
@@ -345,9 +345,9 @@ export function HeroSliderSettings() {
               </div>
 
               {/* Main Grid: Left Image preview/upload | Right Fields */}
-              <div className="grid gap-5 md:grid-cols-12">
+              <div className="grid gap-5 md:grid-cols-12 min-w-0">
                 {/* Left Column: Image Area */}
-                <div className="md:col-span-5 space-y-2.5">
+                <div className="md:col-span-5 space-y-2.5 min-w-0">
                   <Label className="text-xs font-semibold flex items-center justify-between">
                     <span>Slide Image</span>
                     {slide.image && (
@@ -421,7 +421,7 @@ export function HeroSliderSettings() {
                 </div>
 
                 {/* Right Column: Slide Content */}
-                <div className="md:col-span-7 space-y-3.5">
+                <div className="md:col-span-7 space-y-3.5 min-w-0">
                   {/* Category / Badge */}
                   <div className="space-y-1">
                     <Label className="text-xs font-semibold">
@@ -570,7 +570,7 @@ export function HeroSliderSettings() {
       </div>
 
       {/* Bottom Save Reminder */}
-      <div className="flex items-center justify-between pt-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 min-w-0">
         <p className="text-xs text-muted-foreground">
           Tip: Hit <span className="font-semibold text-foreground">Save Hero Slides</span> to immediately broadcast your changes to the live storefront homepage.
         </p>
@@ -579,7 +579,7 @@ export function HeroSliderSettings() {
           variant="hero"
           onClick={handleSave}
           disabled={saving}
-          className="font-bold text-xs h-9 px-5"
+          className="font-bold text-xs h-9 px-5 w-full sm:w-auto shrink-0 justify-center"
         >
           {saving ? (
             <>

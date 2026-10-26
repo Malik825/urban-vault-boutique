@@ -10,7 +10,7 @@ export const Route = createFileRoute("/terms")({
       { title: `Terms & Conditions — ${STORE.name}` },
       {
         name: "description",
-        content: `Read the Terms & Conditions for shopping at ${STORE.name}, Assin Fosu, Ghana.`,
+        content: `Read the Terms & Conditions for shopping at ${STORE.name}, Accra Flagship, Ghana.`,
       },
       { property: "og:url", content: `${STORE.siteUrl}/terms` },
     ],
@@ -52,7 +52,7 @@ function TermsPage() {
             Terms &amp; Conditions
           </h1>
           <p className="text-sm text-muted-foreground mb-12">
-            Last updated: October 2026 &nbsp;·&nbsp; {STORE.name}, Assin Fosu, Central Region, Ghana.
+            Last updated: October 2026 &nbsp;·&nbsp; {STORE.name}, Accra, Greater Accra Region, Ghana.
           </p>
 
           <Section title="1. Acceptance of Terms">
@@ -72,11 +72,11 @@ function TermsPage() {
 
           <Section title="4. Orders & Payment">
             <p>By submitting an order, you confirm that the information provided is accurate and complete. {STORE.name} reserves the right to refuse or cancel any order at its discretion.</p>
-            <p>We accept payment via Paystack (Visa, Mastercard, MTN MoMo, Telecel Cash) and Cash on Delivery (Assin Fosu only). Orders are not confirmed until payment is received or Cash on Delivery is agreed upon at checkout.</p>
+            <p>We accept payment via Paystack (Visa, Mastercard, MTN MoMo, Telecel Cash) and Cash on Delivery (Accra only). Orders are not confirmed until payment is received or Cash on Delivery is agreed upon at checkout.</p>
           </Section>
 
           <Section title="5. Delivery">
-            <p>We offer same-day delivery within Assin Fosu and Central Region, and nationwide tracked courier delivery across Ghana (24–48 hours). Delivery fees and estimated time frames are displayed at checkout. We are not liable for delays caused by third-party courier services, traffic, or adverse weather conditions.</p>
+            <p>We offer same-day delivery within Accra and Greater Accra Region, and nationwide tracked courier delivery across Ghana (24–48 hours). Delivery fees and estimated time frames are displayed at checkout. We are not liable for delays caused by third-party courier services, traffic, or adverse weather conditions.</p>
             <p>Free in-store pickup is always available at <span className="font-semibold text-foreground">{STORE.pickupLocation}</span>.</p>
           </Section>
 

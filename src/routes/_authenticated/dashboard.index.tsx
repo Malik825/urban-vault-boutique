@@ -385,16 +385,16 @@ export function Panel({
 }) {
   return (
     <section
-      className={`rounded-lg border border-border bg-card p-5 shadow-card sm:p-6 ${className ?? ""}`}
+      className={`rounded-xl border border-border bg-card p-3.5 sm:p-6 shadow-card min-w-0 max-w-full overflow-hidden ${className ?? ""}`}
     >
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="min-w-0">
-          <h2 className="font-display text-base font-bold">{title}</h2>
+          <h2 className="font-display text-base font-bold truncate">{title}</h2>
           {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
         </div>
         {badge}
       </div>
-      <div className="mt-5">{children}</div>
+      <div className="mt-4 sm:mt-5 min-w-0">{children}</div>
     </section>
   );
 }

@@ -112,6 +112,11 @@ export function DashboardShell({
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const showFab =
+    pathname === "/dashboard" ||
+    pathname === "/dashboard/products" ||
+    pathname === "/dashboard/inventory";
 
   function toggleSidebar() {
     setSidebarOpen((prev) => {
@@ -168,7 +173,7 @@ export function DashboardShell({
           {sidebarOpen && (
             <div className="min-w-0 animate-fade-up">
               <p className="truncate font-display text-sm font-extrabold">{STORE.name}</p>
-              <p className="truncate text-[11px] text-muted-foreground">Accra flagship</p>
+              <p className="truncate text-[11px] text-muted-foreground">Assin Fosu</p>
             </div>
           )}
         </div>
@@ -373,27 +378,29 @@ export function DashboardShell({
           </div>
         </header>
 
-        <main className="px-4 py-8 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl">
+        <main className="px-3.5 py-6 sm:px-6 lg:px-8 sm:py-8 min-w-0 max-w-full overflow-x-hidden">
+          <div className="mx-auto max-w-7xl min-w-0">
             {actions && (
-              <div className="mb-6 flex items-center justify-end gap-2">{actions}</div>
+              <div className="mb-4 sm:mb-6 flex flex-wrap items-center justify-end gap-2">{actions}</div>
             )}
-            <div className="animate-fade-up">{children}</div>
+            <div className="animate-fade-up min-w-0">{children}</div>
           </div>
         </main>
       </div>
 
-      {/* Mobile FAB */}
-      <Button
-        asChild
-        variant="hero"
-        size="lg"
-        className="fixed bottom-6 right-6 z-40 rounded-full shadow-glow lg:hidden"
-      >
-        <Link to="/dashboard/new-product">
-          <Plus className="h-5 w-5" /> Add
-        </Link>
-      </Button>
+      {/* Mobile FAB - only on products, inventory and home dashboard */}
+      {showFab && (
+        <Button
+          asChild
+          variant="hero"
+          size="lg"
+          className="fixed bottom-6 right-6 z-40 rounded-full shadow-glow lg:hidden"
+        >
+          <Link to="/dashboard/new-product">
+            <Plus className="h-5 w-5" /> Add
+          </Link>
+        </Button>
+      )}
 
       {/* Command palette */}
       <CommandDialog open={cmdOpen} onOpenChange={setCmdOpen}>
