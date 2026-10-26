@@ -36,66 +36,8 @@ import { Reveal } from "@/components/reveal";
 import { LandingSkeleton } from "@/components/storefront/product-skeletons";
 import { gsap } from "@/lib/gsap";
 import { optimizeImageUrl } from "@/lib/image";
-
-const BOUTIQUE_HERO_SLIDES = [
-  {
-    image: "/boutique/urban_vault_hero_1_1792394728170.webp",
-    badge: "Season 2026 // Streetwear Drop",
-    headlineLine1: "DRESS THE",
-    headlineHighlight: "CULTURE.",
-    subtitle:
-      "Curated unisex streetwear, graphic tees, designer hoodies, and elevated contemporary aesthetics crafted for fearless self-expression.",
-    primaryCta: {
-      text: "Shop New Drop",
-      to: "/products" as const,
-      search: {},
-    },
-    secondaryCta: {
-      text: "WhatsApp Concierge",
-      href: whatsappLink("Hello Urban Vault Unisex Boutique! I want to check out the new 2026 Streetwear drop."),
-    },
-    tabLabel: "Streetwear Drop",
-    code: "01",
-  },
-  {
-    image: "/boutique/urban_vault_hero_2_1792394739729.webp",
-    badge: "Unisex Silhouettes // Modern Fit",
-    headlineLine1: "EFFORTLESS",
-    headlineHighlight: "LUXURY.",
-    subtitle:
-      "Modern unisex tracksuits, oversized silhouettes, and elevated wardrobe essentials. Premium fabrics made for everyday luxury and all-day comfort.",
-    primaryCta: {
-      text: "Explore Unisex Fits",
-      to: "/products" as const,
-      search: { category: "Clothing" },
-    },
-    secondaryCta: {
-      text: "Order on WhatsApp",
-      href: whatsappLink("Hello Urban Vault! I'm interested in your unisex silhouettes and tracksuits."),
-    },
-    tabLabel: "Unisex Silhouettes",
-    code: "02",
-  },
-  {
-    image: "/boutique/urban_vault_hero_3_1792394763146.webp",
-    badge: "Exclusive Footwear // Kicks & Slides",
-    headlineLine1: "STEP INTO",
-    headlineHighlight: "PREMIUM.",
-    subtitle:
-      "From rare statement sneakers to everyday boutique slides. Elevate your footwear rotation with verified authenticity and showroom pickup.",
-    primaryCta: {
-      text: "Browse Footwear",
-      to: "/products" as const,
-      search: { category: "Footwear" },
-    },
-    secondaryCta: {
-      text: "Check Shoe Sizes",
-      href: whatsappLink("Hello Urban Vault! I want to check footwear availability and sizing."),
-    },
-    tabLabel: "Footwear & Kicks",
-    code: "03",
-  },
-];
+import { DEFAULT_HERO_SLIDES, type HeroSlide } from "@/lib/hero";
+import { getPublicHeroSlides } from "@/lib/hero.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -125,7 +67,19 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  loader: async (): Promise<CatalogProduct[]> => listPublishedProducts(),
+  loader: async () => {
+    const [products, dynamicHeroSlides] = await Promise.all([
+      listPublishedProducts(),
+      getPublicHeroSlides().catch(() => DEFAULT_HERO_SLIDES),
+    ]);
+    return {
+      products,
+      heroSlides:
+        dynamicHeroSlides && dynamicHeroSlides.length > 0
+          ? dynamicHeroSlides
+          : DEFAULT_HERO_SLIDES,
+    };
+  },
   staleTime: 1000 * 60 * 5,
   gcTime: 1000 * 60 * 30,
   pendingMs: 150,
@@ -134,7 +88,12 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
-  const products: CatalogProduct[] = Route.useLoaderData();
+  const { products, heroSlides: initialHeroSlides } = Route.useLoaderData();
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(
+    initialHeroSlides && initialHeroSlides.length > 0
+      ? initialHeroSlides
+      : DEFAULT_HERO_SLIDES,
+  );
   const navigate = useNavigate();
   const [heroIndex, setHeroIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -147,15 +106,35 @@ function Landing() {
       const stored = localStorage.getItem("category_images_overrides");
       if (stored) setCategoryOverrides(JSON.parse(stored));
     } catch {}
+
+    try {
+      const storedSlides = localStorage.getItem("urban_vault_hero_slides");
+      if (storedSlides) {
+        const parsed = JSON.parse(storedSlides);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setHeroSlides(parsed);
+        }
+      }
+    } catch {}
+
+    const handleSlideChange = (e: any) => {
+      if (e.detail && Array.isArray(e.detail) && e.detail.length > 0) {
+        setHeroSlides(e.detail);
+      }
+    };
+    window.addEventListener("uv-hero-slides-change", handleSlideChange);
+    return () => window.removeEventListener("uv-hero-slides-change", handleSlideChange);
   }, []);
 
   const nextSlide = useCallback(() => {
-    setHeroIndex((prev) => (prev + 1) % BOUTIQUE_HERO_SLIDES.length);
-  }, []);
+    setHeroIndex((prev) => (prev + 1) % heroSlides.length);
+  }, [heroSlides.length]);
 
   const prevSlide = useCallback(() => {
-    setHeroIndex((prev) => (prev - 1 + BOUTIQUE_HERO_SLIDES.length) % BOUTIQUE_HERO_SLIDES.length);
-  }, []);
+    setHeroIndex((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+  }, [heroSlides.length]);
+
+  const activeSlide = heroSlides[heroIndex] || heroSlides[0] || DEFAULT_HERO_SLIDES[0];
 
   // Auto-slide hero with pause-on-hover support
   useEffect(() => {
@@ -269,244 +248,223 @@ function Landing() {
       {/* ── 1. Hero Big Slider Section ──────────────────────────── */}
       <section className="pt-2 sm:pt-4 pb-8 sm:pb-12 px-2 sm:px-6">
         <div className="mx-auto max-w-7xl">
+          {/*
+           * ── SPLIT HERO SLIDER ──
+           * Left panel: warm dark charcoal (#1a1714) — editorial boutique feel
+           * Right panel: hero image on the right 55%
+           * Inspired by premium split-layout editorial fashion sliders
+           */}
           <div
-            className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border bg-[#101318] shadow-2xl min-h-[580px] sm:min-h-[640px] lg:min-h-[720px] max-h-[820px] flex flex-col justify-between"
+            className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border shadow-2xl min-h-[480px] sm:min-h-[540px] lg:min-h-[600px] flex flex-row"
+            style={{ background: "#1a1714" }}
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            {/* Background Image Carousel Layer */}
-            {BOUTIQUE_HERO_SLIDES.map((slide, i) => {
-              const isActive = i === heroIndex;
-              return (
-                <div
-                  key={slide.image}
-                  className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
-                    isActive ? "opacity-100 z-0 pointer-events-auto" : "opacity-0 -z-10 pointer-events-none"
-                  }`}
-                >
-                  <img
-                    src={slide.image}
-                    alt={`${STORE.name} — ${slide.tabLabel}`}
-                    className={`h-full w-full object-cover object-center sm:object-[center_30%] transition-transform duration-[7000ms] ease-out ${
-                      isActive ? "scale-105" : "scale-100"
-                    }`}
-                    loading={i === 0 ? "eager" : "lazy"}
-                    fetchPriority={i === 0 ? "high" : "auto"}
-                    decoding={i === 0 ? "sync" : "async"}
-                    width={1600}
-                    height={900}
-                  />
-                </div>
-              );
-            })}
+            {/* ── LEFT TEXT PANEL (45%) ── */}
+            <div className="relative z-10 flex flex-col justify-between w-full lg:w-[45%] p-6 sm:p-10 lg:p-12 shrink-0">
 
-            {/* Dark solid tint overlay for high contrast & clarity (No gradients, pure brand dark) */}
-            <div className="absolute inset-0 bg-[#101318]/70 pointer-events-none z-1" />
-
-            {/* Top Bar inside Hero: Brand Tag & Live Slide Counter */}
-            <div className="relative z-10 p-5 sm:p-8 flex items-center justify-between">
-              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-[#151b23]/90 px-3.5 py-1 text-xs font-semibold text-white">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-                </span>
-                <span className="font-mono text-[11px] uppercase tracking-[0.16em]">
-                  {STORE.name}
+              {/* Top: Category breadcrumb */}
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-px bg-primary" />
+                <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/50 font-semibold">
+                  {(activeSlide.badge || "").split("//")[0].trim()}
                 </span>
               </div>
 
-              {/* Slide Counter & Pause indicator */}
-              <div className="flex items-center gap-2">
-                {isPaused && (
-                  <span className="text-[10px] uppercase font-mono font-bold tracking-wider text-primary bg-[#151b23] border border-primary/40 px-2.5 py-1 rounded-full">
-                    Paused
-                  </span>
-                )}
-                <div className="rounded-full bg-[#151b23]/90 border border-border px-3 py-1 text-white font-mono text-xs">
-                  <span className="text-primary font-bold">0{heroIndex + 1}</span>
-                  <span className="text-white/40 mx-1">/</span>
-                  <span className="text-white/70">0{BOUTIQUE_HERO_SLIDES.length}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Left/Right Floating Navigation Arrows */}
-            <button
-              type="button"
-              onClick={prevSlide}
-              aria-label="Previous slide"
-              className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full border border-border bg-[#151b23]/90 text-white flex items-center justify-center hover:bg-primary hover:border-primary hover:scale-110 active:scale-95 transition-all duration-200 shadow-xl opacity-80 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
-            >
-              <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
-            </button>
-
-            <button
-              type="button"
-              onClick={nextSlide}
-              aria-label="Next slide"
-              className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full border border-border bg-[#151b23]/90 text-white flex items-center justify-center hover:bg-primary hover:border-primary hover:scale-110 active:scale-95 transition-all duration-200 shadow-xl opacity-80 sm:opacity-0 group-hover:opacity-100 cursor-pointer"
-            >
-              <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
-            </button>
-
-            {/* Hero Main Content (Animated on slide change) */}
-            <div className="relative z-10 px-5 sm:px-10 lg:px-16 py-4 sm:py-8 max-w-3xl my-auto">
+              {/* Middle: Animated headline + text */}
               <AnimatePresence mode="wait">
                 <motion.div
                   key={heroIndex}
-                  initial={{ opacity: 0, y: 22 }}
+                  initial={{ opacity: 0, y: 28 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -22 }}
-                  transition={{ duration: 0.45, ease: "easeOut" }}
-                  className="space-y-4 sm:space-y-6"
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  className="space-y-4 sm:space-y-5 my-auto py-6 sm:py-0"
                 >
-                  {/* Category / Drop Badge */}
-                  <div className="inline-flex items-center gap-2 rounded-full border border-border bg-[#151b23]/90 px-3.5 py-1 text-xs font-semibold text-white shadow-lg">
-                    <Sparkles className="h-3.5 w-3.5 text-primary" />
-                    <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/95">
-                      {BOUTIQUE_HERO_SLIDES[heroIndex].badge}
-                    </span>
-                  </div>
-
-                  {/* Headline: Solid Brand Colors (No gradients) */}
-                  <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.04]">
-                    {BOUTIQUE_HERO_SLIDES[heroIndex].headlineLine1} <br />
+                  <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.0]">
+                    {activeSlide.headlineLine1}
+                    <br />
                     <span className="text-primary">
-                      {BOUTIQUE_HERO_SLIDES[heroIndex].headlineHighlight}
+                      {activeSlide.headlineHighlight}
                     </span>
                   </h1>
 
-                  {/* Subtitle */}
-                  <p className="text-sm sm:text-base lg:text-lg text-white/80 max-w-xl leading-relaxed">
-                    {BOUTIQUE_HERO_SLIDES[heroIndex].subtitle}
+                  <p className="text-sm sm:text-base text-white/65 leading-relaxed max-w-sm">
+                    {activeSlide.subtitle}
                   </p>
 
-                  {/* Call To Actions */}
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-1">
                     <Button
                       asChild
-                      size="lg"
-                      className="px-8 py-6 text-base font-bold rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all hover:scale-105 active:scale-95"
+                      className="px-6 py-5 text-sm font-bold rounded-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all hover:scale-105 active:scale-95"
                     >
                       <Link
-                        to={BOUTIQUE_HERO_SLIDES[heroIndex].primaryCta.to}
-                        search={BOUTIQUE_HERO_SLIDES[heroIndex].primaryCta.search}
+                        to={activeSlide.primaryCta?.to as any || "/products"}
+                        search={activeSlide.primaryCta?.search || {}}
                       >
-                        {BOUTIQUE_HERO_SLIDES[heroIndex].primaryCta.text}{" "}
-                        <ArrowRight className="ml-2 h-5 w-5" />
+                        {activeSlide.primaryCta?.text || "Shop Collection"}
+                        <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
 
                     <Button
                       asChild
                       variant="outline"
-                      size="lg"
-                      className="px-6 py-6 text-base font-semibold rounded-full border-border bg-[#151b23]/90 hover:bg-[#1a222c] text-white transition-all hover:scale-105 active:scale-95"
+                      className="px-5 py-5 text-sm font-semibold rounded-full border-white/20 bg-transparent hover:bg-white/8 text-white transition-all hover:scale-105 active:scale-95"
                     >
                       <a
-                        href={BOUTIQUE_HERO_SLIDES[heroIndex].secondaryCta.href}
+                        href={activeSlide.secondaryCta?.href || "#"}
                         target="_blank"
                         rel="noreferrer"
                       >
-                        <MessageCircle className="mr-2 h-5 w-5 text-primary" />
-                        {BOUTIQUE_HERO_SLIDES[heroIndex].secondaryCta.text}
+                        <MessageCircle className="mr-2 h-4 w-4 text-primary" />
+                        {activeSlide.secondaryCta?.text || "WhatsApp Concierge"}
                       </a>
                     </Button>
                   </div>
                 </motion.div>
               </AnimatePresence>
-            </div>
 
-            {/* Bottom Slider Navigation Tabs & Indicator */}
-            <div className="relative z-10 px-5 sm:px-10 lg:px-16 pb-5 sm:pb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-                {BOUTIQUE_HERO_SLIDES.map((slide, i) => {
-                  const isActive = i === heroIndex;
-                  return (
+              {/* Bottom: Slide counter + progress lines */}
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-sm font-bold text-primary">
+                  0{heroIndex + 1}
+                </span>
+                <span className="font-mono text-sm text-white/30">/</span>
+                <span className="font-mono text-sm text-white/30">
+                  0{heroSlides.length}
+                </span>
+                <div className="flex items-center gap-1.5 ml-1">
+                  {heroSlides.map((_, i) => (
                     <button
-                      key={slide.image}
+                      key={i}
                       type="button"
                       onClick={() => setHeroIndex(i)}
-                      className={`group/btn relative text-left py-2 px-3 sm:px-4 rounded-xl transition-all duration-300 flex items-center gap-2.5 cursor-pointer ${
-                        isActive
-                          ? "bg-[#151b23] border border-primary text-white shadow-md"
-                          : "bg-[#101318]/80 hover:bg-[#151b23] text-white/60 hover:text-white border border-border"
+                      aria-label={`Go to slide ${i + 1}`}
+                      className={`h-[2px] rounded-full transition-all duration-500 cursor-pointer ${
+                        i === heroIndex ? "w-10 bg-primary" : "w-5 bg-white/25 hover:bg-white/50"
                       }`}
-                    >
-                      <span className={`font-mono text-xs font-bold ${isActive ? "text-primary" : "text-white/50"}`}>
-                        {slide.code}
-                      </span>
-                      <span className="hidden sm:inline text-xs font-semibold tracking-wide">
-                        {slide.tabLabel}
-                      </span>
-                      <div
-                        className={`h-1.5 rounded-full transition-all duration-300 ${
-                          isActive ? "w-6 bg-primary" : "w-2 bg-white/20 group-hover/btn:bg-white/40"
-                        }`}
-                      />
-                    </button>
-                  );
-                })}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* ── RIGHT IMAGE PANEL (55%) ── */}
+            <div className="relative hidden lg:block lg:flex-1 overflow-hidden">
+              {/* Hero images — fade transition */}
+              {heroSlides.map((slide, i) => {
+                const isActive = i === heroIndex;
+                return (
+                  <div
+                    key={slide.id || slide.image || i}
+                    className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
+                      isActive ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    <img
+                      src={slide.image}
+                      alt={`${STORE.name} — ${slide.tabLabel || slide.headlineHighlight || "Hero"}`}
+                      className={`h-full w-full object-cover object-center transition-transform duration-[7000ms] ease-out ${
+                        isActive ? "scale-105" : "scale-100"
+                      }`}
+                      loading={i === 0 ? "eager" : "lazy"}
+                      fetchPriority={i === 0 ? "high" : "auto"}
+                      decoding={i === 0 ? "sync" : "async"}
+                      width={1200}
+                      height={900}
+                    />
+                  </div>
+                );
+              })}
+
+              {/* Decorative script text — top right corner */}
+              <div
+                className="absolute top-6 right-6 text-right leading-tight pointer-events-none select-none"
+                style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic" }}
+              >
+                <p className="text-white/70 text-xl font-light">Style</p>
+                <p className="text-white/70 text-xl font-light">Beyond</p>
+                <p className="text-white/70 text-xl font-light">Trends</p>
+                <div className="ml-auto mt-1 w-8 h-px bg-primary" />
               </div>
 
-              {/* Progress dot indicators (visible on mobile) */}
-              <div className="flex sm:hidden items-center justify-center gap-1.5 self-center">
-                {BOUTIQUE_HERO_SLIDES.map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setHeroIndex(i)}
-                    aria-label={`Go to slide ${i + 1}`}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                      i === heroIndex ? "w-6 bg-primary" : "w-2 bg-white/30"
-                    }`}
-                  />
-                ))}
+              {/* Stacked nav arrows — right edge, vertically centered */}
+              <div className="absolute right-5 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-20">
+                <button
+                  type="button"
+                  onClick={nextSlide}
+                  aria-label="Next slide"
+                  className="h-10 w-10 rounded-full border border-white/25 bg-[#1a1714]/80 text-white flex items-center justify-center hover:bg-primary hover:border-primary hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={prevSlide}
+                  aria-label="Previous slide"
+                  className="h-10 w-10 rounded-full border border-white/25 bg-[#1a1714]/80 text-white flex items-center justify-center hover:bg-primary hover:border-primary hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
               </div>
+            </div>
+
+            {/* Mobile: full-bleed image behind left panel (lg: hidden) */}
+            <div className="absolute inset-0 lg:hidden overflow-hidden">
+              {heroSlides.map((slide, i) => (
+                <div
+                  key={`mobile-${slide.id || slide.image || i}`}
+                  className={`absolute inset-0 transition-opacity duration-1000 ${
+                    i === heroIndex ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <img
+                    src={slide.image}
+                    alt={`${STORE.name} — ${slide.tabLabel || slide.headlineHighlight || "Hero"}`}
+                    className="h-full w-full object-cover object-center"
+                    loading={i === 0 ? "eager" : "lazy"}
+                    fetchPriority={i === 0 ? "high" : "auto"}
+                    width={800}
+                    height={600}
+                  />
+                  {/* Mobile warm dark panel behind text only */}
+                  <div className="absolute inset-0 bg-[#1a1714]/82" />
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Value Propositions Strip */}
-          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
-            <div className="flex items-center gap-3 p-3.5 sm:p-4 rounded-xl border border-border/70 bg-card/60 backdrop-blur-sm">
-              <div className="h-9 w-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                <BadgeCheck className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-xs sm:text-sm font-bold text-foreground">100% Authentic</p>
-                <p className="text-[11px] text-muted-foreground">Curated streetwear &amp; kicks</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 p-3.5 sm:p-4 rounded-xl border border-border/70 bg-card/60 backdrop-blur-sm">
-              <div className="h-9 w-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                <Truck className="h-5 w-5 text-primary" />
-              </div>
+          {/* ── Value Propositions Strip ── */}
+          <div className="mt-3 grid grid-cols-2 md:grid-cols-4 divide-x divide-border border border-border rounded-xl overflow-hidden bg-card">
+            <div className="flex items-center gap-3 p-4 sm:p-5">
+              <Truck className="h-5 w-5 sm:h-6 sm:w-6 text-primary shrink-0" />
               <div>
                 <p className="text-xs sm:text-sm font-bold text-foreground">Nationwide Delivery</p>
-                <p className="text-[11px] text-muted-foreground">Fast dispatch across Ghana</p>
+                <p className="text-[11px] text-muted-foreground hidden sm:block">Fast dispatch across Ghana</p>
               </div>
             </div>
-
-            <div className="flex items-center gap-3 p-3.5 sm:p-4 rounded-xl border border-border/70 bg-card/60 backdrop-blur-sm">
-              <div className="h-9 w-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                <CreditCard className="h-5 w-5 text-primary" />
-              </div>
+            <div className="flex items-center gap-3 p-4 sm:p-5">
+              <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-primary shrink-0" />
               <div>
-                <p className="text-xs sm:text-sm font-bold text-foreground">Paystack &amp; COD</p>
-                <p className="text-[11px] text-muted-foreground">MoMo, Card &amp; Pay on Delivery</p>
+                <p className="text-xs sm:text-sm font-bold text-foreground">Secure Payments</p>
+                <p className="text-[11px] text-muted-foreground hidden sm:block">Paystack, MoMo &amp; COD</p>
               </div>
             </div>
-
-            <div className="flex items-center gap-3 p-3.5 sm:p-4 rounded-xl border border-border/70 bg-card/60 backdrop-blur-sm">
-              <div className="h-9 w-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                <Phone className="h-5 w-5 text-primary" />
-              </div>
+            <div className="flex items-center gap-3 p-4 sm:p-5">
+              <BadgeCheck className="h-5 w-5 sm:h-6 sm:w-6 text-primary shrink-0" />
               <div>
-                <p className="text-xs sm:text-sm font-bold text-foreground">Showroom &amp; Support</p>
-                <p className="text-[11px] text-muted-foreground">Assin Fosu / 0597489841</p>
+                <p className="text-xs sm:text-sm font-bold text-foreground">100% Authentic</p>
+                <p className="text-[11px] text-muted-foreground hidden sm:block">Curated streetwear &amp; kicks</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-4 sm:p-5">
+              <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-primary shrink-0" />
+              <div>
+                <p className="text-xs sm:text-sm font-bold text-foreground">WhatsApp Support</p>
+                <p className="text-[11px] text-muted-foreground hidden sm:block">0597489841 — Assin Fosu</p>
               </div>
             </div>
           </div>
