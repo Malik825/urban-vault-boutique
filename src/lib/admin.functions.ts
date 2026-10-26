@@ -215,15 +215,21 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
 
 export const adminGetStats = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = getAdminClient() as any;
-  const [productsRes, ordersRes] = await Promise.all([
-    supabase.from("products").select("id, sku, slug, name, brand, category, price, compare_at, rating, reviews_count, stock, low_stock_threshold, condition, status, badge, views, blurb, specs, created_at"),
-    supabase.from("orders").select("id, status, total, created_at"),
+  const [productsRes, ordersRes, profilesRes, sourcingRes] = await Promise.all([
+    supabase
+      .from("products")
+      .select(
+        "id, sku, slug, name, brand, category, price, compare_at, rating, reviews_count, stock, low_stock_threshold, condition, status, badge, views, blurb, specs, created_at",
+      ),
+    supabase.from("orders").select("id, status, total, created_at, customer_name, payment_status").order("created_at", { ascending: false }),
+    supabase.from("profiles").select("id", { count: "exact", head: true }),
+    supabase.from("sourcing_requests").select("id", { count: "exact", head: true }),
   ]);
 
   if (productsRes.error) throw new Error(productsRes.error.message);
   if (ordersRes.error) throw new Error(ordersRes.error.message);
 
-  const products = (productsRes.data as unknown as ProductRow[] ?? []).map(mapProduct);
+  const products = ((productsRes.data as unknown as ProductRow[]) ?? []).map(mapProduct);
   const orders: any[] = ordersRes.data ?? [];
 
   const publishedProducts = products.filter((p) => p.status === "Published");
@@ -240,14 +246,31 @@ export const adminGetStats = createServerFn({ method: "GET" }).handler(async () 
     ["pending", "processing"].includes(o.status ?? ""),
   );
 
+  // Real Category Breakdown for inventory
+  const categoryCounts: Record<string, number> = {};
+  products.forEach((p) => {
+    if (p.category) {
+      categoryCounts[p.category] = (categoryCounts[p.category] || 0) + 1;
+    }
+  });
+
+  const categoryDistribution = Object.entries(categoryCounts).map(([name, count]) => ({
+    name,
+    count,
+  }));
+
   return {
     totalProducts: products.length,
     publishedProducts: publishedProducts.length,
     draftProducts: draftProducts.length,
     lowStockItems: lowStock.slice(0, 8),
+    lowStockCount: lowStock.length,
     totalOrders: orders.length,
     pendingOrdersCount: pendingOrders.length,
     totalRevenue,
+    totalCustomers: profilesRes.count ?? 0,
+    totalSourcing: sourcingRes.count ?? 0,
+    categoryDistribution,
     recentOrders: orders.slice(0, 6),
   };
 });
