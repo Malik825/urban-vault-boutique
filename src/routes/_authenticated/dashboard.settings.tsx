@@ -26,6 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Panel } from "./dashboard.index";
 import { STORE, CATEGORIES_TAXONOMY, type CategoryTaxonomy } from "@/lib/store-data";
+import { HeroSliderSettings } from "@/components/dashboard/hero-slider-settings";
 
 export const Route = createFileRoute("/_authenticated/dashboard/settings")({
   head: () => ({
@@ -436,6 +437,15 @@ function Settings() {
               <Input id="nation" defaultValue="60" />
             </div>
           </div>
+        </Panel>
+
+        {/* ─── Hero Slider Management ──────────────────────────────────── */}
+        <Panel
+          title="Hero Slider Images & Content"
+          subtitle="Customize the storefront hero carousel slides, high-res images, headlines, and call-to-action buttons."
+          className="lg:col-span-2"
+        >
+          <HeroSliderSettings />
         </Panel>
 
         {/* ─── Category Images ─────────────────────────────────────────────── */}

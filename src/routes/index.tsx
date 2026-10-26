@@ -36,66 +36,8 @@ import { Reveal } from "@/components/reveal";
 import { LandingSkeleton } from "@/components/storefront/product-skeletons";
 import { gsap } from "@/lib/gsap";
 import { optimizeImageUrl } from "@/lib/image";
-
-const BOUTIQUE_HERO_SLIDES = [
-  {
-    image: "/boutique/urban_vault_hero_1_1792394728170.webp",
-    badge: "Season 2026 // Streetwear Drop",
-    headlineLine1: "DRESS THE",
-    headlineHighlight: "CULTURE.",
-    subtitle:
-      "Curated unisex streetwear, graphic tees, designer hoodies, and elevated contemporary aesthetics crafted for fearless self-expression.",
-    primaryCta: {
-      text: "Shop New Drop",
-      to: "/products" as const,
-      search: {},
-    },
-    secondaryCta: {
-      text: "WhatsApp Concierge",
-      href: whatsappLink("Hello Urban Vault Unisex Boutique! I want to check out the new 2026 Streetwear drop."),
-    },
-    tabLabel: "Streetwear Drop",
-    code: "01",
-  },
-  {
-    image: "/boutique/urban_vault_hero_2_1792394739729.webp",
-    badge: "Unisex Silhouettes // Modern Fit",
-    headlineLine1: "EFFORTLESS",
-    headlineHighlight: "LUXURY.",
-    subtitle:
-      "Modern unisex tracksuits, oversized silhouettes, and elevated wardrobe essentials. Premium fabrics made for everyday luxury and all-day comfort.",
-    primaryCta: {
-      text: "Explore Unisex Fits",
-      to: "/products" as const,
-      search: { category: "Clothing" },
-    },
-    secondaryCta: {
-      text: "Order on WhatsApp",
-      href: whatsappLink("Hello Urban Vault! I'm interested in your unisex silhouettes and tracksuits."),
-    },
-    tabLabel: "Unisex Silhouettes",
-    code: "02",
-  },
-  {
-    image: "/boutique/urban_vault_hero_3_1792394763146.webp",
-    badge: "Exclusive Footwear // Kicks & Slides",
-    headlineLine1: "STEP INTO",
-    headlineHighlight: "PREMIUM.",
-    subtitle:
-      "From rare statement sneakers to everyday boutique slides. Elevate your footwear rotation with verified authenticity and showroom pickup.",
-    primaryCta: {
-      text: "Browse Footwear",
-      to: "/products" as const,
-      search: { category: "Footwear" },
-    },
-    secondaryCta: {
-      text: "Check Shoe Sizes",
-      href: whatsappLink("Hello Urban Vault! I want to check footwear availability and sizing."),
-    },
-    tabLabel: "Footwear & Kicks",
-    code: "03",
-  },
-];
+import { DEFAULT_HERO_SLIDES, type HeroSlide } from "@/lib/hero";
+import { getPublicHeroSlides } from "@/lib/hero.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -125,7 +67,19 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  loader: async (): Promise<CatalogProduct[]> => listPublishedProducts(),
+  loader: async () => {
+    const [products, dynamicHeroSlides] = await Promise.all([
+      listPublishedProducts(),
+      getPublicHeroSlides().catch(() => DEFAULT_HERO_SLIDES),
+    ]);
+    return {
+      products,
+      heroSlides:
+        dynamicHeroSlides && dynamicHeroSlides.length > 0
+          ? dynamicHeroSlides
+          : DEFAULT_HERO_SLIDES,
+    };
+  },
   staleTime: 1000 * 60 * 5,
   gcTime: 1000 * 60 * 30,
   pendingMs: 150,
@@ -134,7 +88,12 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
-  const products: CatalogProduct[] = Route.useLoaderData();
+  const { products, heroSlides: initialHeroSlides } = Route.useLoaderData();
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(
+    initialHeroSlides && initialHeroSlides.length > 0
+      ? initialHeroSlides
+      : DEFAULT_HERO_SLIDES,
+  );
   const navigate = useNavigate();
   const [heroIndex, setHeroIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -147,15 +106,35 @@ function Landing() {
       const stored = localStorage.getItem("category_images_overrides");
       if (stored) setCategoryOverrides(JSON.parse(stored));
     } catch {}
+
+    try {
+      const storedSlides = localStorage.getItem("urban_vault_hero_slides");
+      if (storedSlides) {
+        const parsed = JSON.parse(storedSlides);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setHeroSlides(parsed);
+        }
+      }
+    } catch {}
+
+    const handleSlideChange = (e: any) => {
+      if (e.detail && Array.isArray(e.detail) && e.detail.length > 0) {
+        setHeroSlides(e.detail);
+      }
+    };
+    window.addEventListener("uv-hero-slides-change", handleSlideChange);
+    return () => window.removeEventListener("uv-hero-slides-change", handleSlideChange);
   }, []);
 
   const nextSlide = useCallback(() => {
-    setHeroIndex((prev) => (prev + 1) % BOUTIQUE_HERO_SLIDES.length);
-  }, []);
+    setHeroIndex((prev) => (prev + 1) % heroSlides.length);
+  }, [heroSlides.length]);
 
   const prevSlide = useCallback(() => {
-    setHeroIndex((prev) => (prev - 1 + BOUTIQUE_HERO_SLIDES.length) % BOUTIQUE_HERO_SLIDES.length);
-  }, []);
+    setHeroIndex((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+  }, [heroSlides.length]);
+
+  const activeSlide = heroSlides[heroIndex] || heroSlides[0] || DEFAULT_HERO_SLIDES[0];
 
   // Auto-slide hero with pause-on-hover support
   useEffect(() => {
@@ -290,7 +269,7 @@ function Landing() {
               <div className="flex items-center gap-3">
                 <div className="w-6 h-px bg-primary" />
                 <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/50 font-semibold">
-                  {BOUTIQUE_HERO_SLIDES[heroIndex].badge.split("//")[0].trim()}
+                  {(activeSlide.badge || "").split("//")[0].trim()}
                 </span>
               </div>
 
@@ -305,15 +284,15 @@ function Landing() {
                   className="space-y-4 sm:space-y-5 my-auto py-6 sm:py-0"
                 >
                   <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.0]">
-                    {BOUTIQUE_HERO_SLIDES[heroIndex].headlineLine1}
+                    {activeSlide.headlineLine1}
                     <br />
                     <span className="text-primary">
-                      {BOUTIQUE_HERO_SLIDES[heroIndex].headlineHighlight}
+                      {activeSlide.headlineHighlight}
                     </span>
                   </h1>
 
                   <p className="text-sm sm:text-base text-white/65 leading-relaxed max-w-sm">
-                    {BOUTIQUE_HERO_SLIDES[heroIndex].subtitle}
+                    {activeSlide.subtitle}
                   </p>
 
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-1">
@@ -322,10 +301,10 @@ function Landing() {
                       className="px-6 py-5 text-sm font-bold rounded-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all hover:scale-105 active:scale-95"
                     >
                       <Link
-                        to={BOUTIQUE_HERO_SLIDES[heroIndex].primaryCta.to}
-                        search={BOUTIQUE_HERO_SLIDES[heroIndex].primaryCta.search}
+                        to={activeSlide.primaryCta?.to as any || "/products"}
+                        search={activeSlide.primaryCta?.search || {}}
                       >
-                        {BOUTIQUE_HERO_SLIDES[heroIndex].primaryCta.text}
+                        {activeSlide.primaryCta?.text || "Shop Collection"}
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
@@ -336,12 +315,12 @@ function Landing() {
                       className="px-5 py-5 text-sm font-semibold rounded-full border-white/20 bg-transparent hover:bg-white/8 text-white transition-all hover:scale-105 active:scale-95"
                     >
                       <a
-                        href={BOUTIQUE_HERO_SLIDES[heroIndex].secondaryCta.href}
+                        href={activeSlide.secondaryCta?.href || "#"}
                         target="_blank"
                         rel="noreferrer"
                       >
                         <MessageCircle className="mr-2 h-4 w-4 text-primary" />
-                        {BOUTIQUE_HERO_SLIDES[heroIndex].secondaryCta.text}
+                        {activeSlide.secondaryCta?.text || "WhatsApp Concierge"}
                       </a>
                     </Button>
                   </div>
@@ -355,10 +334,10 @@ function Landing() {
                 </span>
                 <span className="font-mono text-sm text-white/30">/</span>
                 <span className="font-mono text-sm text-white/30">
-                  0{BOUTIQUE_HERO_SLIDES.length}
+                  0{heroSlides.length}
                 </span>
                 <div className="flex items-center gap-1.5 ml-1">
-                  {BOUTIQUE_HERO_SLIDES.map((_, i) => (
+                  {heroSlides.map((_, i) => (
                     <button
                       key={i}
                       type="button"
@@ -376,18 +355,18 @@ function Landing() {
             {/* ── RIGHT IMAGE PANEL (55%) ── */}
             <div className="relative hidden lg:block lg:flex-1 overflow-hidden">
               {/* Hero images — fade transition */}
-              {BOUTIQUE_HERO_SLIDES.map((slide, i) => {
+              {heroSlides.map((slide, i) => {
                 const isActive = i === heroIndex;
                 return (
                   <div
-                    key={slide.image}
+                    key={slide.id || slide.image || i}
                     className={`absolute inset-0 transition-opacity duration-1000 ease-out ${
                       isActive ? "opacity-100" : "opacity-0"
                     }`}
                   >
                     <img
                       src={slide.image}
-                      alt={`${STORE.name} — ${slide.tabLabel}`}
+                      alt={`${STORE.name} — ${slide.tabLabel || slide.headlineHighlight || "Hero"}`}
                       className={`h-full w-full object-cover object-center transition-transform duration-[7000ms] ease-out ${
                         isActive ? "scale-105" : "scale-100"
                       }`}
@@ -435,16 +414,16 @@ function Landing() {
 
             {/* Mobile: full-bleed image behind left panel (lg: hidden) */}
             <div className="absolute inset-0 lg:hidden overflow-hidden">
-              {BOUTIQUE_HERO_SLIDES.map((slide, i) => (
+              {heroSlides.map((slide, i) => (
                 <div
-                  key={`mobile-${slide.image}`}
+                  key={`mobile-${slide.id || slide.image || i}`}
                   className={`absolute inset-0 transition-opacity duration-1000 ${
                     i === heroIndex ? "opacity-100" : "opacity-0"
                   }`}
                 >
                   <img
                     src={slide.image}
-                    alt={`${STORE.name} — ${slide.tabLabel}`}
+                    alt={`${STORE.name} — ${slide.tabLabel || slide.headlineHighlight || "Hero"}`}
                     className="h-full w-full object-cover object-center"
                     loading={i === 0 ? "eager" : "lazy"}
                     fetchPriority={i === 0 ? "high" : "auto"}
