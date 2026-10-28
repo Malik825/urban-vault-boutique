@@ -46,7 +46,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Shop premium unisex fashion, oversized tees, sneakers, and designer streetwear at Urban Vault Unisex Boutique. Paystack, Cash on Delivery, and instant WhatsApp ordering (0597489841).",
+          "Shop premium unisex fashion, oversized tees, sneakers, and designer streetwear at Urban Vault Unisex Boutique. Paystack, Cash on Delivery, and instant WhatsApp ordering (0554753212).",
       },
       { property: "og:title", content: `${STORE.name} — Modern Fashion Boutique` },
       {
@@ -464,7 +464,7 @@ function Landing() {
               <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-primary shrink-0" />
               <div>
                 <p className="text-xs sm:text-sm font-bold text-foreground">WhatsApp Support</p>
-                <p className="text-[11px] text-muted-foreground hidden sm:block">0597489841 — Accra Flagship</p>
+                <p className="text-[11px] text-muted-foreground hidden sm:block">0554753212 — Accra Flagship</p>
               </div>
             </div>
           </div>
@@ -682,7 +682,7 @@ function Landing() {
                 WhatsApp Hotline
               </h3>
               <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                Direct concierge on <span className="font-semibold text-foreground">0597489841</span> for sizing advice, questions, and instant orders.
+                Direct concierge on <span className="font-semibold text-foreground">0554753212</span> for sizing advice, questions, and instant orders.
               </p>
             </div>
 
@@ -750,7 +750,7 @@ function Landing() {
                 Order Directly on WhatsApp
               </h3>
               <p className="text-sm text-white/90 mt-2">
-                Chat with our boutique team at <span className="font-bold underline">0597489841</span> to confirm sizing, send screenshots, or request immediate same-day delivery.
+                Chat with our boutique team at <span className="font-bold underline">0554753212</span> to confirm sizing, send screenshots, or request immediate same-day delivery.
               </p>
             </div>
 
@@ -765,7 +765,7 @@ function Landing() {
                 rel="noreferrer"
               >
                 <MessageCircle className="mr-2 h-5 w-5 text-primary" />
-                Chat Now (0597489841)
+                Chat Now (0554753212)
               </a>
             </Button>
           </div>

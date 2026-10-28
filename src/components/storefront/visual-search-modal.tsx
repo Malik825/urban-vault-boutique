@@ -648,7 +648,7 @@ function extractDominantColorsFromImage(base64: string): Promise<string[]> {
                   </Label>
                   <Input
                     id="whatsapp"
-                    placeholder="e.g. 059 748 9841"
+                    placeholder="e.g. 055 475 3212"
                     required
                     value={whatsappNumber}
                     onChange={(e) => setWhatsappNumber(e.target.value)}

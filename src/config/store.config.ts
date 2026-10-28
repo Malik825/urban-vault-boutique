@@ -46,9 +46,9 @@ export const URBAN_VAULT_CONFIG: StoreConfig = {
   tagline: "Accra's premier unisex streetwear, footwear & contemporary fashion destination",
   description: "Urban Vault Unisex Boutique — Accra flagship. Curated unisex apparel, luxury footwear, everyday streetwear, and high-fashion essentials with same-day Accra delivery and nationwide Ghana shipping.",
   siteUrl: "https://urbanvaultgh.com",
-  phone: "+233 59 748 9841",
-  whatsapp: "+233 59 748 9841",
-  whatsappRaw: "233597489841",
+  phone: "+233 55 475 3212",
+  whatsapp: "+233 55 475 3212",
+  whatsappRaw: "233554753212",
   email: "orders@urbanvaultgh.com",
   city: "Accra, Greater Accra Region, Ghana",
   address: "Urban Vault Flagship Store, Accra, Greater Accra Region, Ghana",
@@ -61,7 +61,7 @@ export const URBAN_VAULT_CONFIG: StoreConfig = {
     headline: "URBAN VAULT UNISEX BOUTIQUE",
     subheadline: "Accra's premier destination for curated streetwear, designer footwear, and modern unisex apparel crafted for bold individual expression.",
     ctaPrimary: { text: "Shop New Arrivals", link: "/products" },
-    ctaSecondary: { text: "Order via WhatsApp", link: "https://wa.me/233597489841" },
+    ctaSecondary: { text: "Order via WhatsApp", link: "https://wa.me/233554753212" },
     slides: [
       {
         image: "/boutique/urban_vault_hero_1_1792394728170.webp",

@@ -557,7 +557,7 @@ export function HeroSliderSettings() {
                             },
                           })
                         }
-                        placeholder="https://wa.me/233597489841..."
+                        placeholder="https://wa.me/233554753212..."
                         className="h-8 text-xs font-mono"
                       />
                     </div>

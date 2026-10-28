@@ -552,7 +552,7 @@ export const serverSendTestEmail = createServerFn({ method: "POST" })
         orderId: "test-order-id",
         customerName: email.split("@")[0] || "Valued Customer",
         email,
-        phone: "+233 59 748 9841",
+        phone: "+233 55 475 3212",
         deliveryMethod: "delivery",
         address: "Urban Vault Flagship, Accra",
         city: "Accra",

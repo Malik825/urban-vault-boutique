@@ -5,6 +5,7 @@ export const STORE = {
   secondaryName: ACTIVE_STORE.displayName,
   tagline: ACTIVE_STORE.tagline,
   siteUrl: ACTIVE_STORE.siteUrl,
+  phone: ACTIVE_STORE.phone,
   whatsapp: ACTIVE_STORE.whatsapp,
   whatsappRaw: ACTIVE_STORE.whatsappRaw,
   email: ACTIVE_STORE.email,
@@ -543,7 +544,7 @@ export const reviews = [
   {
     name: "Michael Danso",
     role: "Entrepreneur, Kumasi",
-    text: "I was skeptical about delivery to Kumasi, but my sneakers arrived within 24 hours neatly packaged. Top tier customer care on WhatsApp 0597489841. Will definitely order again.",
+    text: "I was skeptical about delivery to Kumasi, but my sneakers arrived within 24 hours neatly packaged. Top tier customer care on WhatsApp 0554753212. Will definitely order again.",
     rating: 5,
   },
 ];
