@@ -63,17 +63,17 @@ function ProfilePage() {
     setUploading(true);
     try {
       const ext = file.name.split(".").pop();
-      const path = `${userId}.${ext}`;
+      const storagePath = `avatars/${userId}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(path, file, { upsert: true });
+        .from("product-images")
+        .upload(storagePath, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
       const { data: urlData } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(path);
+        .from("product-images")
+        .getPublicUrl(storagePath);
 
       const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
 
@@ -145,6 +145,7 @@ function ProfilePage() {
                     src={avatarUrl}
                     alt="Profile"
                     className="object-cover"
+                    onError={() => setAvatarUrl(null)}
                   />
                 )}
                 <AvatarFallback className="profile-avatar__fallback">

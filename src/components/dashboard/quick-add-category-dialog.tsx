@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { FolderPlus, Loader2, Sparkles } from "lucide-react";
+import { useState, useRef } from "react";
+import { FolderPlus, Loader2, Sparkles, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
 import { DEPARTMENTS } from "@/lib/store-data";
 import { useDynamicCategories } from "@/lib/categories";
 import { generateCategoryBlurb } from "@/lib/ai-copy.functions";
@@ -41,6 +42,43 @@ export function QuickAddCategoryDialog({
   const [department, setDepartment] = useState<"All" | "Men" | "Women" | "Unisex">("All");
   const [submitting, setSubmitting] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const imageFileRef = useRef<HTMLInputElement | null>(null);
+
+  async function handleImageUpload(file: File) {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file (PNG, JPG, WEBP).");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error(`${file.name} exceeds 10 MB limit`);
+      return;
+    }
+    setUploadingImage(true);
+    const toastId = toast.loading("Uploading category cover image…");
+    try {
+      const ext = file.name.split(".").pop() || "webp";
+      const path = `categories/new_${Date.now()}.${ext}`;
+      const { data: storageData, error: storageErr } = await supabase.storage
+        .from("product-images")
+        .upload(path, file, { contentType: file.type, upsert: true });
+      if (storageErr || !storageData) throw new Error(storageErr?.message || "Upload failed");
+      const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
+      if (urlData?.publicUrl) {
+        setImageUrl(urlData.publicUrl);
+        setImagePreview(urlData.publicUrl);
+        toast.success("Cover image uploaded!", { id: toastId });
+      } else {
+        toast.error("Could not get public URL.", { id: toastId });
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed", { id: toastId });
+    } finally {
+      setUploadingImage(false);
+    }
+  }
 
   async function handleAiSuggest() {
     if (!name.trim()) {
@@ -76,6 +114,7 @@ export function QuickAddCategoryDialog({
         name: trimmed,
         blurb: blurb.trim() || `${trimmed} boutique collection`,
         department,
+        image: imageUrl || undefined,
       });
 
       if (created) {

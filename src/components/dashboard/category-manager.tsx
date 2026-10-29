@@ -82,6 +82,15 @@ export function CategoryManager() {
   const [editSubcats, setEditSubcats] = useState<string[]>([]);
   const [suggestingEditBlurb, setSuggestingEditBlurb] = useState(false);
 
+  // Image upload state for Add dialog
+  const [newImagePreview, setNewImagePreview] = useState<string | null>(null);
+  const [uploadingNewImage, setUploadingNewImage] = useState(false);
+  const newImageFileRef = useRef<HTMLInputElement | null>(null);
+
+  // Image upload state for Edit dialog
+  const [uploadingEditImage, setUploadingEditImage] = useState(false);
+  const editImageFileRef = useRef<HTMLInputElement | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [activeUploadCatId, setActiveUploadCatId] = useState<string | null>(null);
 
@@ -171,6 +180,74 @@ export function CategoryManager() {
     }
   }
 
+  // Handle image upload for the Add dialog
+  async function handleNewCategoryImageFile(file: File) {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file (PNG, JPG, WEBP).");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error(`${file.name} exceeds 10 MB limit`);
+      return;
+    }
+    setUploadingNewImage(true);
+    const toastId = toast.loading("Uploading category cover image…");
+    try {
+      const ext = file.name.split(".").pop() || "webp";
+      const path = `categories/new_${Date.now()}.${ext}`;
+      const { data: storageData, error: storageErr } = await supabase.storage
+        .from("product-images")
+        .upload(path, file, { contentType: file.type, upsert: true });
+      if (storageErr || !storageData) throw new Error(storageErr?.message || "Upload failed");
+      const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
+      if (urlData?.publicUrl) {
+        setNewImageUrl(urlData.publicUrl);
+        setNewImagePreview(urlData.publicUrl);
+        toast.success("Cover image uploaded!", { id: toastId });
+      } else {
+        toast.error("Could not get public URL.", { id: toastId });
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed", { id: toastId });
+    } finally {
+      setUploadingNewImage(false);
+    }
+  }
+
+  // Handle image upload for the Edit dialog
+  async function handleEditCategoryImageFile(file: File) {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file (PNG, JPG, WEBP).");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error(`${file.name} exceeds 10 MB limit`);
+      return;
+    }
+    setUploadingEditImage(true);
+    const toastId = toast.loading("Uploading category cover image…");
+    try {
+      const ext = file.name.split(".").pop() || "webp";
+      const catId = editingCategory?.id || `new_${Date.now()}`;
+      const path = `categories/cat_${catId}_${Date.now()}.${ext}`;
+      const { data: storageData, error: storageErr } = await supabase.storage
+        .from("product-images")
+        .upload(path, file, { contentType: file.type, upsert: true });
+      if (storageErr || !storageData) throw new Error(storageErr?.message || "Upload failed");
+      const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
+      if (urlData?.publicUrl) {
+        setEditImageUrl(urlData.publicUrl);
+        toast.success("Cover image uploaded!", { id: toastId });
+      } else {
+        toast.error("Could not get public URL.", { id: toastId });
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed", { id: toastId });
+    } finally {
+      setUploadingEditImage(false);
+    }
+  }
+
   // AI Suggest for new category
   async function handleAiSuggestNewBlurb() {
     if (!newName.trim()) {
@@ -250,6 +327,7 @@ export function CategoryManager() {
     setNewDepartment("All");
     setNewSubcats([]);
     setNewImageUrl("");
+    setNewImagePreview(null);
     setDialogOpen(false);
 
     toast.success(`Category "${trimmed}" created! Click 'Save Categories' to broadcast live.`);
@@ -489,15 +567,52 @@ export function CategoryManager() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="new-cat-img" className="text-xs font-semibold">
-                    Cover Photo URL (Optional)
-                  </Label>
+                  <Label className="text-xs font-semibold">Cover Photo</Label>
+                  {/* Hidden file input for new category */}
+                  <input
+                    type="file"
+                    ref={newImageFileRef}
+                    accept="image/png,image/jpeg,image/webp,image/avif"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleNewCategoryImageFile(file);
+                      e.target.value = "";
+                    }}
+                  />
+                  {/* Clickable preview / upload zone */}
+                  <button
+                    type="button"
+                    onClick={() => newImageFileRef.current?.click()}
+                    disabled={uploadingNewImage}
+                    className="relative w-full h-28 rounded-xl border-2 border-dashed border-border hover:border-primary/60 bg-muted/40 hover:bg-primary/5 overflow-hidden transition-colors flex items-center justify-center group"
+                  >
+                    {(newImagePreview || newImageUrl) ? (
+                      <img
+                        src={newImagePreview || newImageUrl}
+                        alt="Preview"
+                        className="absolute inset-0 w-full h-full object-cover rounded-xl"
+                      />
+                    ) : null}
+                    <div className={`absolute inset-0 flex flex-col items-center justify-center gap-1 transition-opacity ${(newImagePreview || newImageUrl) ? "opacity-0 group-hover:opacity-100 bg-black/50" : "opacity-100"}`}>
+                      {uploadingNewImage ? (
+                        <Loader2 className="h-6 w-6 animate-spin text-white" />
+                      ) : (
+                        <>
+                          <UploadCloud className={`h-6 w-6 ${(newImagePreview || newImageUrl) ? "text-white" : "text-muted-foreground"}`} />
+                          <span className={`text-[11px] font-medium ${(newImagePreview || newImageUrl) ? "text-white" : "text-muted-foreground"}`}>
+                            {(newImagePreview || newImageUrl) ? "Change photo" : "Click to upload photo"}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </button>
+                  {/* Fallback URL paste */}
                   <Input
-                    id="new-cat-img"
-                    placeholder="https://... or /boutique/..."
+                    placeholder="Or paste image URL…"
                     value={newImageUrl}
-                    onChange={(e) => setNewImageUrl(e.target.value)}
-                    className="h-9 text-xs font-mono"
+                    onChange={(e) => { setNewImageUrl(e.target.value); setNewImagePreview(null); }}
+                    className="h-8 text-[11px] font-mono"
                   />
                 </div>
 
@@ -830,14 +945,52 @@ export function CategoryManager() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="edit-cat-img" className="text-xs font-semibold">
-                Cover Photo URL
-              </Label>
+              <Label className="text-xs font-semibold">Cover Photo</Label>
+              {/* Hidden file input for edit */}
+              <input
+                type="file"
+                ref={editImageFileRef}
+                accept="image/png,image/jpeg,image/webp,image/avif"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleEditCategoryImageFile(file);
+                  e.target.value = "";
+                }}
+              />
+              {/* Clickable preview / upload zone */}
+              <button
+                type="button"
+                onClick={() => editImageFileRef.current?.click()}
+                disabled={uploadingEditImage}
+                className="relative w-full h-28 rounded-xl border-2 border-dashed border-border hover:border-primary/60 bg-muted/40 hover:bg-primary/5 overflow-hidden transition-colors flex items-center justify-center group"
+              >
+                {editImageUrl ? (
+                  <img
+                    src={editImageUrl}
+                    alt="Preview"
+                    className="absolute inset-0 w-full h-full object-cover rounded-xl"
+                  />
+                ) : null}
+                <div className={`absolute inset-0 flex flex-col items-center justify-center gap-1 transition-opacity ${editImageUrl ? "opacity-0 group-hover:opacity-100 bg-black/50" : "opacity-100"}`}>
+                  {uploadingEditImage ? (
+                    <Loader2 className="h-6 w-6 animate-spin text-white" />
+                  ) : (
+                    <>
+                      <UploadCloud className={`h-6 w-6 ${editImageUrl ? "text-white" : "text-muted-foreground"}`} />
+                      <span className={`text-[11px] font-medium ${editImageUrl ? "text-white" : "text-muted-foreground"}`}>
+                        {editImageUrl ? "Change photo" : "Click to upload photo"}
+                      </span>
+                    </>
+                  )}
+                </div>
+              </button>
+              {/* Fallback URL paste */}
               <Input
-                id="edit-cat-img"
+                placeholder="Or paste image URL…"
                 value={editImageUrl}
                 onChange={(e) => setEditImageUrl(e.target.value)}
-                className="h-9 text-xs font-mono"
+                className="h-8 text-[11px] font-mono"
               />
             </div>
 

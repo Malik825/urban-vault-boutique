@@ -1,0 +1,1 @@
+fix(avatar): upload to product-images bucket; guard broken avatar URL
