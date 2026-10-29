@@ -438,3 +438,46 @@ export const adminUploadCategoryImage = createServerFn({ method: "POST" })
       throw new Error(err.message || "Failed to upload category image");
     }
   });
+
+
+// ─── Profile Avatar Upload ───────────────────────────────────────────────────
+
+export const adminUploadAvatar = createServerFn({ method: "POST" })
+  .validator(
+    (data: { base64: string; fileName: string; contentType: string; userId: string }) =>
+      data,
+  )
+  .handler(async ({ data }) => {
+    try {
+      const supabase = getAdminClient();
+      const buffer = Buffer.from(data.base64, "base64");
+      const ext = data.fileName.split(".").pop() || "png";
+      const path = `${data.userId}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(path, buffer, { contentType: data.contentType, upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(path);
+
+      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
+      // Update auth user metadata directly on server
+      try {
+        await supabase.auth.admin.updateUserById(data.userId, {
+          user_metadata: { avatar_url: publicUrl },
+        });
+      } catch (authErr) {
+        console.warn("Could not update auth user metadata via admin:", authErr);
+      }
+
+      return { publicUrl };
+    } catch (err: any) {
+      console.error("adminUploadAvatar error:", err);
+      throw new Error(err.message || "Failed to upload avatar");
+    }
+  });

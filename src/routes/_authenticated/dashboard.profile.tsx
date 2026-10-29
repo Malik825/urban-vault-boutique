@@ -16,6 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { STORE } from "@/lib/store-data";
+import { adminUploadAvatar } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/profile")({
   head: () => ({
@@ -66,50 +67,34 @@ function ProfilePage() {
     }
 
     setUploading(true);
-    const toastId = toast.loading("Uploading profile photo…");
+    const toastId = toast.loading("Uploading profile photo to avatars bucket…");
 
     try {
-      const ext = file.name.split(".").pop() || "jpg";
-      const contentType = file.type || (ext === "png" ? "image/png" : "image/jpeg");
-      const storagePath = `${userId}.${ext}`;
-
-      let finalPublicUrl = "";
-
-      // 1. Try uploading to 'avatars' bucket with explicit contentType
-      const { data: uploadData, error: avatarErr } = await supabase.storage
-        .from("avatars")
-        .upload(storagePath, file, { contentType, upsert: true });
-
-      if (!avatarErr && uploadData) {
-        const { data: urlData } = supabase.storage
-          .from("avatars")
-          .getPublicUrl(storagePath);
-        finalPublicUrl = urlData.publicUrl;
-      } else {
-        // 2. Fallback to 'product-images' bucket if 'avatars' bucket policy blocks it
-        console.warn("Avatars bucket upload failed, trying product-images fallback:", avatarErr);
-        const fallbackPath = `avatars/${userId}_${Date.now()}.${ext}`;
-        const { error: fallbackErr } = await supabase.storage
-          .from("product-images")
-          .upload(fallbackPath, file, { contentType, upsert: true });
-
-        if (fallbackErr) throw new Error(fallbackErr.message || avatarErr?.message || "Upload failed");
-
-        const { data: fallbackUrlData } = supabase.storage
-          .from("product-images")
-          .getPublicUrl(fallbackPath);
-        finalPublicUrl = fallbackUrlData.publicUrl;
-      }
-
-      const publicUrlWithBust = `${finalPublicUrl}?t=${Date.now()}`;
-
-      const { error: updateError } = await supabase.auth.updateUser({
-        data: { avatar_url: publicUrlWithBust },
+      const reader = new FileReader();
+      const base64 = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => {
+          const res = reader.result as string;
+          resolve(res.split(",")[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
       });
-      if (updateError) throw updateError;
 
-      setAvatarUrl(publicUrlWithBust);
-      toast.success("Profile photo updated successfully!", { id: toastId });
+      const result = await adminUploadAvatar({
+        data: {
+          base64,
+          fileName: file.name,
+          contentType: file.type || "image/png",
+          userId,
+        },
+      });
+
+      if (result?.publicUrl) {
+        setAvatarUrl(result.publicUrl);
+        // Also update client auth state
+        void supabase.auth.updateUser({ data: { avatar_url: result.publicUrl } });
+        toast.success("Profile photo updated successfully!", { id: toastId });
+      }
     } catch (err: any) {
       toast.error(err?.message ?? "Failed to upload profile photo", { id: toastId });
     } finally {
