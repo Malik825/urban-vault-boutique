@@ -13,7 +13,7 @@ import { useCart } from "@/lib/cart";
 import { createCartWhatsAppMessage, formatPrice, whatsappLink } from "@/lib/store-data";
 import { optimizeImageUrl } from "@/lib/image";
 
-const FREE_DELIVERY_THRESHOLD = 500;
+// Default delivery threshold falls back to 500 if not customized in settings
 
 export function CartDrawer({
   open,
@@ -25,10 +25,12 @@ export function CartDrawer({
   children?: React.ReactNode;
 }) {
   const { items, removeItem, updateQty, count, subtotal } = useCart();
+  const settings = useStoreSettings();
+  const threshold = parseFloat(settings.freeDeliveryThreshold) || 500;
 
-  const isFreeDelivery = subtotal >= FREE_DELIVERY_THRESHOLD;
-  const remainingForFree = Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal);
-  const deliveryProgress = Math.min(100, (subtotal / FREE_DELIVERY_THRESHOLD) * 100);
+  const isFreeDelivery = subtotal >= threshold;
+  const remainingForFree = Math.max(0, threshold - subtotal);
+  const deliveryProgress = Math.min(100, (subtotal / threshold) * 100);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -50,13 +52,13 @@ export function CartDrawer({
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
                     <Check className="h-3.5 w-3.5" />
                   </span>
-                  <span><strong>Free Assin Fosu Delivery Unlocked!</strong> You qualify for 100% free delivery.</span>
+                  <span><strong>Free Delivery Unlocked!</strong> You qualify for 100% free delivery.</span>
                 </>
               ) : (
                 <>
                   <Truck className="h-4 w-4 text-primary shrink-0" />
                   <span>
-                    Add <strong>GH₵ {remainingForFree.toFixed(0)}</strong> more to get <strong>FREE Assin Fosu Delivery</strong>!
+                    Add <strong>GH₵ {remainingForFree.toFixed(0)}</strong> more to get <strong>FREE Delivery</strong>!
                   </span>
                 </>
               )}

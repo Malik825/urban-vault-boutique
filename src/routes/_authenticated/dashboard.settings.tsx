@@ -28,6 +28,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Panel } from "./dashboard.index";
 import { STORE } from "@/lib/store-data";
+import {
+  type StoreSettings,
+  loadSettings,
+  saveSettings as persistSettings,
+} from "@/lib/settings";
 import { HeroSliderSettings } from "@/components/dashboard/hero-slider-settings";
 import { CategoryManager } from "@/components/dashboard/category-manager";
 
@@ -51,67 +56,6 @@ const swatches = [
   "#F43F5E", "#10B981", "#059669", "#047857", "#0EA5E9",
   "#111827", "#8B5CF6", "#F59E0B", "#09090B",
 ];
-
-// ─── Settings persistence ──────────────────────────────────────────────────────
-
-const SETTINGS_KEY = "urban_vault_store_settings";
-
-interface StoreSettings {
-  storeName: string;
-  themeColor: string;
-  whatsapp: string;
-  whatsappMessage: string;
-  showWhatsappButton: boolean;
-  socialInstagram: string;
-  socialTwitter: string;
-  socialTiktok: string;
-  socialFacebook: string;
-  payMomo: boolean;
-  payPaystack: boolean;
-  payCod: boolean;
-  payPickup: boolean;
-  deliveryLocal: string;
-  deliveryNational: string;
-  seoTitle: string;
-  seoKeywords: string;
-  seoDescription: string;
-}
-
-const DEFAULT_SETTINGS: StoreSettings = {
-  storeName: STORE.name,
-  themeColor: "#F43F5E",
-  whatsapp: STORE.whatsapp,
-  whatsappMessage: "Hi Urban Vault, I'm interested in this item — is it available in my size?",
-  showWhatsappButton: true,
-  socialInstagram: "",
-  socialTwitter: "",
-  socialTiktok: "",
-  socialFacebook: "",
-  payMomo: true,
-  payPaystack: true,
-  payCod: true,
-  payPickup: true,
-  deliveryLocal: "35",
-  deliveryNational: "60",
-  seoTitle: "Urban Vault Unisex Boutique — Streetwear & Designer Apparel Assin Fosu",
-  seoKeywords: "boutique assin fosu, unisex streetwear, vintage wash tees, designer sneakers ghana",
-  seoDescription:
-    "Shop curated unisex fashion, premium streetwear, heavyweight tees, luxury footwear, and designer statement pieces at Urban Vault Unisex Boutique. Fast delivery across Assin Fosu and Ghana.",
-};
-
-function loadSettings(): StoreSettings {
-  if (typeof window === "undefined") return DEFAULT_SETTINGS;
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEY);
-    if (raw) return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
-  } catch {}
-  return DEFAULT_SETTINGS;
-}
-
-function persistSettings(settings: StoreSettings) {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-  window.dispatchEvent(new CustomEvent("uv-settings-change", { detail: settings }));
-}
 
 // ─── Tabs ──────────────────────────────────────────────────────────────────────
 
@@ -401,9 +345,9 @@ function GeneralTab({
             </div>
           ))}
         </div>
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        <div className="mt-5 grid gap-4 sm:grid-cols-3">
           <div className="space-y-2">
-            <Label htmlFor="local-fee">Assin Fosu & surrounds delivery fee (GH₵)</Label>
+            <Label htmlFor="local-fee">Assin Fosu / Local fee (GH₵)</Label>
             <Input
               id="local-fee"
               value={settings.deliveryLocal}
@@ -416,6 +360,15 @@ function GeneralTab({
               id="nation"
               value={settings.deliveryNational}
               onChange={(e) => patch({ deliveryNational: e.target.value })}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="free-thresh">Free delivery threshold (GH₵)</Label>
+            <Input
+              id="free-thresh"
+              value={settings.freeDeliveryThreshold}
+              onChange={(e) => patch({ freeDeliveryThreshold: e.target.value })}
+              placeholder="500"
             />
           </div>
         </div>

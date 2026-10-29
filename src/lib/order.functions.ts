@@ -124,10 +124,11 @@ export const createCustomerOrder = createServerFn({ method: "POST" })
       // Calculate Shipping
       let shippingFee = 0;
       if (data.deliveryMethod === "delivery") {
-        const matchedRegion = GHANA_REGIONS.find((r) => r.name === data.region);
-        shippingFee = matchedRegion ? matchedRegion.deliveryFee : 35;
-        // Automatic Greater Accra free delivery over GH₵ 500
-        if ((data.region.includes("Greater Accra") || data.city.toLowerCase().includes("accra")) && subtotal >= 500) {
+        const isLocal = (data.region && (data.region.includes("Central") || data.region.includes("Assin"))) ||
+                        (data.city && data.city.toLowerCase().includes("assin"));
+        shippingFee = isLocal ? 35 : 60;
+        // Automatic free delivery over GH₵ 500
+        if (subtotal >= 500) {
           shippingFee = 0;
         }
       }

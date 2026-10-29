@@ -20,6 +20,7 @@ import { WishlistProvider, CompareProvider } from "@/lib/user-store";
 import { MobileNav } from "@/components/storefront/mobile-nav";
 import { useReferralTracking } from "@/lib/referral";
 import { STORE, whatsappLink } from "@/lib/store-data";
+import { useStoreSettings } from "@/lib/settings";
 import { supabase } from "@/integrations/supabase/client";
 
 /* ── Announcement Banner ───────────────────────────────────── */
@@ -27,6 +28,8 @@ const BANNER_KEY = "uv-banner-dismissed-v1";
 
 function AnnouncementBanner() {
   const [visible, setVisible] = useState(false);
+  const settings = useStoreSettings();
+
   useEffect(() => {
     const dismissed = sessionStorage.getItem(BANNER_KEY);
     if (!dismissed) setVisible(true);
@@ -38,6 +41,10 @@ function AnnouncementBanner() {
   };
 
   if (!visible) return null;
+
+  const threshold = settings.freeDeliveryThreshold || "500";
+  const whatsappNumber = settings.whatsapp || STORE.whatsapp;
+  const whatsappRaw = whatsappNumber.replace(/[^0-9]/g, "");
 
   return (
     <AnimatePresence>
@@ -52,9 +59,9 @@ function AnnouncementBanner() {
         <div className="relative flex items-center justify-center gap-2 bg-primary px-4 py-2 text-primary-foreground text-xs font-semibold">
           <Truck className="h-3.5 w-3.5 shrink-0" />
           <span>
-            Free delivery on orders over <strong>GH₵ 500</strong> in Accra &amp; Greater Accra Region &nbsp;·&nbsp; Call/WhatsApp:{" "}
-            <a href={`tel:${STORE.whatsappRaw}`} className="underline underline-offset-2">
-              {STORE.whatsapp}
+            Free delivery on orders over <strong>GH₵ {threshold}</strong> &nbsp;·&nbsp; Call/WhatsApp:{" "}
+            <a href={`tel:+${whatsappRaw}`} className="underline underline-offset-2">
+              {whatsappNumber}
             </a>
           </span>
           <button
@@ -190,11 +197,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: `${STORE.name} — Accra Flagship | Fashion Boutique Ghana` },
+      { title: `${STORE.name} — Luxury Unisex Streetwear & Fashion Boutique Ghana` },
       {
         name: "description",
         content:
-          `${STORE.name} — Accra's premier unisex boutique. Curated streetwear, designer footwear, and contemporary essentials. Same-day Accra delivery, Paystack, Mobile Money, and nationwide shipping.`,
+          `${STORE.name} — Ghana's premier unisex boutique. Curated streetwear, designer footwear, and contemporary essentials with fast delivery, Paystack, Mobile Money, and nationwide shipping.`,
       },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: STORE.secondaryName },

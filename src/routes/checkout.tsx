@@ -130,11 +130,16 @@ function CheckoutPage() {
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
 
-  // Shipping Calculation
-  const selectedRegionData = GHANA_REGIONS.find((r) => r.name === region) || GHANA_REGIONS[0];
-  const baseShipping = deliveryMethod === "pickup" ? 0 : (selectedRegionData?.deliveryFee ?? 40);
-  const isAccraFreeShipping = deliveryMethod === "delivery" && region === "Greater Accra" && subtotal >= 500;
-  const isFreeShipping = appliedPromo === "FREESHIP" || isAccraFreeShipping;
+  // Shipping Calculation (Configured at Admin Settings Level)
+  const storeSettings = useStoreSettings();
+  const localFee = parseFloat(storeSettings.deliveryLocal) || 35;
+  const nationalFee = parseFloat(storeSettings.deliveryNational) || 60;
+  const freeThreshold = parseFloat(storeSettings.freeDeliveryThreshold) || 500;
+
+  const isLocalRegion = region.toLowerCase().includes("central") || region.toLowerCase().includes("assin");
+  const baseShipping = deliveryMethod === "pickup" ? 0 : (isLocalRegion ? localFee : nationalFee);
+  const isThresholdFreeShipping = deliveryMethod === "delivery" && freeThreshold > 0 && subtotal >= freeThreshold;
+  const isFreeShipping = appliedPromo === "FREESHIP" || isThresholdFreeShipping;
   const shipping = isFreeShipping ? 0 : baseShipping;
 
   const discountPercent = appliedPromo && PROMO_CODES[appliedPromo]?.discountPercent ? PROMO_CODES[appliedPromo].discountPercent! : 0;
@@ -640,7 +645,7 @@ function CheckoutPage() {
                   <Building2 className="h-5 w-5 text-primary shrink-0" />
                   <div>
                     <p className="text-sm font-semibold">In-Store Pickup</p>
-                    <p className="text-xs text-muted-foreground">Free in Osu, Accra</p>
+                    <p className="text-xs text-muted-foreground">Free at Boutique Flagship</p>
                   </div>
                 </button>
               </div>
@@ -654,11 +659,15 @@ function CheckoutPage() {
                         <SelectValue placeholder="Select region" />
                       </SelectTrigger>
                       <SelectContent>
-                        {GHANA_REGIONS.map((r) => (
-                          <SelectItem key={r.name} value={r.name}>
-                            {r.name} ({formatPrice(r.deliveryFee)})
-                          </SelectItem>
-                        ))}
+                        {GHANA_REGIONS.map((r) => {
+                          const isLocal = r.name.toLowerCase().includes("central") || r.name.toLowerCase().includes("assin");
+                          const fee = isLocal ? localFee : nationalFee;
+                          return (
+                            <SelectItem key={r.name} value={r.name}>
+                              {r.name} ({formatPrice(fee)})
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </div>
