@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FolderPlus, Loader2 } from "lucide-react";
+import { FolderPlus, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { DEPARTMENTS } from "@/lib/store-data";
 import { useDynamicCategories } from "@/lib/categories";
+import { generateCategoryBlurb } from "@/lib/ai-copy.functions";
 
 interface QuickAddCategoryDialogProps {
   open: boolean;
@@ -39,6 +40,28 @@ export function QuickAddCategoryDialog({
   const [blurb, setBlurb] = useState("");
   const [department, setDepartment] = useState<"All" | "Men" | "Women" | "Unisex">("All");
   const [submitting, setSubmitting] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
+
+  async function handleAiSuggest() {
+    if (!name.trim()) {
+      toast.error("Please enter a category name first");
+      return;
+    }
+    setSuggesting(true);
+    try {
+      const res = await generateCategoryBlurb({
+        data: { name: name.trim(), department },
+      });
+      if (res.blurb) {
+        setBlurb(res.blurb);
+        toast.success("AI suggested subtitle blurb!");
+      }
+    } catch {
+      toast.error("Failed to generate blurb");
+    } finally {
+      setSuggesting(false);
+    }
+  }
 
   async function handleCreate() {
     const trimmed = name.trim();
@@ -98,9 +121,27 @@ export function QuickAddCategoryDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="quick-cat-blurb" className="text-xs font-semibold">
-              Editorial Subtitle / Filter Blurb
-            </Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="quick-cat-blurb" className="text-xs font-semibold">
+                Editorial Subtitle / Filter Blurb
+              </Label>
+              <button
+                type="button"
+                onClick={handleAiSuggest}
+                disabled={suggesting || !name.trim()}
+                className="text-xs font-semibold text-primary hover:text-primary/80 inline-flex items-center gap-1 transition-colors disabled:opacity-50"
+              >
+                {suggesting ? (
+                  <>
+                    <Loader2 className="h-3 w-3 animate-spin" /> Suggesting…
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-3 w-3" /> ✨ AI Suggest
+                  </>
+                )}
+              </button>
+            </div>
             <Textarea
               id="quick-cat-blurb"
               placeholder="Descriptive blurb shown under category filter and page headers (e.g. Heavyweight boxy tees & luxury streetwear)"
@@ -148,10 +189,10 @@ export function QuickAddCategoryDialog({
           >
             {submitting ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> Creating…
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> Creating…
               </>
             ) : (
-              "Create & Select"
+              "Create Category"
             )}
           </Button>
         </DialogFooter>

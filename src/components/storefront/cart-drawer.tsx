@@ -10,6 +10,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useCart } from "@/lib/cart";
+import { useStoreSettings } from "@/lib/settings";
 import { createCartWhatsAppMessage, formatPrice, whatsappLink } from "@/lib/store-data";
 import { optimizeImageUrl } from "@/lib/image";
 

@@ -4,6 +4,7 @@ import {
   FolderPlus,
   Image as ImageIcon,
   Loader2,
+  Pencil,
   Plus,
   RotateCcw,
   Save,
@@ -51,6 +52,7 @@ import {
   saveStoredCategories,
   slugifyCategory,
 } from "@/lib/categories";
+import { generateCategoryBlurb } from "@/lib/ai-copy.functions";
 
 export function CategoryManager() {
   const [categories, setCategories] = useState<CategoryTaxonomy[]>([]);
@@ -67,6 +69,18 @@ export function CategoryManager() {
   const [newSubcatInput, setNewSubcatInput] = useState("");
   const [newSubcats, setNewSubcats] = useState<string[]>([]);
   const [newImageUrl, setNewImageUrl] = useState("");
+  const [suggestingAddBlurb, setSuggestingAddBlurb] = useState(false);
+
+  // Edit category dialog state
+  const [editingCategory, setEditingCategory] = useState<CategoryTaxonomy | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editDepartment, setEditDepartment] = useState<"All" | "Men" | "Women" | "Unisex">("All");
+  const [editBlurb, setEditBlurb] = useState("");
+  const [editImageUrl, setEditImageUrl] = useState("");
+  const [editSubcatInput, setEditSubcatInput] = useState("");
+  const [editSubcats, setEditSubcats] = useState<string[]>([]);
+  const [suggestingEditBlurb, setSuggestingEditBlurb] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [activeUploadCatId, setActiveUploadCatId] = useState<string | null>(null);
@@ -103,9 +117,11 @@ export function CategoryManager() {
 
   // Update a category field
   function updateCategory(id: string, patch: Partial<CategoryTaxonomy>) {
-    setCategories((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, ...patch } : c)),
-    );
+    setCategories((prev) => {
+      const next = prev.map((c) => (c.id === id ? { ...c, ...patch } : c));
+      saveStoredCategories(next);
+      return next;
+    });
   }
 
   // Handle uploading an image for a category
@@ -140,6 +156,9 @@ export function CategoryManager() {
 
       if (urlData?.publicUrl) {
         updateCategory(catId, { image: urlData.publicUrl });
+        if (editingCategory && editingCategory.id === catId) {
+          setEditImageUrl(urlData.publicUrl);
+        }
         toast.success("Category image updated successfully!", { id: toastId });
       } else {
         toast.error("Upload succeeded but could not get public URL.", { id: toastId });
@@ -149,6 +168,50 @@ export function CategoryManager() {
     } finally {
       setUploadingId(null);
       setActiveUploadCatId(null);
+    }
+  }
+
+  // AI Suggest for new category
+  async function handleAiSuggestNewBlurb() {
+    if (!newName.trim()) {
+      toast.error("Please enter a category name first");
+      return;
+    }
+    setSuggestingAddBlurb(true);
+    try {
+      const res = await generateCategoryBlurb({
+        data: { name: newName.trim(), department: newDepartment },
+      });
+      if (res.blurb) {
+        setNewBlurb(res.blurb);
+        toast.success("AI suggested category blurb!");
+      }
+    } catch {
+      toast.error("Failed to generate blurb");
+    } finally {
+      setSuggestingAddBlurb(false);
+    }
+  }
+
+  // AI Suggest for edit category
+  async function handleAiSuggestEditBlurb() {
+    if (!editName.trim()) {
+      toast.error("Please enter a category name first");
+      return;
+    }
+    setSuggestingEditBlurb(true);
+    try {
+      const res = await generateCategoryBlurb({
+        data: { name: editName.trim(), department: editDepartment },
+      });
+      if (res.blurb) {
+        setEditBlurb(res.blurb);
+        toast.success("AI suggested category blurb!");
+      }
+    } catch {
+      toast.error("Failed to generate blurb");
+    } finally {
+      setSuggestingEditBlurb(false);
     }
   }
 
@@ -182,7 +245,6 @@ export function CategoryManager() {
     setCategories(nextList);
     saveStoredCategories(nextList);
 
-    // Reset dialog
     setNewName("");
     setNewBlurb("");
     setNewDepartment("All");
@@ -190,7 +252,41 @@ export function CategoryManager() {
     setNewImageUrl("");
     setDialogOpen(false);
 
-    toast.success(`Category "${trimmed}" added! Click 'Save Categories' to publish live.`);
+    toast.success(`Category "${trimmed}" created! Click 'Save Categories' to broadcast live.`);
+  }
+
+  // Open Edit Dialog for a category
+  function handleOpenEdit(cat: CategoryTaxonomy) {
+    setEditingCategory(cat);
+    setEditName(cat.name);
+    setEditDepartment(cat.department || "All");
+    setEditBlurb(cat.blurb || "");
+    setEditImageUrl(cat.image || "");
+    setEditSubcats([...(cat.subcategories || [cat.name])]);
+    setEditSubcatInput("");
+    setEditDialogOpen(true);
+  }
+
+  // Save changes from Edit Dialog
+  function handleSaveEdit() {
+    if (!editingCategory) return;
+    const trimmed = editName.trim();
+    if (!trimmed) {
+      toast.error("Category name cannot be empty");
+      return;
+    }
+
+    updateCategory(editingCategory.id, {
+      name: trimmed,
+      department: editDepartment,
+      blurb: editBlurb.trim() || `${trimmed} boutique curation`,
+      image: editImageUrl.trim() || editingCategory.image,
+      subcategories: editSubcats.length > 0 ? editSubcats : [trimmed],
+    });
+
+    setEditDialogOpen(false);
+    setEditingCategory(null);
+    toast.success(`Category "${trimmed}" updated! Click 'Save Categories' to broadcast live.`);
   }
 
   // Delete category handler
@@ -291,7 +387,7 @@ export function CategoryManager() {
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Create new categories on the fly, edit filter subtitles / editorial blurbs, and manage departments without touching code.
+            Create new categories on the fly, edit existing categories, auto-generate subtitles with AI, and manage departments without touching code.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
@@ -305,6 +401,7 @@ export function CategoryManager() {
             <RotateCcw className="h-3.5 w-3.5 mr-1 shrink-0" /> Reset Defaults
           </Button>
 
+          {/* Add Category Dialog */}
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button
@@ -341,15 +438,34 @@ export function CategoryManager() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="new-cat-blurb" className="text-xs font-semibold">
-                    Editorial Subtitle / Filter Blurb
-                  </Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="new-cat-blurb" className="text-xs font-semibold">
+                      Editorial Subtitle / Filter Blurb
+                    </Label>
+                    <button
+                      type="button"
+                      onClick={handleAiSuggestNewBlurb}
+                      disabled={suggestingAddBlurb || !newName.trim()}
+                      className="text-xs font-semibold text-primary hover:text-primary/80 inline-flex items-center gap-1 transition-colors disabled:opacity-50"
+                    >
+                      {suggestingAddBlurb ? (
+                        <>
+                          <Loader2 className="h-3 w-3 animate-spin" /> Suggesting…
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-3 w-3" /> ✨ AI Suggest
+                        </>
+                      )}
+                    </button>
+                  </div>
                   <Textarea
                     id="new-cat-blurb"
                     placeholder="Descriptive subtitle displayed under this category in filters and page headers (e.g. Heavyweight boxy tees & luxury button-downs)"
                     value={newBlurb}
                     onChange={(e) => setNewBlurb(e.target.value)}
-                    className="text-xs min-h-[60px]"
+                    rows={2}
+                    className="text-xs"
                   />
                 </div>
 
@@ -357,16 +473,14 @@ export function CategoryManager() {
                   <Label className="text-xs font-semibold">Department</Label>
                   <Select
                     value={newDepartment}
-                    onValueChange={(v: "All" | "Men" | "Women" | "Unisex") =>
-                      setNewDepartment(v)
-                    }
+                    onValueChange={(v: "All" | "Men" | "Women" | "Unisex") => setNewDepartment(v)}
                   >
                     <SelectTrigger className="h-9 text-xs">
-                      <SelectValue placeholder="Department" />
+                      <SelectValue placeholder="Select department" />
                     </SelectTrigger>
                     <SelectContent>
                       {DEPARTMENTS.map((d) => (
-                        <SelectItem key={d} value={d}>
+                        <SelectItem key={d} value={d} className="text-xs">
                           {d === "All" ? "All Departments" : `${d}'s Wear`}
                         </SelectItem>
                       ))}
@@ -375,12 +489,23 @@ export function CategoryManager() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold">
-                    Subcategories / Tags (Optional)
+                  <Label htmlFor="new-cat-img" className="text-xs font-semibold">
+                    Cover Photo URL (Optional)
                   </Label>
+                  <Input
+                    id="new-cat-img"
+                    placeholder="https://... or /boutique/..."
+                    value={newImageUrl}
+                    onChange={(e) => setNewImageUrl(e.target.value)}
+                    className="h-9 text-xs font-mono"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Subcategory Tags</Label>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Type a subcategory and hit Add"
+                      placeholder="e.g. Graphic Tees, Plain Tees"
                       value={newSubcatInput}
                       onChange={(e) => setNewSubcatInput(e.target.value)}
                       onKeyDown={(e) => {
@@ -398,7 +523,7 @@ export function CategoryManager() {
                     <Button
                       type="button"
                       size="sm"
-                      variant="secondary"
+                      variant="outline"
                       className="h-8 text-xs"
                       onClick={() => {
                         const val = newSubcatInput.trim();
@@ -413,18 +538,16 @@ export function CategoryManager() {
                   </div>
                   {newSubcats.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 pt-1">
-                      {newSubcats.map((sc) => (
+                      {newSubcats.map((sc, i) => (
                         <Badge
-                          key={sc}
+                          key={i}
                           variant="secondary"
-                          className="text-[11px] py-0 px-2 gap-1 items-center"
+                          className="text-[11px] flex items-center gap-1 pl-2 pr-1"
                         >
                           {sc}
                           <button
                             type="button"
-                            onClick={() =>
-                              setNewSubcats(newSubcats.filter((x) => x !== sc))
-                            }
+                            onClick={() => setNewSubcats(newSubcats.filter((_, idx) => idx !== i))}
                             className="hover:text-destructive"
                           >
                             <X className="h-3 w-3" />
@@ -433,19 +556,6 @@ export function CategoryManager() {
                       ))}
                     </div>
                   )}
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="new-cat-img" className="text-xs font-semibold">
-                    Cover Image URL (Optional)
-                  </Label>
-                  <Input
-                    id="new-cat-img"
-                    placeholder="https://... or upload later"
-                    value={newImageUrl}
-                    onChange={(e) => setNewImageUrl(e.target.value)}
-                    className="h-8 text-xs font-mono"
-                  />
                 </div>
               </div>
 
@@ -514,7 +624,7 @@ export function CategoryManager() {
               className="rounded-2xl border border-border bg-card p-4 shadow-xs space-y-3.5 min-w-0 flex flex-col justify-between transition-all hover:border-primary/40"
             >
               <div className="space-y-3 min-w-0">
-                {/* Header row: image thumbnail + name & department + delete */}
+                {/* Header row: image thumbnail + name & department + edit + delete */}
                 <div className="flex items-start gap-3 min-w-0">
                   {/* Thumbnail / Upload trigger */}
                   <div className="relative group shrink-0 h-16 w-16 rounded-xl overflow-hidden bg-surface-muted border border-border">
@@ -545,20 +655,27 @@ export function CategoryManager() {
                   </div>
 
                   {/* Name and Department */}
-                  <div className="flex-1 min-w-0 space-y-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <Input
-                        value={cat.name}
-                        onChange={(e) => updateCategory(cat.id, { name: e.target.value })}
-                        className="h-8 font-bold text-sm px-2 py-0 border-transparent hover:border-border focus:border-primary transition-colors"
-                        placeholder="Category Name"
-                      />
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center justify-between gap-1.5">
+                      <span className="font-bold text-sm text-foreground truncate">
+                        {cat.name}
+                      </span>
                       <div className="flex items-center gap-1 shrink-0">
-                        {!isDefault ? (
+                        {!isDefault && (
                           <Badge variant="outline" className="text-[10px] bg-primary/5 text-primary border-primary/20">
                             Custom
                           </Badge>
-                        ) : null}
+                        )}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleOpenEdit(cat)}
+                          className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted"
+                          title="Edit Category details"
+                        >
+                          <Pencil className="h-3.5 w-3.5 text-primary" />
+                        </Button>
                         <Button
                           type="button"
                           variant="ghost"
@@ -573,23 +690,9 @@ export function CategoryManager() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <Select
-                        value={cat.department}
-                        onValueChange={(v: "All" | "Men" | "Women" | "Unisex") =>
-                          updateCategory(cat.id, { department: v })
-                        }
-                      >
-                        <SelectTrigger className="h-6 text-[11px] w-28 px-2 py-0">
-                          <SelectValue placeholder="Department" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {DEPARTMENTS.map((d) => (
-                            <SelectItem key={d} value={d} className="text-xs">
-                              {d}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <span className="text-[11px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
+                        {cat.department === "All" ? "All Departments" : `${cat.department}'s`}
+                      </span>
                       <span className="text-[10px] text-muted-foreground font-mono truncate">
                         ID: {cat.id}
                       </span>
@@ -598,108 +701,223 @@ export function CategoryManager() {
                 </div>
 
                 {/* Subtitle / Filter Editorial Blurb */}
-                <div className="space-y-1 min-w-0">
+                <div className="space-y-1 min-w-0 bg-surface-muted/40 p-2.5 rounded-xl border border-border/40">
                   <div className="flex items-center justify-between">
-                    <Label className="text-[11px] font-semibold text-muted-foreground">
-                      Filter Subtitle / Description
+                    <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Filter Subtitle / Blurb
                     </Label>
-                    <span className="text-[10px] text-primary font-medium">
-                      Shown under filter option &amp; category page
-                    </span>
+                    <span className="text-[10px] text-primary">Live Storefront Filter</span>
                   </div>
-                  <Textarea
-                    value={cat.blurb}
-                    onChange={(e) => updateCategory(cat.id, { blurb: e.target.value })}
-                    rows={2}
-                    placeholder="Enter editorial blurb / subtitle (e.g. Luxury heavyweight tees & Cuban shirts)..."
-                    className="text-xs min-h-[48px] resize-none"
-                  />
+                  <p className="text-xs text-foreground/90 italic line-clamp-2">
+                    "{cat.blurb}"
+                  </p>
                 </div>
 
                 {/* Subcategories tags */}
-                <div className="space-y-1 min-w-0">
-                  <Label className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
-                    <Tag className="h-3 w-3" /> Subcategories
-                  </Label>
-                  <div className="flex flex-wrap gap-1">
-                    {cat.subcategories.map((sub, idx) => (
-                      <Badge
-                        key={idx}
-                        variant="secondary"
-                        className="text-[10px] py-0 px-1.5 gap-1 font-normal"
+                {cat.subcategories && cat.subcategories.length > 0 && (
+                  <div className="flex flex-wrap gap-1 min-w-0">
+                    {cat.subcategories.map((sc, i) => (
+                      <span
+                        key={i}
+                        className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground font-medium"
                       >
-                        {sub}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const updated = cat.subcategories.filter((_, i) => i !== idx);
-                            updateCategory(cat.id, { subcategories: updated });
-                          }}
-                          className="hover:text-destructive"
-                        >
-                          <X className="h-2.5 w-2.5" />
-                        </button>
-                      </Badge>
+                        {sc}
+                      </span>
                     ))}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const promptVal = window.prompt(`Add a subcategory tag for "${cat.name}":`);
-                        if (promptVal && promptVal.trim()) {
-                          const val = promptVal.trim();
-                          if (!cat.subcategories.includes(val)) {
-                            updateCategory(cat.id, {
-                              subcategories: [...cat.subcategories, val],
-                            });
-                          }
-                        }
-                      }}
-                      className="inline-flex items-center gap-0.5 rounded-full border border-dashed border-border px-2 py-0 text-[10px] text-muted-foreground hover:border-primary hover:text-primary transition-colors"
-                    >
-                      <Plus className="h-2.5 w-2.5" /> Add tag
-                    </button>
                   </div>
-                </div>
+                )}
               </div>
 
-              {/* Direct image URL input for fast changes */}
-              <div className="pt-2 border-t border-border/50 flex items-center gap-2 min-w-0">
-                <ImageIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <Input
-                  value={cat.image}
-                  onChange={(e) => updateCategory(cat.id, { image: e.target.value })}
-                  placeholder="Image URL"
-                  className="h-6 text-[10px] font-mono px-2 py-0 flex-1 min-w-0"
-                />
+              {/* Bottom Quick Actions */}
+              <div className="pt-2 border-t border-border/40 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => handleOpenEdit(cat)}
+                  className="text-[11px] font-semibold text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  <Pencil className="h-3 w-3" /> Edit Subtitle &amp; Tags
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveUploadCatId(cat.id);
+                    fileInputRef.current?.click();
+                  }}
+                  className="text-[11px] text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+                >
+                  <UploadCloud className="h-3 w-3" /> Change Photo
+                </button>
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Bottom Save bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 min-w-0">
-        <p className="text-xs text-muted-foreground">
-          Tip: Hit <span className="font-semibold text-foreground">Save Categories</span> to broadcast changes live across all storefront filters and admin forms.
-        </p>
-        <Button
-          type="button"
-          variant="hero"
-          onClick={handleSave}
-          disabled={saving}
-          className="font-bold text-xs h-9 px-5 w-full sm:w-auto shrink-0 justify-center"
-        >
-          {saving ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> Saving…
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4 mr-1.5" /> Save Categories
-            </>
-          )}
-        </Button>
-      </div>
+      {/* Edit Category Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-5 w-5 text-primary" /> Edit Category
+            </DialogTitle>
+            <DialogDescription>
+              Update category display name, department, editorial filter subtitle, or subcategories.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-cat-name" className="text-xs font-semibold">
+                Category Name <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="edit-cat-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className="h-9 text-sm"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="edit-cat-blurb" className="text-xs font-semibold">
+                  Editorial Subtitle / Filter Blurb
+                </Label>
+                <button
+                  type="button"
+                  onClick={handleAiSuggestEditBlurb}
+                  disabled={suggestingEditBlurb || !editName.trim()}
+                  className="text-xs font-semibold text-primary hover:text-primary/80 inline-flex items-center gap-1 transition-colors disabled:opacity-50"
+                >
+                  {suggestingEditBlurb ? (
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin" /> Suggesting…
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-3 w-3" /> ✨ AI Auto-Suggest
+                    </>
+                  )}
+                </button>
+              </div>
+              <Textarea
+                id="edit-cat-blurb"
+                rows={2}
+                value={editBlurb}
+                onChange={(e) => setEditBlurb(e.target.value)}
+                placeholder="Descriptive subtitle displayed under this category in filters..."
+                className="text-xs"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Department</Label>
+              <Select
+                value={editDepartment}
+                onValueChange={(v: "All" | "Men" | "Women" | "Unisex") => setEditDepartment(v)}
+              >
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue placeholder="Select department" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEPARTMENTS.map((d) => (
+                    <SelectItem key={d} value={d} className="text-xs">
+                      {d === "All" ? "All Departments" : `${d}'s Wear`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-cat-img" className="text-xs font-semibold">
+                Cover Photo URL
+              </Label>
+              <Input
+                id="edit-cat-img"
+                value={editImageUrl}
+                onChange={(e) => setEditImageUrl(e.target.value)}
+                className="h-9 text-xs font-mono"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Subcategory Tags</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="e.g. Vintage, Boxy, Oversized"
+                  value={editSubcatInput}
+                  onChange={(e) => setEditSubcatInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const val = editSubcatInput.trim();
+                      if (val && !editSubcats.includes(val)) {
+                        setEditSubcats([...editSubcats, val]);
+                        setEditSubcatInput("");
+                      }
+                    }
+                  }}
+                  className="h-8 text-xs flex-1"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs"
+                  onClick={() => {
+                    const val = editSubcatInput.trim();
+                    if (val && !editSubcats.includes(val)) {
+                      setEditSubcats([...editSubcats, val]);
+                      setEditSubcatInput("");
+                    }
+                  }}
+                >
+                  Add
+                </Button>
+              </div>
+              {editSubcats.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {editSubcats.map((sc, i) => (
+                    <Badge
+                      key={i}
+                      variant="secondary"
+                      className="text-[11px] flex items-center gap-1 pl-2 pr-1"
+                    >
+                      {sc}
+                      <button
+                        type="button"
+                        onClick={() => setEditSubcats(editSubcats.filter((_, idx) => idx !== i))}
+                        className="hover:text-destructive"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setEditDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="hero"
+              onClick={handleSaveEdit}
+              className="font-bold"
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -30,7 +30,6 @@ export function loadStoredCategories(): CategoryTaxonomy[] {
     if (!raw) return CATEGORIES_TAXONOMY;
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      // Ensure defaults are merged in if missing
       const existingIds = new Set(parsed.map((c: CategoryTaxonomy) => c.id || c.name));
       const missingDefaults = CATEGORIES_TAXONOMY.filter(
         (def) => !existingIds.has(def.id) && !existingIds.has(def.name),
@@ -59,6 +58,104 @@ export function saveStoredCategories(categories: CategoryTaxonomy[]) {
   }
 }
 
+export interface CategoryGroup {
+  label: string;
+  items: CategoryTaxonomy[];
+}
+
+/**
+ * Groups categories logically into curated boutique departments for clean dropdown UI/UX.
+ */
+export function groupCategoriesForSelect(categories: CategoryTaxonomy[]): CategoryGroup[] {
+  const groups: Record<string, CategoryTaxonomy[]> = {
+    "Tops & Upperwear": [],
+    "Dresses, Skirts & Sets": [],
+    "Men's Traditional & Tailoring": [],
+    "Bottoms & Trousers": [],
+    "Footwear": [],
+    "Accessories, Bags & Jewelry": [],
+  };
+
+  const otherGroups: Record<string, CategoryTaxonomy[]> = {};
+
+  for (const cat of categories) {
+    const lower = `${cat.name} ${cat.subcategories?.join(" ") || ""}`.toLowerCase();
+
+    if (
+      lower.includes("skirt") ||
+      lower.includes("dress") ||
+      lower.includes("two piece") ||
+      lower.includes("2 piece") ||
+      lower.includes("co-ord") ||
+      lower.includes("trousers & shirt")
+    ) {
+      groups["Dresses, Skirts & Sets"].push(cat);
+    } else if (
+      lower.includes("round neck") ||
+      lower.includes("shirt") ||
+      lower.includes("top") ||
+      lower.includes("tee") ||
+      lower.includes("hoodie") ||
+      lower.includes("jacket")
+    ) {
+      groups["Tops & Upperwear"].push(cat);
+    } else if (
+      lower.includes("kaftan") ||
+      lower.includes("traditional") ||
+      lower.includes("suit") ||
+      lower.includes("tailor") ||
+      lower.includes("blazer")
+    ) {
+      groups["Men's Traditional & Tailoring"].push(cat);
+    } else if (
+      lower.includes("bottom") ||
+      lower.includes("trouser") ||
+      lower.includes("pant") ||
+      lower.includes("cargo") ||
+      lower.includes("jean") ||
+      lower.includes("short")
+    ) {
+      groups["Bottoms & Trousers"].push(cat);
+    } else if (
+      lower.includes("footwear") ||
+      lower.includes("sneaker") ||
+      lower.includes("shoe") ||
+      lower.includes("slide") ||
+      lower.includes("boot")
+    ) {
+      groups["Footwear"].push(cat);
+    } else if (
+      lower.includes("bag") ||
+      lower.includes("luggage") ||
+      lower.includes("jewelry") ||
+      lower.includes("watch") ||
+      lower.includes("headwear") ||
+      lower.includes("cap") ||
+      lower.includes("fragrance") ||
+      lower.includes("grooming") ||
+      lower.includes("accessori")
+    ) {
+      groups["Accessories, Bags & Jewelry"].push(cat);
+    } else {
+      const deptLabel =
+        cat.department && cat.department !== "All"
+          ? `${cat.department}'s Collection`
+          : "Other Curations";
+      if (!otherGroups[deptLabel]) otherGroups[deptLabel] = [];
+      otherGroups[deptLabel].push(cat);
+    }
+  }
+
+  const combined = [
+    ...Object.entries(groups),
+    ...Object.entries(otherGroups),
+  ];
+
+  return combined
+    .filter(([_, items]) => items.length > 0)
+    .map(([label, items]) => ({ label, items }));
+}
+
 /**
  * React hook that returns dynamic categories, stays synced across tabs/events,
  * and fetches the latest from Supabase Storage on mount.
@@ -72,7 +169,6 @@ export function useDynamicCategories() {
   useEffect(() => {
     let active = true;
 
-    // Listen for localStorage changes or custom broadcasts
     const handleUpdate = (e: Event) => {
       const customEvent = e as CustomEvent<CategoryTaxonomy[]>;
       if (customEvent.detail && Array.isArray(customEvent.detail)) {
@@ -89,7 +185,6 @@ export function useDynamicCategories() {
       }
     });
 
-    // Fetch from server storage
     setLoading(true);
     getPublicCategories()
       .then((serverCats) => {
@@ -112,9 +207,6 @@ export function useDynamicCategories() {
     };
   }, []);
 
-  /**
-   * Helper to add a category on the fly
-   */
   const addCategoryOnTheFly = async (cat: {
     name: string;
     blurb?: string;
@@ -150,7 +242,6 @@ export function useDynamicCategories() {
     setCategories(nextList);
     saveStoredCategories(nextList);
 
-    // Persist to server in background
     try {
       await adminSaveCategories({ data: { categories: nextList } });
     } catch (e) {
@@ -160,10 +251,23 @@ export function useDynamicCategories() {
     return newCategory;
   };
 
+  const updateCategory = async (id: string, patch: Partial<CategoryTaxonomy>) => {
+    const nextList = categories.map((c) => (c.id === id ? { ...c, ...patch } : c));
+    setCategories(nextList);
+    saveStoredCategories(nextList);
+
+    try {
+      await adminSaveCategories({ data: { categories: nextList } });
+    } catch (e) {
+      console.warn("Could not persist category update to server storage:", e);
+    }
+  };
+
   return {
     categories,
     loading,
     setCategories,
     addCategoryOnTheFly,
+    updateCategory,
   };
 }

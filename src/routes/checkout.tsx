@@ -35,6 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCart } from "@/lib/cart";
+import { useStoreSettings } from "@/lib/settings";
 import { useAuth } from "@/lib/auth";
 import { createCustomerOrder } from "@/lib/order.functions";
 import { initializePaystackCheckout, PAYSTACK_PUBLIC_KEY } from "@/lib/paystack";

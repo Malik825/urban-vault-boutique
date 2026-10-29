@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Check, ImagePlus, ArrowLeft, ArrowRight, Plus, Star, UploadCloud, Loader2 } from "lucide-react";
+import { Check, ImagePlus, ArrowLeft, ArrowRight, Plus, Star, UploadCloud, Loader2, Sparkles } from "lucide-react";
 import { SortableImageGrid } from "@/components/dashboard/sortable-image-grid";
 import { toast } from "sonner";
 
@@ -12,7 +12,9 @@ import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -20,7 +22,8 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { adminCreateProduct, adminUploadProductImage } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES_TAXONOMY, DEPARTMENTS } from "@/lib/store-data";
-import { useDynamicCategories } from "@/lib/categories";
+import { useDynamicCategories, groupCategoriesForSelect } from "@/lib/categories";
+import { generateProductDescription } from "@/lib/ai-copy.functions";
 import { QuickAddCategoryDialog } from "@/components/dashboard/quick-add-category-dialog";
 
 export const Route = createFileRoute("/_authenticated/dashboard/new-product")({
@@ -86,6 +89,32 @@ export function AddProduct() {
   const [step, setStep] = useState(0);
   const { categories: dynamicCategories } = useDynamicCategories();
   const [quickCatOpen, setQuickCatOpen] = useState(false);
+  const [generatingAiDesc, setGeneratingAiDesc] = useState(false);
+
+  async function handleGenerateAiDescription() {
+    if (!formData.name.trim()) {
+      toast.error("Please enter a product title first");
+      return;
+    }
+    setGeneratingAiDesc(true);
+    try {
+      const res = await generateProductDescription({
+        data: {
+          title: formData.name.trim(),
+          category: formData.category,
+          department: formData.department,
+        },
+      });
+      if (res.description) {
+        updateField("blurb", res.description);
+        toast.success("AI suggested product description!");
+      }
+    } catch {
+      toast.error("Failed to generate description");
+    } finally {
+      setGeneratingAiDesc(false);
+    }
+  }
 
   const [imageUrlInput, setImageUrlInput] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -433,14 +462,21 @@ export function AddProduct() {
                     <SelectTrigger className="rounded-xl">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__ADD_NEW__" className="text-primary font-bold">
+                    <SelectContent className="max-h-80">
+                      <SelectItem value="__ADD_NEW__" className="text-primary font-bold border-b border-border/50 pb-2 mb-1">
                         + Add new category on the fly…
                       </SelectItem>
-                      {dynamicCategories.map((c) => (
-                        <SelectItem key={c.name} value={c.name}>
-                          {c.name}
-                        </SelectItem>
+                      {groupCategoriesForSelect(dynamicCategories).map((group) => (
+                        <SelectGroup key={group.label}>
+                          <SelectLabel className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground px-2 pt-2 pb-0.5">
+                            {group.label}
+                          </SelectLabel>
+                          {group.items.map((c) => (
+                            <SelectItem key={c.name} value={c.name} className="text-sm">
+                              {c.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
                       ))}
                     </SelectContent>
                   </Select>
@@ -488,7 +524,27 @@ export function AddProduct() {
                 </div>
 
                 <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="desc">Product Description & Styling Notes</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="desc">Product Description & Styling Notes</Label>
+                    <button
+                      type="button"
+                      onClick={handleGenerateAiDescription}
+                      disabled={generatingAiDesc || !formData.name.trim()}
+                      className="text-xs font-semibold text-primary hover:text-primary/80 inline-flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                    >
+                      {generatingAiDesc ? (
+                        <>
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          <span>Generating description…</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-3.5 w-3.5" />
+                          <span>✨ AI Auto-Suggest Description</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                   <Textarea
                     id="desc"
                     rows={4}
