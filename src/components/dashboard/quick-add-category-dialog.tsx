@@ -208,6 +208,54 @@ export function QuickAddCategoryDialog({
               </SelectContent>
             </Select>
           </div>
+
+          {/* Cover Photo Upload */}
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold">Cover Photo <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+            <input
+              type="file"
+              ref={imageFileRef}
+              accept="image/png,image/jpeg,image/webp,image/avif"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleImageUpload(file);
+                e.target.value = "";
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => imageFileRef.current?.click()}
+              disabled={uploadingImage}
+              className="relative w-full h-24 rounded-xl border-2 border-dashed border-border hover:border-primary/60 bg-muted/40 hover:bg-primary/5 overflow-hidden transition-colors flex items-center justify-center group"
+            >
+              {(imagePreview || imageUrl) ? (
+                <img
+                  src={imagePreview || imageUrl}
+                  alt="Preview"
+                  className="absolute inset-0 w-full h-full object-cover rounded-xl"
+                />
+              ) : null}
+              <div className={`absolute inset-0 flex flex-col items-center justify-center gap-1 transition-opacity ${(imagePreview || imageUrl) ? "opacity-0 group-hover:opacity-100 bg-black/50" : "opacity-100"}`}>
+                {uploadingImage ? (
+                  <Loader2 className="h-5 w-5 animate-spin text-white" />
+                ) : (
+                  <>
+                    <UploadCloud className={`h-5 w-5 ${(imagePreview || imageUrl) ? "text-white" : "text-muted-foreground"}`} />
+                    <span className={`text-[11px] font-medium ${(imagePreview || imageUrl) ? "text-white" : "text-muted-foreground"}`}>
+                      {(imagePreview || imageUrl) ? "Change photo" : "Click to upload category photo"}
+                    </span>
+                  </>
+                )}
+              </div>
+            </button>
+            <Input
+              placeholder="Or paste image URL…"
+              value={imageUrl}
+              onChange={(e) => { setImageUrl(e.target.value); setImagePreview(null); }}
+              className="h-8 text-[11px] font-mono"
+            />
+          </div>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">

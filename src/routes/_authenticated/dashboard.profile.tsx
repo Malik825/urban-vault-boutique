@@ -63,16 +63,17 @@ function ProfilePage() {
     setUploading(true);
     try {
       const ext = file.name.split(".").pop();
-      const storagePath = `avatars/${userId}.${ext}`;
+      const storagePath = `${userId}.${ext}`;
 
+      // Upload to public avatars bucket
       const { error: uploadError } = await supabase.storage
-        .from("product-images")
+        .from("avatars")
         .upload(storagePath, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
       const { data: urlData } = supabase.storage
-        .from("product-images")
+        .from("avatars")
         .getPublicUrl(storagePath);
 
       const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
