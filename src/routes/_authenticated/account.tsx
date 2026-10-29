@@ -144,14 +144,10 @@ function AccountPage() {
     }
   }, []);
 
-  useEffect(() => {
-    if (isAdmin) {
-      navigate({ to: "/dashboard", replace: true });
-    }
-  }, [isAdmin, navigate]);
+  // Admins can freely access /account to view their customer orders & profile
 
   useEffect(() => {
-    if (user && !isAdmin) {
+    if (user) {
 
 
       listCustomerOrders({ data: { userId: user.id } })
