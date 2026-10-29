@@ -20,6 +20,8 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { adminCreateProduct, adminUploadProductImage } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES_TAXONOMY, DEPARTMENTS } from "@/lib/store-data";
+import { useDynamicCategories } from "@/lib/categories";
+import { QuickAddCategoryDialog } from "@/components/dashboard/quick-add-category-dialog";
 
 export const Route = createFileRoute("/_authenticated/dashboard/new-product")({
   head: () => ({
@@ -82,6 +84,8 @@ const BOUTIQUE_BADGES = [
 export function AddProduct() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
+  const { categories: dynamicCategories } = useDynamicCategories();
+  const [quickCatOpen, setQuickCatOpen] = useState(false);
 
   const [imageUrlInput, setImageUrlInput] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -406,16 +410,34 @@ export function AddProduct() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Boutique Category</Label>
+                  <div className="flex items-center justify-between">
+                    <Label>Boutique Category</Label>
+                    <button
+                      type="button"
+                      onClick={() => setQuickCatOpen(true)}
+                      className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
+                    >
+                      <Plus className="h-3 w-3" /> Add category
+                    </button>
+                  </div>
                   <Select
                     value={formData.category}
-                    onValueChange={(v) => updateField("category", v)}
+                    onValueChange={(v) => {
+                      if (v === "__ADD_NEW__") {
+                        setQuickCatOpen(true);
+                      } else {
+                        updateField("category", v);
+                      }
+                    }}
                   >
                     <SelectTrigger className="rounded-xl">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
-                      {CATEGORIES_TAXONOMY.map((c) => (
+                      <SelectItem value="__ADD_NEW__" className="text-primary font-bold">
+                        + Add new category on the fly…
+                      </SelectItem>
+                      {dynamicCategories.map((c) => (
                         <SelectItem key={c.name} value={c.name}>
                           {c.name}
                         </SelectItem>
@@ -940,6 +962,11 @@ export function AddProduct() {
           </div>
         </div>
       </div>
+      <QuickAddCategoryDialog
+        open={quickCatOpen}
+        onOpenChange={setQuickCatOpen}
+        onCategoryCreated={(name) => updateField("category", name)}
+      />
     </DashboardShell>
   );
 }

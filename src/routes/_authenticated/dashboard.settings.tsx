@@ -27,6 +27,7 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Panel } from "./dashboard.index";
 import { STORE, CATEGORIES_TAXONOMY, type CategoryTaxonomy } from "@/lib/store-data";
 import { HeroSliderSettings } from "@/components/dashboard/hero-slider-settings";
+import { CategoryManager } from "@/components/dashboard/category-manager";
 
 export const Route = createFileRoute("/_authenticated/dashboard/settings")({
   head: () => ({
@@ -450,7 +451,16 @@ function Settings() {
 
         {/* ─── Category Images ─────────────────────────────────────────────── */}
         <Panel
-          title="Category Cover Images"
+          title="Dynamic Categories & Filter Subtitles"
+          subtitle="Add categories on the fly, edit filter subtitles and editorial blurbs, manage departments, and upload cover photos live."
+          className="lg:col-span-2"
+        >
+          <CategoryManager />
+        </Panel>
+
+        {/* ─── Category Images (Legacy Reference) ─────────────────────────────────────────────── */}
+        <Panel
+          title="Category Cover Images (Legacy)"
           subtitle="Upload a custom cover photo for each storefront category. Changes apply immediately — no rebuild required."
           className="lg:col-span-2"
         >

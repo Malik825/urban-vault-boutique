@@ -36,6 +36,7 @@ import {
   STORE,
   type Product,
 } from "@/lib/store-data";
+import { useDynamicCategories } from "@/lib/categories";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/user-store";
 import type { CatalogProduct } from "@/lib/catalog";
@@ -84,6 +85,7 @@ export function SearchCommand({
   const [recentSearches, setRecentSearches] = useState<string[]>(DEFAULT_RECENT);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [visualSearchOpen, setVisualSearchOpen] = useState(false);
+  const { categories: dynamicCategories } = useDynamicCategories();
 
   // ── Load recent searches from localStorage ────────────────────────
   useEffect(() => {
@@ -444,7 +446,7 @@ export function SearchCommand({
 
           {/* Quick horizontal category pills on Mobile */}
           <div className="sm:hidden mt-3 flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-            {["All", ...categories.map((c) => c.name)].map((cat) => (
+            {["All", ...dynamicCategories.map((c) => c.name)].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
@@ -498,7 +500,7 @@ export function SearchCommand({
                     {defaultProducts.length}
                   </span>
                 </button>
-                {categories.map((c) => {
+                {dynamicCategories.map((c) => {
                   const isSelected = selectedCategory.toLowerCase() === c.name.toLowerCase();
                   const realCount = defaultProducts.filter((p) =>
                     p.category.toLowerCase().includes(c.name.toLowerCase()) ||

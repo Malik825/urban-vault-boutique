@@ -30,6 +30,7 @@ import { ProductCard } from "@/components/storefront/product-card";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { SiteHeader } from "@/components/storefront/site-header";
 import { brands, categories, reviews, popularSearches, STORE, whatsappLink, formatPrice } from "@/lib/store-data";
+import { useDynamicCategories } from "@/lib/categories";
 import { listPublishedProducts } from "@/lib/catalog.functions";
 import type { CatalogProduct } from "@/lib/catalog";
 import { Reveal } from "@/components/reveal";
@@ -100,6 +101,7 @@ function Landing() {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [activeCategoryTab, setActiveCategoryTab] = useState<string>("All");
   const [categoryOverrides, setCategoryOverrides] = useState<Record<string, string>>({});
+  const { categories: dynamicCategories } = useDynamicCategories();
 
   useEffect(() => {
     try {
@@ -491,7 +493,7 @@ function Landing() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-          {categories.map((cat) => {
+          {dynamicCategories.map((cat) => {
               const realCount = products.filter((p) => {
                 const pc = (p.category ?? "").toLowerCase();
                 const cc = cat.name.toLowerCase();

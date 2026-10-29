@@ -40,6 +40,7 @@ import { ProductCard } from "@/components/storefront/product-card";
 import { SiteFooter } from "@/components/storefront/site-footer";
 import { SiteHeader } from "@/components/storefront/site-header";
 import { filterOptions, formatPrice, STORE } from "@/lib/store-data";
+import { useDynamicCategories } from "@/lib/categories";
 import { listPublishedProducts } from "@/lib/catalog.functions";
 import type { CatalogProduct } from "@/lib/catalog";
 
@@ -107,6 +108,33 @@ function Listing() {
     size: [],
     availability: [],
   });
+
+  const { categories: dynamicCategories } = useDynamicCategories();
+
+  // Dynamic category options and subtitle/blurb mappings
+  const { categoryOptions, categorySubtitles } = useMemo(() => {
+    const subtitles: Record<string, string> = {};
+    const namesSet = new Set<string>();
+
+    for (const c of dynamicCategories) {
+      namesSet.add(c.name);
+      if (c.blurb) {
+        subtitles[c.name] = c.blurb;
+      }
+    }
+
+    // Also include any categories present in products from database
+    for (const p of products) {
+      if (p.category && !namesSet.has(p.category)) {
+        namesSet.add(p.category);
+      }
+    }
+
+    return {
+      categoryOptions: Array.from(namesSet),
+      categorySubtitles: subtitles,
+    };
+  }, [dynamicCategories, products]);
 
   // Compute live counts from the loaded products data
   const liveCounts = useMemo(() => {
@@ -217,6 +245,11 @@ function Listing() {
     return results.slice(start, start + PAGE_SIZE);
   }, [results, safePage, PAGE_SIZE]);
 
+  const activeCategory =
+    search.category ||
+    (sel.category?.length === 1 ? sel.category[0] : undefined);
+  const activeCategorySubtitle = activeCategory ? categorySubtitles[activeCategory] : undefined;
+
   const handlePageChange = (newPage: number) => {
     const targetPage = Math.min(Math.max(1, newPage), totalPages);
     setCurrentPage(targetPage);
@@ -254,7 +287,8 @@ function Listing() {
       <CheckGroup
         title="Category"
         group="category"
-        options={filterOptions.category}
+        options={categoryOptions}
+        subtitles={categorySubtitles}
         counts={liveCounts.category}
         sel={sel}
         toggle={toggle}
@@ -314,10 +348,12 @@ function Listing() {
                 ? "★ Best Sellers"
                 : search.deals
                 ? "Flash deals"
-                : (search.category ?? "All products")}
+                : (activeCategory ?? "All products")}
             </h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              {results.length} products · curated boutique collection
+              {activeCategorySubtitle
+                ? `${activeCategorySubtitle} · ${results.length} item${results.length !== 1 ? "s" : ""}`
+                : `${results.length} products · curated boutique collection`}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-1 rounded-xl border border-border bg-surface p-1">
@@ -586,6 +622,7 @@ function CheckGroup({
   title,
   group,
   options = [],
+  subtitles,
   counts,
   sel,
   toggle,
@@ -593,13 +630,14 @@ function CheckGroup({
   title: string;
   group: string;
   options?: string[];
+  subtitles?: Record<string, string>;
   counts?: Record<string, number>;
   sel: Record<string, string[]>;
   toggle: (g: string, v: string) => void;
 }) {
   // Only show options that have at least 1 product (when counts provided)
   const visibleOptions = counts
-    ? options.filter((o) => (counts[o] ?? 0) > 0)
+    ? options.filter((o) => (counts[o] ?? 0) > 0 || (sel[group]?.includes(o) ?? false))
     : options;
 
   if (!visibleOptions || visibleOptions.length === 0) return null;
@@ -608,16 +646,32 @@ function CheckGroup({
     <FilterGroup title={title}>
       <div className="space-y-2.5">
         {visibleOptions.map((o) => (
-          <div key={o} className="flex items-center justify-between gap-2.5">
-            <div className="flex items-center gap-2.5">
+          <div key={o} className="flex items-start justify-between gap-2.5">
+            <div className="flex items-start gap-2.5 min-w-0">
               <Checkbox
                 id={`${group}-${o}`}
                 checked={sel[group]?.includes(o) ?? false}
                 onCheckedChange={() => toggle(group, o)}
+                className="mt-0.5 shrink-0"
               />
-              <Label htmlFor={`${group}-${o}`} className="cursor-pointer text-sm font-normal leading-none">
-                {o}
-              </Label>
+              <div className="flex flex-col min-w-0">
+                <Label htmlFor={`${group}-${o}`} className="cursor-pointer text-sm font-medium leading-snug hover:text-primary transition-colors">
+                  {o}
+                </Label>
+  
+  
+                {subtitles && subtitles[o] && (
+                  <span
+                    className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5 leading-tight"
+                    title={subtitles[o]}
+                  >
+                    {subtitles[o]}
+                  </span>
+                )}
+              </div>
+
+
+
             </div>
             {counts && counts[o] !== undefined && (
               <span className="text-[11px] font-medium text-muted-foreground tabular-nums">
