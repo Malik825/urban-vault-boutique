@@ -55,42 +55,83 @@ function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file || !userId) return;
 
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file (PNG, JPG, WEBP, GIF)");
+      return;
+    }
+
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Image must be smaller than 5 MB");
       return;
     }
 
     setUploading(true);
+    const toastId = toast.loading("Uploading profile photo…");
+
     try {
-      const ext = file.name.split(".").pop();
+      const ext = file.name.split(".").pop() || "jpg";
+      const contentType = file.type || (ext === "png" ? "image/png" : "image/jpeg");
       const storagePath = `${userId}.${ext}`;
 
-      // Upload to public avatars bucket
-      const { error: uploadError } = await supabase.storage
+      let finalPublicUrl = "";
+
+      // 1. Try uploading to 'avatars' bucket with explicit contentType
+      const { data: uploadData, error: avatarErr } = await supabase.storage
         .from("avatars")
-        .upload(storagePath, file, { upsert: true });
+        .upload(storagePath, file, { contentType, upsert: true });
 
-      if (uploadError) throw uploadError;
+      if (!avatarErr && uploadData) {
+        const { data: urlData } = supabase.storage
+          .from("avatars")
+          .getPublicUrl(storagePath);
+        finalPublicUrl = urlData.publicUrl;
+      } else {
+        // 2. Fallback to 'product-images' bucket if 'avatars' bucket policy blocks it
+        console.warn("Avatars bucket upload failed, trying product-images fallback:", avatarErr);
+        const fallbackPath = `avatars/${userId}_${Date.now()}.${ext}`;
+        const { error: fallbackErr } = await supabase.storage
+          .from("product-images")
+          .upload(fallbackPath, file, { contentType, upsert: true });
 
-      const { data: urlData } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(storagePath);
+        if (fallbackErr) throw new Error(fallbackErr.message || avatarErr?.message || "Upload failed");
 
-      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+        const { data: fallbackUrlData } = supabase.storage
+          .from("product-images")
+          .getPublicUrl(fallbackPath);
+        finalPublicUrl = fallbackUrlData.publicUrl;
+      }
+
+      const publicUrlWithBust = `${finalPublicUrl}?t=${Date.now()}`;
 
       const { error: updateError } = await supabase.auth.updateUser({
-        data: { avatar_url: publicUrl },
+        data: { avatar_url: publicUrlWithBust },
       });
       if (updateError) throw updateError;
 
-      setAvatarUrl(publicUrl);
-      toast.success("Profile photo updated!");
+      setAvatarUrl(publicUrlWithBust);
+      toast.success("Profile photo updated successfully!", { id: toastId });
     } catch (err: any) {
-      toast.error(err?.message ?? "Upload failed");
+      toast.error(err?.message ?? "Failed to upload profile photo", { id: toastId });
     } finally {
       setUploading(false);
-      // reset so the same file can be re-selected
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  async function handleRemoveAvatar() {
+    setUploading(true);
+    const toastId = toast.loading("Removing profile photo…");
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: { avatar_url: null },
+      });
+      if (error) throw error;
+      setAvatarUrl(null);
+      toast.success("Profile photo removed!", { id: toastId });
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to remove photo", { id: toastId });
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -183,21 +224,34 @@ function ProfilePage() {
               <p className="mt-1.5 text-xs text-muted-foreground">
                 PNG, JPG, WEBP or GIF — max 5 MB
               </p>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="mt-3"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-              >
-                {uploading ? (
-                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Camera className="mr-2 h-3.5 w-3.5" />
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                >
+                  {uploading ? (
+                    <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Camera className="mr-2 h-3.5 w-3.5" />
+                  )}
+                  {uploading ? "Uploading…" : "Change photo"}
+                </Button>
+                {avatarUrl && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleRemoveAvatar}
+                    disabled={uploading}
+                    className="text-xs text-muted-foreground hover:text-destructive"
+                  >
+                    Remove photo
+                  </Button>
                 )}
-                {uploading ? "Uploading…" : "Change photo"}
-              </Button>
+              </div>
             </div>
           </div>
         </div>
