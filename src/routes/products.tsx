@@ -247,7 +247,7 @@ function Listing() {
 
   const activeCategory =
     search.category ||
-    (sel.category?.length === 1 ? sel.category[0] : undefined);
+    (sel['category']?.length === 1 ? sel['category']![0] : undefined);
   const activeCategorySubtitle = activeCategory ? categorySubtitles[activeCategory] : undefined;
 
   const handlePageChange = (newPage: number) => {

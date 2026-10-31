@@ -84,7 +84,7 @@ function generateCuratedDescription(input: GenerateProductDescriptionInput): str
   }
 
   const vibes = FABRIC_VIBES[vibeCategory] || FABRIC_VIBES["tops"];
-  const fabricSentence = vibes[Math.floor(Math.random() * vibes.length)];
+  const fabricSentence = vibes?.[Math.floor(Math.random() * (vibes?.length ?? 0))] ?? "";
   const styleSentence = STYLING_TIPS[Math.floor(Math.random() * STYLING_TIPS.length)];
 
   const deptTag = input.department && input.department !== "All" ? ` for the modern ${input.department.toLowerCase()}` : " for bold individual expression";

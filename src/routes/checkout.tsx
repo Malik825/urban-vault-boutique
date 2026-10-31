@@ -955,7 +955,7 @@ function CheckoutPage() {
               <span className={`font-medium ${isFreeShipping || shipping === 0 ? "text-emerald-600 dark:text-emerald-400 font-semibold" : "text-foreground"}`}>
                 {shipping > 0
                   ? formatPrice(shipping)
-                  : isAccraFreeShipping
+                  : isFreeShipping
                   ? "FREE (Accra GH₵ 500+ promo)"
                   : "Free"}
               </span>

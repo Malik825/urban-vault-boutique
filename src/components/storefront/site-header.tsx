@@ -46,11 +46,11 @@ export function SiteHeader() {
   const currentPath = location.pathname + (location.searchStr || "");
   const smartAuthRedirect = currentPath !== "/auth" ? currentPath : undefined;
 
-  const userAvatar = user?.user_metadata?.avatar_url ?? user?.user_metadata?.picture ?? null;
+  const userAvatar = user?.user_metadata?.['avatar_url'] ?? user?.user_metadata?.['picture'] ?? null;
   const userInitials = user?.email ? user.email.slice(0, 2).toUpperCase() : "UV";
   const userDisplayName =
-    user?.user_metadata?.full_name ||
-    user?.user_metadata?.name ||
+    user?.user_metadata?.['full_name'] ||
+    user?.user_metadata?.['name'] ||
     (user?.email ? user.email.split("@")[0] : "Account");
 
   /* Scroll effects */
@@ -187,7 +187,7 @@ export function SiteHeader() {
                       </Avatar>
                       <div className="flex flex-col space-y-0.5 min-w-0 flex-1">
                         <p className="text-xs font-bold text-foreground truncate">
-                          {user.user_metadata?.full_name ?? "User Account"}
+                          {user.user_metadata?.['full_name'] ?? "User Account"}
                         </p>
                         <p className="text-[11px] text-muted-foreground truncate">{user.email}</p>
                         {isAdmin && (

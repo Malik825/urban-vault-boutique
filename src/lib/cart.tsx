@@ -61,7 +61,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         userRef.current = session.user.id;
-        const remoteCart = (session.user.user_metadata?.cart as CartItem[]) || [];
+        const remoteCart = (session.user.user_metadata?.['cart'] as CartItem[]) || [];
         if (remoteCart.length > 0) {
           // Merge remote cart items with local
           setItems((prev) => {
@@ -80,8 +80,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       userRef.current = session?.user?.id ?? null;
-      if (session?.user?.user_metadata?.cart) {
-        const remoteCart = session.user.user_metadata.cart as CartItem[];
+      if (session?.user?.user_metadata?.['cart']) {
+        const remoteCart = session.user.user_metadata['cart'] as CartItem[];
         setItems((prev) => {
           if (prev.length === 0 && remoteCart.length > 0) return remoteCart;
           return prev;
@@ -103,6 +103,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }, 1000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [items, isMounted]);
 
   const addItem = (product: Product, qty = 1) => {

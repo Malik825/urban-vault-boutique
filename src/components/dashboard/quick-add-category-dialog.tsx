@@ -114,7 +114,7 @@ export function QuickAddCategoryDialog({
         name: trimmed,
         blurb: blurb.trim() || `${trimmed} boutique collection`,
         department,
-        image: imageUrl || undefined,
+        image: imageUrl || '',
       });
 
       if (created) {

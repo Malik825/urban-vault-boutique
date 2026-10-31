@@ -89,7 +89,7 @@ export function groupCategoriesForSelect(categories: CategoryTaxonomy[]): Catego
       lower.includes("co-ord") ||
       lower.includes("trousers & shirt")
     ) {
-      groups["Dresses, Skirts & Sets"].push(cat);
+      groups["Dresses, Skirts & Sets"]?.push(cat);
     } else if (
       lower.includes("round neck") ||
       lower.includes("shirt") ||
@@ -98,7 +98,7 @@ export function groupCategoriesForSelect(categories: CategoryTaxonomy[]): Catego
       lower.includes("hoodie") ||
       lower.includes("jacket")
     ) {
-      groups["Tops & Upperwear"].push(cat);
+      groups["Tops & Upperwear"]?.push(cat);
     } else if (
       lower.includes("kaftan") ||
       lower.includes("traditional") ||
@@ -106,7 +106,7 @@ export function groupCategoriesForSelect(categories: CategoryTaxonomy[]): Catego
       lower.includes("tailor") ||
       lower.includes("blazer")
     ) {
-      groups["Men's Traditional & Tailoring"].push(cat);
+      groups["Men's Traditional & Tailoring"]?.push(cat);
     } else if (
       lower.includes("bottom") ||
       lower.includes("trouser") ||
@@ -115,7 +115,7 @@ export function groupCategoriesForSelect(categories: CategoryTaxonomy[]): Catego
       lower.includes("jean") ||
       lower.includes("short")
     ) {
-      groups["Bottoms & Trousers"].push(cat);
+      groups["Bottoms & Trousers"]?.push(cat);
     } else if (
       lower.includes("footwear") ||
       lower.includes("sneaker") ||
@@ -123,7 +123,7 @@ export function groupCategoriesForSelect(categories: CategoryTaxonomy[]): Catego
       lower.includes("slide") ||
       lower.includes("boot")
     ) {
-      groups["Footwear"].push(cat);
+      groups["Footwear"]?.push(cat);
     } else if (
       lower.includes("bag") ||
       lower.includes("luggage") ||
@@ -135,7 +135,7 @@ export function groupCategoriesForSelect(categories: CategoryTaxonomy[]): Catego
       lower.includes("grooming") ||
       lower.includes("accessori")
     ) {
-      groups["Accessories, Bags & Jewelry"].push(cat);
+      groups["Accessories, Bags & Jewelry"]?.push(cat);
     } else {
       const deptLabel =
         cat.department && cat.department !== "All"

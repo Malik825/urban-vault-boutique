@@ -62,8 +62,8 @@ export const serverRegisterUser = createServerFn({ method: "POST" })
             email_confirm: true,
             password,
             user_metadata: {
-              full_name: fullName || (existing.user_metadata?.full_name as string) || "",
-              phone: phone || (existing.user_metadata?.phone as string) || "",
+              full_name: fullName || (existing.user_metadata?.['full_name'] as string) || "",
+              phone: phone || (existing.user_metadata?.['phone'] as string) || "",
             },
           });
 

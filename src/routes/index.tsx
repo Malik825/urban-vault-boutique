@@ -148,12 +148,12 @@ function Landing() {
   }, [isPaused, nextSlide]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
+    setTouchStart((e.targetTouches?.[0]?.clientX ?? 0));
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStart === null) return;
-    const touchEnd = e.changedTouches[0].clientX;
+    const touchEnd = (e.changedTouches?.[0]?.clientX ?? 0);
     const diff = touchStart - touchEnd;
     if (diff > 50) {
       nextSlide();
@@ -271,7 +271,7 @@ function Landing() {
               <div className="flex items-center gap-3">
                 <div className="w-6 h-px bg-primary" />
                 <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/50 font-semibold">
-                  {(activeSlide.badge || "").split("//")[0].trim()}
+                  {((activeSlide?.badge || "").split("//")[0] ?? "").trim()}
                 </span>
               </div>
 
@@ -286,15 +286,15 @@ function Landing() {
                   className="space-y-4 sm:space-y-5 my-auto py-6 sm:py-0"
                 >
                   <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.0]">
-                    {activeSlide.headlineLine1}
+                    {activeSlide?.headlineLine1}
                     <br />
                     <span className="text-primary">
-                      {activeSlide.headlineHighlight}
+                      {activeSlide?.headlineHighlight}
                     </span>
                   </h1>
 
                   <p className="text-sm sm:text-base text-white/65 leading-relaxed max-w-sm">
-                    {activeSlide.subtitle}
+                    {activeSlide?.subtitle}
                   </p>
 
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-1">
@@ -303,10 +303,10 @@ function Landing() {
                       className="px-6 py-5 text-sm font-bold rounded-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all hover:scale-105 active:scale-95"
                     >
                       <Link
-                        to={activeSlide.primaryCta?.to as any || "/products"}
-                        search={activeSlide.primaryCta?.search || {}}
+                        to={activeSlide?.primaryCta?.to as any || "/products"}
+                        search={(activeSlide?.primaryCta?.search as any) || {}}
                       >
-                        {activeSlide.primaryCta?.text || "Shop Collection"}
+                        {activeSlide?.primaryCta?.text || "Shop Collection"}
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
@@ -317,12 +317,12 @@ function Landing() {
                       className="px-5 py-5 text-sm font-semibold rounded-full border-white/20 bg-transparent hover:bg-white/8 text-white transition-all hover:scale-105 active:scale-95"
                     >
                       <a
-                        href={activeSlide.secondaryCta?.href || "#"}
+                        href={activeSlide?.secondaryCta?.href || "#"}
                         target="_blank"
                         rel="noreferrer"
                       >
                         <MessageCircle className="mr-2 h-4 w-4 text-primary" />
-                        {activeSlide.secondaryCta?.text || "WhatsApp Concierge"}
+                        {activeSlide?.secondaryCta?.text || "WhatsApp Concierge"}
                       </a>
                     </Button>
                   </div>

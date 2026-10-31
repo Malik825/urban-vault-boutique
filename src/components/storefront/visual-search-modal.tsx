@@ -141,21 +141,21 @@ function extractDominantColorsFromImage(base64: string): Promise<string[]> {
           const lightness = (max + min) / (2 * 255);
 
           if (lightness < 0.2) {
-            buckets.Black = (buckets.Black || 0) + 1;
+            buckets['Black'] = (buckets['Black'] || 0) + 1;
           } else if (lightness > 0.85 && delta < 25) {
-            buckets.White = (buckets.White || 0) + 1;
+            buckets['White'] = (buckets['White'] || 0) + 1;
           } else if (delta < 20) {
-            buckets.Grey = (buckets.Grey || 0) + 1;
+            buckets['Grey'] = (buckets['Grey'] || 0) + 1;
           } else {
             if (r > g && r > b) {
-              if (g > b && r - g < 40) buckets.Brown = (buckets.Brown || 0) + 1;
-              else buckets.Red = (buckets.Red || 0) + 1;
+              if (g > b && r - g < 40) buckets['Brown'] = (buckets['Brown'] || 0) + 1;
+              else buckets['Red'] = (buckets['Red'] || 0) + 1;
             } else if (g > r && g > b) {
-              buckets.Green = (buckets.Green || 0) + 1;
+              buckets['Green'] = (buckets['Green'] || 0) + 1;
             } else if (b > r && b > g) {
-              buckets.Blue = (buckets.Blue || 0) + 1;
+              buckets['Blue'] = (buckets['Blue'] || 0) + 1;
             } else {
-              buckets.Brown = (buckets.Brown || 0) + 1;
+              buckets['Brown'] = (buckets['Brown'] || 0) + 1;
             }
           }
         }

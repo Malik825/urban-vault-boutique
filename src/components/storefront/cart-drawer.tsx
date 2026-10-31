@@ -34,7 +34,7 @@ export function CartDrawer({
   const deliveryProgress = Math.min(100, (subtotal / threshold) * 100);
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open ?? false} onOpenChange={onOpenChange ?? (() => {})}>
       {children && <SheetTrigger asChild>{children}</SheetTrigger>}
       <SheetContent className="flex w-full flex-col sm:max-w-lg">
         <SheetHeader className="px-1">

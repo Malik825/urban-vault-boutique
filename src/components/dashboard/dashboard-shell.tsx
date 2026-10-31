@@ -140,7 +140,7 @@ export function DashboardShell({
   useEffect(() => {
     void supabase.auth.getUser().then(({ data }) => {
       setEmail(data.user?.email ?? null);
-      setAvatarUrl(data.user?.user_metadata?.avatar_url ?? null);
+      setAvatarUrl(data.user?.user_metadata?.['avatar_url'] ?? null);
     });
   }, []);
 

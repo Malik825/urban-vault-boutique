@@ -42,13 +42,13 @@ function ProfilePage() {
       setEmail(data.user.email ?? null);
       setUserId(data.user.id);
       const name =
-        data.user.user_metadata?.full_name ??
-        data.user.user_metadata?.name ??
+        data.user.user_metadata?.['full_name'] ??
+        data.user.user_metadata?.['name'] ??
         data.user.email?.split("@")[0] ??
         "Admin";
       setDisplayName(name);
       setNameInput(name);
-      setAvatarUrl(data.user.user_metadata?.avatar_url ?? null);
+      setAvatarUrl(data.user.user_metadata?.['avatar_url'] ?? null);
     });
   }, []);
 
@@ -74,7 +74,7 @@ function ProfilePage() {
       const base64 = await new Promise<string>((resolve, reject) => {
         reader.onload = () => {
           const res = reader.result as string;
-          resolve(res.split(",")[1]);
+          resolve(res.split(",")[1]!);
         };
         reader.onerror = reject;
         reader.readAsDataURL(file);

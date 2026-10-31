@@ -416,11 +416,11 @@ export function generateOrderStatusUpdateHtml(payload: {
                 ${STORE.name} &bull; ${payload.orderNumber}
               </div>
               <h1 style="font-size: 22px; font-weight: 900; color: #ffffff; margin: 12px 0 0 0;">
-                ${current.title}
+                ${current?.title}
               </h1>
               <p style="font-size: 14px; line-height: 1.6; color: #a1a1aa; margin: 12px 0 20px 0;">
                 Hello ${payload.customerName},<br />
-                ${current.desc}
+                ${current?.desc}
               </p>
 
               ${

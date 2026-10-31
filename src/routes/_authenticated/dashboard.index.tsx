@@ -123,10 +123,10 @@ function DashboardHome() {
       <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
         {/* Left: large primary card (Revenue + Orders) */}
         {(() => {
-          const primary = stats[0]; // Revenue
-          const secondary = stats[3]; // Orders
-          const PrimaryIcon = primary.icon;
-          const SecondaryIcon = secondary.icon;
+          const primary = stats[0]!; // Revenue
+          const secondary = stats[3]!; // Orders
+          const PrimaryIcon = primary!.icon;
+          const SecondaryIcon = secondary!.icon;
           return (
             <div className="hover-lift rounded-lg border border-border bg-card p-6 shadow-card flex flex-col gap-6">
               {/* Primary stat — Revenue */}
@@ -135,9 +135,9 @@ function DashboardHome() {
                   <PrimaryIcon className="h-5 w-5" />
                 </span>
                 <div className="min-w-0">
-                  <p className="font-display text-3xl font-extrabold tracking-tight">{primary.value}</p>
-                  <p className="text-sm font-semibold text-foreground mt-0.5">{primary.label}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{primary.sub}</p>
+                  <p className="font-display text-3xl font-extrabold tracking-tight">{primary!.value}</p>
+                  <p className="text-sm font-semibold text-foreground mt-0.5">{primary!.label}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{primary!.sub}</p>
                 </div>
               </div>
 
@@ -149,9 +149,9 @@ function DashboardHome() {
                   <SecondaryIcon className="h-5 w-5" />
                 </span>
                 <div className="min-w-0">
-                  <p className="font-display text-3xl font-extrabold tracking-tight">{secondary.value}</p>
-                  <p className="text-sm font-semibold text-foreground mt-0.5">{secondary.label}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{secondary.sub}</p>
+                  <p className="font-display text-3xl font-extrabold tracking-tight">{secondary!.value}</p>
+                  <p className="text-sm font-semibold text-foreground mt-0.5">{secondary!.label}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{secondary!.sub}</p>
                 </div>
               </div>
             </div>
@@ -160,7 +160,7 @@ function DashboardHome() {
 
         {/* Right: 4 stat cards stacked in a 2×2 grid */}
         <div className="grid grid-cols-2 grid-rows-2 gap-3">
-          {[stats[1], stats[2], stats[4], stats[5]].map((s) => {
+          {[stats[1], stats[2], stats[4], stats[5]].filter(Boolean).map((s: any) => {
             const Icon = s.icon;
             return (
               <div

@@ -139,7 +139,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
 
@@ -163,7 +163,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <div className="mt-6 text-left w-full overflow-hidden rounded-xl border border-border bg-surface-muted/50 p-4 shadow-inner">
           <p className="text-xs font-semibold text-destructive mb-2 uppercase tracking-wider">Error Details</p>
           <pre className="text-xs text-muted-foreground font-mono overflow-x-auto whitespace-pre-wrap max-h-32">
-            {error.message || "Unknown error occurred"}
+            {(error as Error).message || "Unknown error occurred"}
           </pre>
         </div>
 

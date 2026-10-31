@@ -47,7 +47,7 @@ function Customers() {
         </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {profiles.map((c) => {
+          {profiles.map((c: any) => {
             const initials = (c.full_name ?? "?")
               .split(" ")
               .map((n: string) => n[0])

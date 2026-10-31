@@ -223,7 +223,7 @@ function AccountPage() {
 
   const initials = user?.email?.slice(0, 2).toUpperCase() ?? "GH";
   const displayName =
-    user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? "Guest";
+    user?.user_metadata?.['full_name'] ?? user?.email?.split("@")[0] ?? "Guest";
 
   async function handleSignOut() {
     await signOut();

@@ -63,7 +63,7 @@ export function HeroSliderSettings() {
   function updateSlide(index: number, patch: Partial<HeroSlide>) {
     setSlides((prev) => {
       const next = [...prev];
-      next[index] = { ...next[index], ...patch };
+      next[index] = { ...next[index], ...patch } as HeroSlide;
       return next;
     });
   }
@@ -145,8 +145,8 @@ export function HeroSliderSettings() {
     setSlides((prev) => {
       const copy = [...prev];
       const temp = copy[index];
-      copy[index] = copy[targetIndex];
-      copy[targetIndex] = temp;
+      copy[index] = copy[targetIndex]!;
+      copy[targetIndex] = temp!;
       return copy;
     });
   }
@@ -158,7 +158,7 @@ export function HeroSliderSettings() {
       return;
     }
     const target = slides[index];
-    const headline = `${target.headlineLine1} ${target.headlineHighlight}`.trim() || `Slide ${index + 1}`;
+    const headline = `${target?.headlineLine1 ?? ''} ${target?.headlineHighlight ?? ''}`.trim() || `Slide ${index + 1}`;
     setSlides((prev) => prev.filter((_, i) => i !== index));
     toast.info(`Removed "${headline}" from rotation`);
   }
@@ -395,7 +395,7 @@ export function HeroSliderSettings() {
                     </div>
 
                     <input
-                      ref={(el) => (fileInputRefs.current[index] = el)}
+                      ref={(el) => { fileInputRefs.current[index] = el; }}
                       type="file"
                       accept="image/*"
                       className="hidden"

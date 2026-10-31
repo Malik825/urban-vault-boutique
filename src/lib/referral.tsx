@@ -9,11 +9,11 @@ export function useReferralTracking() {
 
   useEffect(() => {
     // If a referral code is present in the URL (e.g. ?ref=CODE)
-    if (search.ref && typeof search.ref === "string") {
+    if (search['ref'] && typeof search['ref'] === "string") {
       // Store the referral code in localStorage so it persists until checkout
-      localStorage.setItem("voltix-referral-code", search.ref);
+      localStorage.setItem("voltix-referral-code", search['ref']);
     }
-  }, [search.ref]);
+  }, [search['ref']]);
 }
 
 /**
