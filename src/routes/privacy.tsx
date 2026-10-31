@@ -50,12 +50,12 @@ function PrivacyPage() {
             Privacy Policy
           </h1>
           <p className="text-sm text-muted-foreground mb-12">
-            Last updated: October 2026 &nbsp;·&nbsp; {STORE.name}, Accra, Greater Accra Region, Ghana.
+            Last updated: October 2026 &nbsp;·&nbsp; {STORE.name}, Assin Fosu, Central Region, Ghana.
           </p>
 
           <Section title="1. Who We Are">
             <p>
-              {STORE.name} operates an online fashion boutique at <span className="font-semibold text-foreground">{STORE.siteUrl}</span>, based in Accra, Greater Accra Region, Ghana. We are committed to protecting your privacy and handling your personal data responsibly.
+              {STORE.name} operates an online fashion boutique at <span className="font-semibold text-foreground">{STORE.siteUrl}</span>, based in Assin Fosu, Central Region, Ghana. We are committed to protecting your privacy and handling your personal data responsibly.
             </p>
           </Section>
 

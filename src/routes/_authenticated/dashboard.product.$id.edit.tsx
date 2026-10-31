@@ -702,7 +702,7 @@ export function EditProduct() {
                   label="Country of Origin / Tailoring"
                   value={formData.specs["Origin"] || ""}
                   onChange={(v) => updateSpec("Origin", v)}
-                  placeholder="e.g. Handcrafted in Accra, Ghana / Imported (Portugal)"
+                  placeholder="e.g. Handcrafted in Ghana / Imported (Portugal)"
                 />
               </div>
             )}

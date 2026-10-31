@@ -39,7 +39,7 @@ export function createProductEnquiry(product: { name: string; price: number; slu
 export function createCartWhatsAppMessage(
   items: Array<{ product: { name: string; price: number; condition?: string }; qty: number }>,
   subtotal: number,
-  deliveryArea: string = "Accra, Greater Accra Region, Ghana"
+  deliveryArea: string = "Assin Fosu, Central Region, Ghana"
 ) {
   let text = `Hello ${STORE.name}! I would like to place an order for the following boutique items:\n\n`;
   items.forEach((item, index) => {
@@ -76,10 +76,10 @@ export type Product = {
 };
 
 export const GHANA_REGIONS = [
-  { name: "Greater Accra (Accra / Tema / Madina)", deliveryFee: 20, eta: "Same-day (1–3 hours) · Free Flagship Pickup" },
-  { name: "Greater Accra (East Legon / Adenta / Kasoa)", deliveryFee: 30, eta: "Same-day / 2–4 hours" },
+  { name: "Central (Within Assin Fosu)", deliveryFee: 20, eta: "Same-day (1–3 hours) · Free Showroom Pickup" },
+  { name: "Central (Cape Coast / Mankessim / Winneba)", deliveryFee: 35, eta: "Same-day / 24 hours" },
   { name: "Ashanti (Kumasi / Obuasi)", deliveryFee: 40, eta: "Next-day / 24 hours" },
-  { name: "Central (Cape Coast / Assin Fosu)", deliveryFee: 35, eta: "24–48 hours" },
+  { name: "Greater Accra (Accra / Tema / Kasoa)", deliveryFee: 45, eta: "24–48 hours" },
   { name: "Western (Takoradi / Tarkwa)", deliveryFee: 45, eta: "24–48 hours" },
   { name: "Eastern (Koforidua / Nsawam)", deliveryFee: 50, eta: "24–48 hours" },
   { name: "Volta (Ho / Aflao)", deliveryFee: 55, eta: "24–48 hours" },
@@ -514,8 +514,8 @@ export const popularSearches = [
 export const reviews = [
   {
     name: "Kweku Boateng",
-    role: "Content Creator, Accra",
-    text: "Urban Vault has the cleanest streetwear cuts. Ordered the boxy tee and cargo pants via WhatsApp, received them same-day at my doorstep in Accra. Fabric quality is incredible.",
+    role: "Content Creator, Assin Fosu",
+    text: "Urban Vault has the cleanest streetwear cuts. Ordered the boxy tee and cargo pants via WhatsApp, received them same-day at my doorstep in Assin Fosu. Fabric quality is incredible.",
     rating: 5,
   },
   {
@@ -557,13 +557,13 @@ export const searchTerms = [
   { term: "heavyweight boxy tee", count: 840, trend: 22 },
   { term: "chunky platform sneakers", count: 710, trend: 18 },
   { term: "utility cargo pants", count: 620, trend: 15 },
-  { term: "oversized hoodie accra", count: 540, trend: 30 },
+  { term: "oversized hoodie assin fosu", count: 540, trend: 30 },
   { term: "linen shirt men", count: 480, trend: 10 },
 ];
 
 export const activity = [
   { who: "Kweku Boateng", what: "enquired via WhatsApp about Boxy Tee in XL", when: "2 min ago", kind: "enquiry" },
-  { who: "Order #UV-1042", what: "dispatched via rider to East Legon, Accra", when: "15 min ago", kind: "order" },
+  { who: "Order #UV-1042", what: "dispatched via rider in Assin Fosu", when: "15 min ago", kind: "order" },
   { who: "Naa Ashorkor", what: "added Platform Loafers to cart", when: "35 min ago", kind: "wishlist" },
   { who: "Order #UV-1040", what: "paid GH₵ 850 via Paystack / MoMo", when: "1 hr ago", kind: "payment" },
 ];
@@ -576,7 +576,7 @@ export const orders = [
 ];
 
 export const customers = [
-  { name: "Kweku Boateng", email: "kweku@creative.gh", city: "Accra", orders: 3, spend: 2850, enquiries: 5, wishlist: 2 },
-  { name: "Naa Ashorkor", email: "naa@studio.gh", city: "Accra", orders: 4, spend: 3900, enquiries: 4, wishlist: 5 },
+  { name: "Kweku Boateng", email: "kweku@creative.gh", city: "Assin Fosu", orders: 3, spend: 2850, enquiries: 5, wishlist: 2 },
+  { name: "Naa Ashorkor", email: "naa@studio.gh", city: "Cape Coast", orders: 4, spend: 3900, enquiries: 4, wishlist: 5 },
   { name: "Michael Danso", email: "michael@danso.com", city: "Kumasi", orders: 2, spend: 1700, enquiries: 3, wishlist: 1 },
 ];

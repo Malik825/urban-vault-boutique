@@ -37,7 +37,7 @@ export function SiteFooter() {
               </span>
               <div>
                 <p className="font-bold text-foreground">Local &amp; Regional Delivery</p>
-                <p className="text-muted-foreground">Accra, Kumasi &amp; nationwide</p>
+                <p className="text-muted-foreground">Assin Fosu, Kumasi, Accra &amp; nationwide</p>
               </div>
             </div>
 
@@ -181,7 +181,7 @@ export function SiteFooter() {
 
         <div className="mt-12 flex flex-col gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} {STORE.name} · Accra Flagship · Curated unisex fashion &amp; streetwear, Ghana.
+            © {new Date().getFullYear()} {STORE.name} · Curated unisex fashion &amp; streetwear, Assin Fosu, Ghana.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>

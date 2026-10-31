@@ -32,10 +32,10 @@ import { STORE, whatsappLink } from "@/lib/store-data";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: `About ${STORE.name} — Accra Flagship | Fashion Boutique Ghana` },
+      { title: `About ${STORE.name} — Assin Fosu Showroom | Fashion Boutique Ghana` },
       {
         name: "description",
-        content: `${STORE.name} is Accra's premier fashion boutique offering curated unisex apparel, streetwear, and footwear with Paystack, Cash on Delivery, and instant WhatsApp ordering.`,
+        content: `${STORE.name} is a premier fashion boutique in Assin Fosu, Central Region, Ghana offering curated unisex apparel, streetwear, and footwear with Paystack, Cash on Delivery, and instant WhatsApp ordering.`,
       },
       { property: "og:url", content: `${STORE.siteUrl}/about` },
     ],
@@ -73,7 +73,7 @@ const capabilities = [
   {
     icon: Truck,
     title: "Regional Delivery Logic",
-    description: "Same-day Accra delivery, regional courier routes (Kumasi, Cape Coast, Takoradi, Tamale), and free flagship pickup.",
+    description: "Assin Fosu local delivery, regional courier routes (Kumasi, Accra, Takoradi, Cape Coast, Tamale), and free showroom pickup.",
   },
 ];
 
@@ -120,7 +120,7 @@ function AboutPage() {
         <div className="mx-auto max-w-7xl container-x relative z-10">
           <div ref={heroContentRef} className="max-w-3xl">
             <Badge variant="outline" className="mb-4 bg-background border-border text-foreground/80 font-mono text-[11px] uppercase tracking-wider">
-              <MapPin className="mr-1.5 h-3.5 w-3.5 text-primary" /> Accra Flagship · Greater Accra Region, Ghana
+              <MapPin className="mr-1.5 h-3.5 w-3.5 text-primary" /> Assin Fosu, Central Region, Ghana
             </Badge>
 
             <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl text-foreground leading-[1.15]">
@@ -128,7 +128,7 @@ function AboutPage() {
             </h1>
 
             <p className="mt-5 text-base sm:text-lg text-muted-foreground leading-relaxed">
-              {STORE.name} is Accra's premier boutique for curated unisex streetwear, designer shirts, premium footwear, and everyday luxury essentials. We offer transparent pricing, flagship pickup, and fast doorstep delivery across Ghana.
+              {STORE.name} is a contemporary boutique based in Assin Fosu, Central Region. We provide curated unisex streetwear, designer shirts, premium footwear, and everyday luxury essentials with transparent pricing, showroom pickup, and fast doorstep delivery across Ghana.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">

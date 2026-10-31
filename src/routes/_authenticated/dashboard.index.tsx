@@ -105,7 +105,7 @@ function DashboardHome() {
   return (
     <DashboardShell
       title="Good morning, Admin"
-      subtitle="Here's how the Accra store is performing today."
+      subtitle="Here's how the Assin Fosu showroom is performing today."
       actions={
         <>
           <Button variant="outline" size="sm">

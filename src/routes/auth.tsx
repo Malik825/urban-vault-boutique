@@ -586,9 +586,9 @@ function AuthPage() {
                 </div>
                 <div>
                   <h4 className="text-xs sm:text-sm font-semibold text-white leading-tight">
-                    Accra Delivery & In-Store Pickup
+                    Fast Delivery & Showroom Pickup
                   </h4>
-                  <p className="text-[11px] text-slate-400">Fast delivery across Greater Accra & nationwide Ghana</p>
+                  <p className="text-[11px] text-slate-400">Fast delivery across Assin Fosu, Central Region & nationwide Ghana</p>
                 </div>
               </div>
 

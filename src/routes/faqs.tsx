@@ -29,7 +29,7 @@ export const Route = createFileRoute("/faqs")({
 
 const categories = [
   "All",
-  "Accra Pickup & Local",
+  "Assin Fosu Pickup & Local",
   "Nationwide Delivery",
   "Payments & MoMo",
   "Sizing & Quality",
@@ -38,22 +38,22 @@ const categories = [
 
 const faqs = [
   {
-    category: "Accra Pickup & Local",
-    question: "Where is the Urban Vault flagship store located?",
+    category: "Assin Fosu Pickup & Local",
+    question: "Where is the Urban Vault showroom located?",
     answer:
-      `Our Accra flagship store is located in Greater Accra Region, Ghana (${STORE.pickupLocation}). You can visit us in person to try on apparel, browse new drops, or pick up online orders.`,
+      `Our physical showroom is located on the Main Commercial High Street in Assin Fosu, Central Region, Ghana (${STORE.pickupLocation}). You can visit us in person to try on apparel, browse new drops, or pick up online orders.`,
   },
   {
-    category: "Accra Pickup & Local",
+    category: "Assin Fosu Pickup & Local",
     question: "Can I pick up my online order in person for free?",
     answer:
-      `Yes! Simply select 'Store Pickup' during checkout. In-store collection at our Accra flagship is 100% free. We will package your pieces and send you a WhatsApp alert (${STORE.whatsapp}) when your order is ready for pickup.`,
+      `Yes! Simply select 'Store Pickup' during checkout. In-store collection at our Assin Fosu showroom is 100% free. We will package your pieces and send you a WhatsApp alert (${STORE.whatsapp}) when your order is ready for pickup.`,
   },
   {
-    category: "Accra Pickup & Local",
-    question: "How fast is local delivery within Accra?",
+    category: "Assin Fosu Pickup & Local",
+    question: "How fast is local delivery within Assin Fosu?",
     answer:
-      "For addresses within Accra, our local dispatch riders deliver same-day (typically within 1 to 3 hours). Delivery is only GH₵ 20, or completely free for orders over GH₵ 500.",
+      "For addresses within Assin Fosu, our local dispatch riders deliver same-day (typically within 1 to 3 hours). Delivery is only GH₵ 20, or completely free for orders over GH₵ 500.",
   },
   {
     category: "Nationwide Delivery",
@@ -65,7 +65,7 @@ const faqs = [
     category: "Nationwide Delivery",
     question: "What are the delivery fees for other regions in Ghana?",
     answer:
-      "Delivery fees are calculated transparently at checkout: Greater Accra (East Legon / Kasoa) is GH₵ 30; Ashanti (Kumasi) is GH₵ 40; Central (Cape Coast) is GH₵ 35; Western (Takoradi) is GH₵ 45; Eastern is GH₵ 50; and Northern Ghana is GH₵ 70.",
+      "Delivery fees are calculated transparently at checkout: Central Region (Within Assin Fosu) is GH₵ 20; Central (Cape Coast / Winneba) is GH₵ 35; Ashanti (Kumasi) is GH₵ 40; Greater Accra is GH₵ 45; Western (Takoradi) is GH₵ 45; Eastern is GH₵ 50; and Northern Ghana is GH₵ 70.",
   },
   {
     category: "Nationwide Delivery",
@@ -77,13 +77,13 @@ const faqs = [
     category: "Payments & MoMo",
     question: "What payment methods do you accept?",
     answer:
-      "We accept: 1) Online payment with Ghanaian Mobile Money (MTN MoMo, Telecel Cash) and Visa / Mastercard debit cards powered by Paystack, 2) Cash on Delivery upon physical arrival in Accra, and 3) Direct WhatsApp order confirmation.",
+      "We accept: 1) Online payment with Ghanaian Mobile Money (MTN MoMo, Telecel Cash) and Visa / Mastercard debit cards powered by Paystack, 2) Cash on Delivery upon physical arrival in Assin Fosu, and 3) Direct WhatsApp order confirmation.",
   },
   {
     category: "Payments & MoMo",
     question: "How does Cash on Delivery (COD) work?",
     answer:
-      "Select 'Cash on Delivery' at checkout. When our courier delivers to your address in Accra, inspect your package and pay cash or send MoMo to the rider upon receipt.",
+      "Select 'Cash on Delivery' at checkout. When our courier delivers to your address in Assin Fosu, inspect your package and pay cash or send MoMo to the rider upon receipt.",
   },
   {
     category: "Payments & MoMo",

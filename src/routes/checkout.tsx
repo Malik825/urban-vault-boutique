@@ -108,7 +108,7 @@ function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<"delivery" | "pickup">("delivery");
   const [address, setAddress] = useState("");
-  const [city, setCity] = useState("Accra");
+  const [city, setCity] = useState("Assin Fosu");
   const [region, setRegion] = useState(GHANA_REGIONS[0]?.name || "Central");
   const [paymentMethod, setPaymentMethod] = useState("momo");
 
@@ -184,8 +184,8 @@ function CheckoutPage() {
         phone: phone.trim(),
         deliveryMethod,
         address: deliveryMethod === "pickup" ? STORE.pickupLocation : address,
-        city: deliveryMethod === "pickup" ? "Accra" : city,
-        region: deliveryMethod === "pickup" ? "Greater Accra" : region,
+        city: deliveryMethod === "pickup" ? "Assin Fosu" : city,
+        region: deliveryMethod === "pickup" ? "Central Region" : region,
         paymentMethod: paymentLabel,
         momoProvider: paymentMethod === "momo" ? "Paystack Mobile Money" : undefined,
         promoCode: appliedPromo || undefined,
@@ -678,7 +678,7 @@ function CheckoutPage() {
                     <Input
                       id="city"
                       required
-                      placeholder="e.g. Accra / Kumasi / Tema"
+                      placeholder="e.g. Assin Fosu / Kumasi / Accra"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                     />
@@ -956,7 +956,7 @@ function CheckoutPage() {
                 {shipping > 0
                   ? formatPrice(shipping)
                   : isFreeShipping
-                  ? "FREE (Accra GH₵ 500+ promo)"
+                  ? "FREE (Free Delivery Promo)"
                   : "Free"}
               </span>
             </div>

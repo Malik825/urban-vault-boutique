@@ -74,7 +74,7 @@ export const Route = createFileRoute("/products")({
       {
         name: "description",
         content:
-          `Browse the latest unisex streetwear, footwear, shirts and accessories at ${STORE.name}. Fast same-day Accra delivery and nationwide Ghana shipping.`,
+          `Browse the latest unisex streetwear, footwear, shirts and accessories at ${STORE.name}. Fast same-day Assin Fosu delivery and nationwide Ghana shipping.`,
       },
       { property: "og:title", content: `Shop Collection — ${STORE.name}` },
       {
