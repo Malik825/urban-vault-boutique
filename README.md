@@ -1,391 +1,90 @@
-# Emerald Inventory
+# Urban Vault Unisex Boutique
 
-Design a premium SaaS MVP for an electronics retail platform that helps laptop, phone, and gadget stores showcase their inventory online and manage products through a modern dashboard.
+A modern online fashion boutique showcasing carefully selected clothing and fashion pieces for men and women.
 
-The design should feel like a cross between Apple, Stripe, Linear, Notion, and Shopify—clean, elegant, minimal, and premium. Focus on usability, whitespace, refined typography, smooth interactions, and subtle animations.
+Urban Vault Unisex Boutique provides customers with a clean, responsive shopping experience for discovering collections, exploring products, and finding styles that suit their preferences.
 
-Use a modern emerald green color palette (#10B981, #059669, #047857) combined with neutral grays, white surfaces, and glassmorphism accents. The interface should look trustworthy and enterprise-ready while remaining approachable for small business owners.
+## Overview
 
-The UI must be fully responsive and designed with a mobile-first mindset.
+Urban Vault is designed to give a fashion retail business a professional online presence, making it easier for customers to browse products and discover available collections.
 
-Customer Website
+The experience focuses on visual presentation, straightforward navigation, responsive layouts, and a modern storefront.
 
-Design a premium storefront with the following pages.
+## Product Categories
 
-Landing Page
+The boutique features a range of fashion collections, including:
 
-Hero section:
+- Round Neck Tops
+- Shirts
+- Co-ords
+- Trousers & Shirts
+- Skirts & Tops
+- Dresses
+- Men's Traditional Wear & Kaftans
 
-Large search bar
+## Technology Stack
 
-"Find Your Next Device"
-
-Featured brands (Apple, HP, Dell, Lenovo, ASUS, Samsung)
-
-Trending products carousel
-
-Flash deals
-
-New arrivals
-
-Category cards
-
-Popular products
-
-Customer reviews
-
-Why shop with us
-
-Newsletter
-
-Modern footer
-
-Product Listing
-
-Features:
-
-Grid and list view
-
-Live search
-
-Sort
-
-Filter drawer
-
-Filters:
-
-Brand
-
-Category
-
-Price
-
-Condition
-
-RAM
-
-Storage
-
-Processor
-
-Screen Size
-
-Availability
-
-Product cards include:
-
-Multiple images
-
-Sale badge
-
-Stock badge
-
-Ratings
-
-Price
-
-Discount
-
-WhatsApp enquiry button
-
-Compare
-
-Wishlist
-
-Product Details
-
-Large gallery
-
-Specifications table
-
-Tabs
-
-Description
-
-Specifications
-
-Reviews
-
-Suggested products
-
-Related products
-
-Recently viewed
-
-Sticky purchase section
-
-WhatsApp CTA
-
-Search Experience
-
-Apple-style instant search
-
-Suggestions
-
-Recent searches
-
-Popular searches
-
-Brands
-
-Products
-
-Categories
-
-Seller Dashboard
-
-A modern SaaS dashboard similar to Stripe.
-
-Dashboard
-
-Cards
-
-Revenue
-
-Products
-
-Visitors
-
-Orders
-
-WhatsApp enquiries
-
-Charts
-
-Recent activity
-
-Top-selling brands
-
-Inventory status
-
-Products
-
-Beautiful data table
-
-Bulk actions
-
-Quick edit
-
-Stock status
-
-Image upload
-
-Drafts
-
-Published
-
-Archived
-
-Add Product
-
-Modern multi-step form
-
-Sections
-
-General
-
-Images
-
-Specifications
-
-Pricing
-
-Inventory
-
-SEO
-
-Preview
-
-Customers
-
-Customer profiles
-
-Enquiries
-
-Wishlist activity
-
-Purchase history
-
-Orders
-
-Status timeline
-
-Invoices
-
-Payments
-
-Shipping
-
-Analytics
-
-Sales
-
-Traffic
-
-Popular searches
-
-Most viewed products
-
-Conversion rate
-
-Revenue
-
-Settings
-
-Store branding
-
-Logo
-
-Theme colors
-
-Social links
-
-WhatsApp number
-
-Payment methods
-
-Delivery options
-
-SEO settings
-
-Design Style
-
-The interface should feel like:
-
-Apple.com
-
-Shopify Admin
-
-Stripe Dashboard
-
-Vercel Dashboard
-
-Framer
-
-Linear
-
-Notion
-
-Components
-
-Build a reusable design system including:
-
-Buttons
-
-Inputs
-
-Cards
-
-Product cards
-
-Tables
-
-Charts
-
-Tags
-
-Badges
-
-Dialogs
-
-Sidebars
-
-Navigation
-
-Breadcrumbs
-
-Skeleton loaders
-
-Empty states
-
-Notifications
-
-Command palette
-
-Floating action buttons
-
-Motion
-
-Use tasteful animations:
-
-Smooth page transitions
-
-Card hover elevation
-
-Micro-interactions
-
-Loading skeletons
-
-Fade and slide animations
-
-Premium hover effects
-
-Avoid excessive animations.
-
-Typography
-
-Modern and highly readable.
-
-Large headings
-
-Comfortable spacing
-
-Strong visual hierarchy
-
-Tech Stack
-
-Design this as if it will be built with:
-
-Next.js
-
-React
-
-TypeScript
-
-Tailwind CSS
-
-shadcn/ui
-
-Framer Motion
-
-MVP Features
-
-Focus only on the first release:
-
-Storefront
-
-Product catalogue
-
-Search
-
-Filtering
-
-Product details
-
-Seller dashboard
-
-Product management
-
-Analytics overview
-
-WhatsApp integration
-
-Responsive design
-
-No checkout or payment system yet. The primary goal is to help electronics retailers display inventory professionally and allow customers to enquire instantly via WhatsApp.
-
-Final Design Goal
-
-Create an interface that looks like a premium SaaS product capable of competing with Shopify, while being tailored specifically for African electronics retailers. Every screen should feel polished, modern, and production-ready, with a strong emphasis on trust, speed, and ease of use.
-
+- **Framework:** TanStack Start
+- **Frontend:** React 19
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS 4
+- **Backend integration:** Supabase
+- **Data fetching:** TanStack React Query
+- **Forms:** React Hook Form
+- **Validation:** Zod
+- **UI primitives:** Radix UI
+- **Animations:** Framer Motion and GSAP
+- **Charts:** Recharts
+- **Drag and drop:** dnd-kit
+- **Build tooling:** Vite
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+### Prerequisites
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+- Node.js
+- npm
+
+We recommend installing Node.js using [nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+
+### Getting Started
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Malik825/urban-vault-boutique.git
+cd urban-vault-boutique
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
 npm run dev
 ```
+
+### Available Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start the development server |
+| `npm run build` | Build the application |
+| `npm run build:dev` | Build using development mode |
+| `npm run preview` | Preview the production build |
+| `npm run lint` | Run ESLint |
+| `npm run format` | Format project files with Prettier |
+
+## Project Goals
+
+Urban Vault aims to make discovering fashion products simple and enjoyable while giving the boutique a polished digital storefront.
+
+The project combines modern frontend technologies with a responsive design approach to deliver a smooth experience across desktop, tablet, and mobile devices.
+
+## Repository
+
+[Urban Vault Unisex Boutique](https://github.com/Malik825/urban-vault-boutique)
